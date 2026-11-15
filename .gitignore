@@ -7,6 +7,7 @@ __pycache__/
 *.sqlite-wal
 data/memory.json
 data/operator_facts.json
+training-data/
 models/
 checkpoints/
 runs/

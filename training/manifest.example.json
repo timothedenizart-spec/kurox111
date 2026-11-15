@@ -1,0 +1,51 @@
+{
+  "schema": "uca.training.v1",
+  "run_id": "smollm2-135-fr-instruct-lora-v1",
+  "base_model": {
+    "path": "models/REPLACE_WITH_LOCAL_CHECKPOINT",
+    "sha256": "REPLACE_WITH_64_HEX_DIGEST",
+    "architecture": "causal_lm",
+    "tokenizer_path": "models/REPLACE_WITH_LOCAL_CHECKPOINT",
+    "license": "REPLACE_WITH_LICENSE"
+  },
+  "data": {
+    "train_path": "training-data/REPLACE_WITH_APPROVED_DATASET/train.jsonl",
+    "validation_path": "training-data/REPLACE_WITH_APPROVED_DATASET/validation.jsonl",
+    "holdout_path": "training-data/REPLACE_WITH_APPROVED_DATASET/holdout.jsonl",
+    "sha256": {
+      "train": "REPLACE_WITH_64_HEX_DIGEST",
+      "validation": "REPLACE_WITH_64_HEX_DIGEST",
+      "holdout": "REPLACE_WITH_64_HEX_DIGEST"
+    },
+    "license": "REPLACE_WITH_LICENSE",
+    "data_card": "training-data/REPLACE_WITH_APPROVED_DATASET/DATA_CARD.md",
+    "personal_data_review": "approved"
+  },
+  "method": {
+    "kind": "lora",
+    "seed": 20261115,
+    "max_steps": 500,
+    "learning_rate": 0.0001,
+    "max_sequence_length": 1024,
+    "prompt_template_version": "v1"
+  },
+  "budget": {
+    "device": "cuda",
+    "max_wall_minutes": 60,
+    "max_gpu_memory_gib": 12,
+    "max_checkpoints": 2
+  },
+  "output": {
+    "path": "runs/smollm2-135-fr-instruct-lora-v1",
+    "adapter_only": true
+  },
+  "evaluation": {
+    "baseline": "models/REPLACE_WITH_LOCAL_CHECKPOINT",
+    "benchmark_suite": "benchmarks/REPLACE_WITH_REVIEWED_HOLDOUT.jsonl",
+    "acceptance_criteria": [
+      "No holdout leakage",
+      "No safety or provenance regression",
+      "Improvement measured on a held-out, versioned suite"
+    ]
+  }
+}

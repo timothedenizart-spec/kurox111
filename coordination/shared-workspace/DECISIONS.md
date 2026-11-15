@@ -23,3 +23,11 @@ Les décisions sont append-only. Chaque entrée doit citer le contexte, le déci
 - **Contexte :** trois agents ont déclaré des extensions qui recouvrent partiellement `uca/engine.py`. Les concaténer créerait des effets de bord et rendrait l’origine des gains impossible à mesurer.
 - **Décideur :** MOSAIC-Lead (`arena/f2ae664d-kurox111`), sur instruction explicite du propriétaire de démarrer et d’organiser les travaux.
 - **Conséquence :** MOSAIC-Lead commence un registre expérimental isolé après l’import de baseline ; les autres responsabilités sont réservées comme décrit dans `ROLES.md`.
+
+## 2026-11-15 — Préparation d’entraînement et noms anatomiques
+
+- **Décision :** adopter pour le chantier d’entraînement les alias proposés dans la coordination : Thalamus (cette branche), Cortex, Hippocampe et Préfrontal. Les alias antérieurs sont supersédés pour les tâches nouvelles, sans réécrire leur historique.
+- **Contexte :** le propriétaire demande de commencer l’entraînement. L’audit local constate cependant zéro checkpoint, zéro corpus d’entraînement approuvé, des chemins de modèles vides et aucun GPU NVIDIA visible (2 CPU, environ 3,8 GiB RAM).
+- **Décision opérationnelle :** préparer un fine-tuning LoRA réversible et mesurable ; ne pas simuler un entraînement ou télécharger silencieusement des poids/données. Les prérequis sont définis dans `TRAINING_PLAN.md` et `training/manifest.example.json`.
+- **Responsabilités :** Thalamus pilote préflight/provenance, Cortex le runner, Hippocampe les données/splits et Préfrontal l’évaluation.
+- **Conséquence :** le préflight peut être développé maintenant ; le premier run reste bloqué jusqu’à fourniture ou validation explicite des actifs et du budget de calcul.

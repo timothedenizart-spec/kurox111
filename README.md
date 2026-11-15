@@ -36,6 +36,7 @@ its own tokenizer and is invoked only through a model-specific boundary.
   validated asset.
 - A dependency-free local web conversation UI and reproducible benchmark runner.
 - A content-addressed experiment registry that records code/configuration/asset provenance and refuses non-finite or unmeasured metric values instead of fabricating a claimed gain.
+- A local-only training preflight that blocks a fine-tuning run until checkpoint, licensing, Data Card, disjoint data splits, file digests, budget, output policy and evaluation suite are declared.
 
 ## Quick start
 
