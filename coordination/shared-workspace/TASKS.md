@@ -13,6 +13,8 @@
 | TRAIN-010 | Produire le corpus autorisé et les partitions train/validation/holdout. | Hippocampe | Data Card à publier | à planifier | Digests, licence, revue PII et zéro chevauchement d’identifiant prouvés. | Attente des actifs fournis ou d’une décision du propriétaire. |
 | TRAIN-020 | Implémenter et exécuter le smoke test LoRA local. | Cortex | runner à publier | bloqué | Chargement local, quelques itérations synthétiques, reprise et adaptateur de sortie validés. | Dépend de TRAIN-000/010 et d’un GPU ou d’un budget CPU explicitement accepté. |
 | TRAIN-030 | Évaluer l’adaptateur contre la baseline gelée. | Préfrontal + Thalamus | suite holdout à publier | bloqué | Benchmark holdout, sûreté, provenance, coûts et revue humaine tracés. | Dépend de TRAIN-020. |
+| UI-001 | Créer un fichier de lancement automatique de l’interface UCA. | Thalamus | `OPEN_UCA.py`, `uca/launcher.py` | en cours | Stores initialisés, statut lu, serveur démarré, URL ouverte localement et testable sans navigateur réel. | Les checkpoints absents restent affichés comme indisponibles. |
+| UI-002 | Faire évoluer le tableau de statut et les contrôles visuels. | Cortex | `uca/web.py` | à planifier | États de module et de topologie visibles sans fausse indication de chargement. | Ne pas entrer en collision avec UI-001. |
 
 ## États autorisés
 

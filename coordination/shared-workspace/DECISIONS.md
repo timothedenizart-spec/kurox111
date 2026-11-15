@@ -31,3 +31,10 @@ Les décisions sont append-only. Chaque entrée doit citer le contexte, le déci
 - **Décision opérationnelle :** préparer un fine-tuning LoRA réversible et mesurable ; ne pas simuler un entraînement ou télécharger silencieusement des poids/données. Les prérequis sont définis dans `TRAINING_PLAN.md` et `training/manifest.example.json`.
 - **Responsabilités :** Thalamus pilote préflight/provenance, Cortex le runner, Hippocampe les données/splits et Préfrontal l’évaluation.
 - **Conséquence :** le préflight peut être développé maintenant ; le premier run reste bloqué jusqu’à fourniture ou validation explicite des actifs et du budget de calcul.
+
+## 2026-11-15 — Interface à lancement automatique
+
+- **Décision :** créer un lanceur séparé de l’interface existante plutôt que modifier simultanément `uca/web.py`, déjà sous responsabilité de Cortex.
+- **Contexte :** le propriétaire veut qu’un fichier unique ouvre l’interface avec l’application prête. L’interface web UCA existe, mais aucun lanceur one-click ne garantit l’initialisation des stores et le préflight de disponibilité.
+- **Responsabilités :** Thalamus crée le lanceur et ses tests ; Cortex reste responsable de la présentation web ; Intake-Security conserve la future voie de dépôt de fichiers sous revue.
+- **Vérité de disponibilité :** le lanceur n’affiche pas un modèle absent comme chargé. Il initialise les stores, lit les capacités, démarre le serveur puis laisse l’UI afficher chaque état réel.

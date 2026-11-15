@@ -12,6 +12,13 @@ Ce registre attribue les responsabilités afin que les expérimentations restent
 | **Préfrontal** | `arena/57dad57f-kurox111` | actif | Mémoire associative, signaux de nouveauté, évaluation cognitive et non-régression. | `uca/vsa.py`, `uca/associative.py`, `uca/predictive.py`, `uca/consolidation.py`, harnais d’évaluation |
 | **Intake-Security** | `arena/3cdf297b-kurox111` | en attente de publication | Interface locale de dépôt/import par blocs et sa revue de sécurité. | Non réservé tant que la branche ou le commit n’est pas publié. |
 
+## Voie interface à lancement automatique
+
+- **Thalamus** crée le lanceur autonome `OPEN_UCA.py` et `uca/launcher.py` : il initialise les stores vides, construit l’application, effectue le préflight de disponibilité, démarre le serveur et ouvre le navigateur local.
+- **Cortex** conserve la responsabilité de l’évolution visuelle et du statut d’exécution dans `uca/web.py` afin d’éviter une collision de fichier.
+- **Intake-Security** ne rejoint l’interface qu’après publication de son code et revue des limites de taille, chemins, authentification locale et données sensibles.
+- « Tout chargé » signifie que la configuration et les stores sont initialisés et que les états de disponibilité ont été lus. Cela ne signifie jamais qu’un checkpoint absent a été téléchargé ou qu’un modèle a été simulé.
+
 ## Règle de conflit
 
 `uca/engine.py`, `uca/pipeline.py`, `uca/config.py`, `uca/factory.py` et `uca/cli.py` sont des points d’intégration à forte collision. Aucun agent ne les modifie en parallèle sans tâche explicitement attribuée et protocole de portage.
