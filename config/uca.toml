@@ -1,0 +1,79 @@
+[engine]
+mode = "sequential_unload"
+default_timeout_seconds = 45
+max_corrections = 1
+cache_enabled = false
+run_history_limit = 30
+
+[stores]
+memory_path = "data/memory.json"
+knowledge_db = "data/knowledge.sqlite"
+knowledge_table = "documents"
+facts_path = "data/operator_facts.json"
+
+[cognitive]
+# Bounded attention controls used by the deterministic cognitive-control layer.
+# These are workspace-allocation limits, not claims about biological neurons.
+working_memory_capacity = 12
+max_evidence_nodes = 48
+max_evidence_edges = 160
+
+[models.smollm2_135]
+enabled = true
+path = ""
+max_new_tokens = 280
+device = "auto"
+
+[models.smollm2_360]
+enabled = true
+path = ""
+max_new_tokens = 360
+device = "auto"
+
+[models.ncm]
+enabled = false
+runner_command = ""
+validated = false
+
+[models.nanodiff]
+enabled = false
+path = ""
+tokenizer_path = ""
+runner_command = ""
+mask_token_id = -1
+validated = false
+strategies = ["single_pass", "iterative_low_mask"]
+
+[metta]
+enabled = true
+runner_command = ""
+
+[auxiliary.lora]
+enabled = false
+[auxiliary.ties]
+enabled = false
+[auxiliary.dare]
+enabled = false
+[auxiliary.aoe]
+enabled = false
+[auxiliary.fla]
+enabled = false
+[auxiliary.e2e]
+enabled = false
+[auxiliary.scallop]
+enabled = false
+
+[pipeline]
+order = [
+  "input_processing",
+  "user_memory",
+  "knowledge_retrieval",
+  "symbolic_processing",
+  "ncm_concept_generation",
+  "smollm2_135_analysis",
+  "smollm2_360_review",
+  "nanodiff_specialist",
+  "global_workspace",
+  "final_verification",
+  "final_response"
+]
