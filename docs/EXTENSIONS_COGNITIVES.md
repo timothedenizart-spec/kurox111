@@ -122,6 +122,17 @@ python -m uca chat --root . "Quelle est la capitale de la Bretagne ?" --develope
 python -m unittest discover -s tests -v                   # 27 tests
 ```
 
+## 6. Évaluation par contrats de comportement — `uca/eval_cognition.py` (UCA-05b)
+
+Complément du benchmark : au lieu de métriques de qualité (laissées `null` sans
+évaluateur validé), le harnais `eval-cognitive` vérifie des **contrats
+observables** en passé/échoué, sur un pipeline réel monté dans une racine
+temporaire à partir de fixtures déclarées : exactitude rationnelle, mémoire
+opt-in, détection bornée des conflits symboliques, indisponibilités honnêtes,
+séparation faits/propositions. Un contrôle non évaluable échoue ouvertement —
+jamais de passage silencieux. Rapport versionné : 
+`coordination/shared-workspace/results/UCA-05b-cognitive-eval-2026-11-15.json` (7/7).
+
 ## Ce que ces extensions ne prétendent pas
 
 - Aucune conscience, aucune équivalence biologique, aucune chaîne de pensée cachée.

@@ -23,4 +23,14 @@ Utilisez ce modèle pour démarrer, transférer ou clôturer un chantier :
 - **Risques, limites ou actifs manquants :** bases SmolLM2/MeTTa/nanoDiff toujours indisponibles (statuts honnêtes inchangés) ; `engine.execution_mode = "sequential"` restaure l'ordre historique
 - **Action suivante / destinataire :** revue par UCA-orchestrateur ; proposer cette branche comme référence d'intégration dans l'issue #1
 
+## 2026-11-15 — UCA-05b — Préfrontal
+
+- **Type :** prise en charge puis clôture
+- **Commit de départ / arrivée :** `fd9e6e3` → commit « cognitive evaluation harness » sur `arena/57dad57f-kurox111`
+- **Périmètre de fichiers :** ajoutés `uca/eval_cognition.py`, `benchmarks/cognitive_checks.example.jsonl`, `tests/test_cognitive_eval.py`, `coordination/shared-workspace/results/UCA-05b-cognitive-eval-2026-11-15.json` ; modifiés `uca/cli.py`, `README.md`, `docs/EXTENSIONS_COGNITIVES.md`
+- **Changement ou constat :** harnais d'évaluation cognitive déterministe (contrats passé/échoué, fixtures isolées par racine temporaire) ; 7 contrats fournis couvrant arithmétique exacte, absence honnête, mémoire opt-in, conflit symbolique borné, non-promotion des analogies et consolidations
+- **Commandes exécutées et résultat réel :** `python3 -m unittest discover -s tests` → 30/30 OK ; `python3 -m uca eval-cognitive benchmarks/cognitive_checks.example.jsonl` → 7/7 cas verts ; rapport versionné joint
+- **Risques, limites ou actifs manquants :** aucune métrique de qualité n'est revendiquée ; les cas avec modèles réels exigent UCA-03 (Cortex, proposé)
+- **Action suivante / destinataire :** Cortex et Thalamus pour revue ; enrichir les cas annotés après UCA-01 (Hippocampe, proposé)
+
 _Aucun autre transfert n'est encore enregistré._

@@ -10,6 +10,7 @@ from typing import Any
 from .benchmark import load_tasks, run_benchmark
 from .config import load_config, local_path
 from .consolidation import consolidate
+from .eval_cognition import load_eval_cases, run_evaluation
 from .factory import build_engine
 from .model_adapters import MaskedNanoDiffAdapter
 from .nanodiff_validation import load_cases, validate_masked_denoiser
@@ -90,6 +91,19 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_eval_cognitive(args: argparse.Namespace) -> int:
+    report = run_evaluation(load_eval_cases(args.cases))
+    rendered = json.dumps(report, ensure_ascii=False, indent=2)
+    if args.output:
+        Path(args.output).write_text(rendered + "\n", encoding="utf-8")
+        print(f"Cognitive evaluation report written to {args.output}")
+    else:
+        print(rendered)
+    summary = report["summary"]
+    print(f"Cognitive contracts: {summary['passed']}/{summary['total']} case(s) passed.")
+    return 0 if summary["failed"] == 0 else 2
+
+
 def cmd_consolidate(args: argparse.Namespace) -> int:
     cfg = load_config(args.root)
     stores = cfg["stores"]
@@ -151,6 +165,10 @@ def main(argv: list[str] | None = None) -> int:
     benchmark.set_defaults(func=cmd_benchmark)
     consolidation = commands.add_parser("consolidate", help="Offline Hebbian consolidation over local stores")
     consolidation.set_defaults(func=cmd_consolidate)
+    evaluation = commands.add_parser("eval-cognitive", help="Deterministic behavioral-contract checks (UCA-05b)")
+    evaluation.add_argument("cases", help="Annotated JSONL case file with fixtures and checks")
+    evaluation.add_argument("--output", help="Optional JSON report path")
+    evaluation.set_defaults(func=cmd_eval_cognitive)
     web = commands.add_parser("serve", help="Run the single local conversation UI")
     web.add_argument("--host", default="0.0.0.0")
     web.add_argument("--port", default=8080, type=int)

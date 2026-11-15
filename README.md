@@ -42,6 +42,10 @@ its own tokenizer and is invoked only through a model-specific boundary.
   future Scallop integration. These never claim execution without a compatible,
   validated asset.
 - A dependency-free local web conversation UI and reproducible benchmark runner.
+- A deterministic cognitive contract evaluator (`python -m uca eval-cognitive
+  benchmarks/cognitive_checks.example.jsonl`): pass/fail checks on exact
+  arithmetic, opt-in memory, bounded conflict correction, honest unavailability
+  and the fact/proposal separation — no fabricated quality scores.
 
 ## Quick start
 

@@ -1,0 +1,245 @@
+{
+  "schema": "uca.cognitive-eval.v1",
+  "created_at": "2026-11-15T15:59:06.788393+00:00",
+  "environment": {
+    "python": "3.11.2 (main, Apr  8 2026, 01:58:00) [GCC 12.2.0]",
+    "platform": "Linux-6.1.158+-x86_64-with-glibc2.36"
+  },
+  "cases": [
+    {
+      "id": "arithmetique-exacte",
+      "passed": true,
+      "checks": [
+        {
+          "check": {
+            "type": "computation_exact",
+            "exact": "43/7"
+          },
+          "ok": true,
+          "detail": "43/7 ∈ ['43/7']"
+        },
+        {
+          "check": {
+            "type": "response_contains",
+            "value": "43/7"
+          },
+          "ok": true,
+          "detail": "réponse contient '43/7'"
+        },
+        {
+          "check": {
+            "type": "module_status",
+            "module": "input_processing",
+            "status": "functional"
+          },
+          "ok": true,
+          "detail": "input_processing: état 'functional' (attendu 'functional')"
+        }
+      ]
+    },
+    {
+      "id": "absence-honnete",
+      "passed": true,
+      "checks": [
+        {
+          "check": {
+            "type": "response_contains",
+            "value": "Aucune source documentaire"
+          },
+          "ok": true,
+          "detail": "réponse contient 'Aucune source documentaire'"
+        },
+        {
+          "check": {
+            "type": "response_not_contains",
+            "value": "Passages documentaires locaux pertinents"
+          },
+          "ok": true,
+          "detail": "réponse ne contient pas 'Passages documentaires locaux pertinents'"
+        },
+        {
+          "check": {
+            "type": "module_status",
+            "module": "symbolic_processing",
+            "status": "unavailable"
+          },
+          "ok": true,
+          "detail": "symbolic_processing: état 'unavailable' (attendu 'unavailable')"
+        }
+      ]
+    },
+    {
+      "id": "memoire-optin-uniquement",
+      "passed": true,
+      "checks": [
+        {
+          "check": {
+            "type": "memory_ids",
+            "expected": [
+              "keep"
+            ]
+          },
+          "ok": true,
+          "detail": "mémoire rappelée ['keep'] (attendu ['keep'])"
+        },
+        {
+          "check": {
+            "type": "artifact_count",
+            "kind": "memory",
+            "min": 1,
+            "max": 1
+          },
+          "ok": true,
+          "detail": "memory: 1 artefact(s) (min=1, max=1)"
+        },
+        {
+          "check": {
+            "type": "response_contains",
+            "value": "fr-shard-1"
+          },
+          "ok": true,
+          "detail": "réponse contient 'fr-shard-1'"
+        }
+      ]
+    },
+    {
+      "id": "conflit-symbolique-borne",
+      "passed": true,
+      "checks": [
+        {
+          "check": {
+            "type": "symbolic_conflicts_min",
+            "count": 1
+          },
+          "ok": true,
+          "detail": "1 conflit(s) symbolique(s) structuré(s) (min=1)"
+        },
+        {
+          "check": {
+            "type": "artifact_count",
+            "kind": "verification",
+            "min": 2,
+            "max": 2
+          },
+          "ok": true,
+          "detail": "verification: 2 artefact(s) (min=2, max=2)"
+        },
+        {
+          "check": {
+            "type": "module_status",
+            "module": "final_verification",
+            "status": "functional"
+          },
+          "ok": true,
+          "detail": "final_verification: état 'functional' (attendu 'functional')"
+        }
+      ]
+    },
+    {
+      "id": "analogies-jamais-promues",
+      "passed": true,
+      "checks": [
+        {
+          "check": {
+            "type": "artifact_count",
+            "kind": "proposal",
+            "min": 1
+          },
+          "ok": true,
+          "detail": "proposal: 1 artefact(s) (min=1, max=None)"
+        },
+        {
+          "check": {
+            "type": "all_proposals_non_verifie"
+          },
+          "ok": true,
+          "detail": "1 proposition(s), toutes NON_VERIFIE"
+        },
+        {
+          "check": {
+            "type": "proposals_not_in_facts"
+          },
+          "ok": true,
+          "detail": "aucune proposition promue au rang de fait"
+        },
+        {
+          "check": {
+            "type": "artifact_count",
+            "kind": "symbolic_fact",
+            "min": 3,
+            "max": 3
+          },
+          "ok": true,
+          "detail": "symbolic_fact: 3 artefact(s) (min=3, max=3)"
+        }
+      ]
+    },
+    {
+      "id": "consolidation-absente-declaree",
+      "passed": true,
+      "checks": [
+        {
+          "check": {
+            "type": "module_status",
+            "module": "associative_consolidation",
+            "status": "unavailable"
+          },
+          "ok": true,
+          "detail": "associative_consolidation: état 'unavailable' (attendu 'unavailable')"
+        },
+        {
+          "check": {
+            "type": "response_not_contains",
+            "value": "Association consolidée"
+          },
+          "ok": true,
+          "detail": "réponse ne contient pas 'Association consolidée'"
+        }
+      ]
+    },
+    {
+      "id": "consolidation-active-provenant",
+      "passed": true,
+      "checks": [
+        {
+          "check": {
+            "type": "module_status",
+            "module": "associative_consolidation",
+            "status": "functional"
+          },
+          "ok": true,
+          "detail": "associative_consolidation: état 'functional' (attendu 'functional')"
+        },
+        {
+          "check": {
+            "type": "artifact_count",
+            "kind": "proposal",
+            "min": 1
+          },
+          "ok": true,
+          "detail": "proposal: 1 artefact(s) (min=1, max=None)"
+        },
+        {
+          "check": {
+            "type": "all_proposals_non_verifie"
+          },
+          "ok": true,
+          "detail": "1 proposition(s), toutes NON_VERIFIE"
+        },
+        {
+          "check": {
+            "type": "proposals_not_in_facts"
+          },
+          "ok": true,
+          "detail": "aucune proposition promue au rang de fait"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0
+  },
+  "notice": "Behavioral pass/fail contracts over the live pipeline. No quality, truthfulness or intelligence score is claimed by this report."
+}
