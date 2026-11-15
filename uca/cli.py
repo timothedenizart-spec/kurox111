@@ -12,6 +12,7 @@ from .config import load_config, local_path
 from .consolidation import consolidate
 from .eval_cognition import load_eval_cases, run_evaluation
 from .factory import build_engine
+from .microtrain import make_calibration_cases, run_training
 from .model_adapters import MaskedNanoDiffAdapter
 from .nanodiff_validation import load_cases, validate_masked_denoiser
 from .storage import import_documents, initialize_knowledge_db
@@ -19,7 +20,7 @@ from .web import UcaWebApplication, serve
 
 
 def cmd_init(args: argparse.Namespace) -> int:
-    cfg = load_config(args.root)
+    cfg = load_config(args.root, getattr(args, "config", None))
     memory = local_path(cfg, cfg["stores"]["memory_path"])
     memory.parent.mkdir(parents=True, exist_ok=True)
     if not memory.exists():
@@ -34,18 +35,20 @@ def cmd_init(args: argparse.Namespace) -> int:
 
 
 def cmd_status(args: argparse.Namespace) -> int:
-    print(json.dumps(build_engine(args.root).status(), ensure_ascii=False, indent=2))
+    cfg = load_config(args.root, getattr(args, "config", None))
+    print(json.dumps(build_engine(args.root, cfg).status(), ensure_ascii=False, indent=2))
     return 0
 
 
 def cmd_chat(args: argparse.Namespace) -> int:
-    context = build_engine(args.root).process(args.message)
+    cfg = load_config(args.root, getattr(args, "config", None))
+    context = build_engine(args.root, cfg).process(args.message)
     print(json.dumps(context.to_dict(developer=args.developer), ensure_ascii=False, indent=2) if args.developer else context.final_response)
     return 0
 
 
 def cmd_import_documents(args: argparse.Namespace) -> int:
-    cfg = load_config(args.root)
+    cfg = load_config(args.root, getattr(args, "config", None))
     source = Path(args.file)
     records: list[dict[str, Any]] = []
     with source.open(encoding="utf-8") as handle:
@@ -66,7 +69,7 @@ def cmd_import_documents(args: argparse.Namespace) -> int:
 
 
 def cmd_validate_nanodiff(args: argparse.Namespace) -> int:
-    cfg = load_config(args.root)
+    cfg = load_config(args.root, getattr(args, "config", None))
     report = validate_masked_denoiser(MaskedNanoDiffAdapter(cfg["models"]["nanodiff"], cfg), load_cases(args.cases),
                                       timeout=float(args.timeout), min_mean_delta=float(args.min_mean_delta))
     rendered = json.dumps(report, ensure_ascii=False, indent=2)
@@ -92,6 +95,7 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
 
 
 def cmd_eval_cognitive(args: argparse.Namespace) -> int:
+    load_config(args.root, getattr(args, "config", None))  # validates root/config early
     report = run_evaluation(load_eval_cases(args.cases))
     rendered = json.dumps(report, ensure_ascii=False, indent=2)
     if args.output:
@@ -104,8 +108,25 @@ def cmd_eval_cognitive(args: argparse.Namespace) -> int:
     return 0 if summary["failed"] == 0 else 2
 
 
+def cmd_microtrain(args: argparse.Namespace) -> int:
+    metrics = run_training(args.root, args.out, dim=args.dim, window=args.window,
+                           epochs=args.epochs, seed=args.seed, extra_corpus=args.extra_corpus)
+    if args.calibration_jsonl:
+        from .microtrain import MicroTokenizer, load_corpus_sentences
+        sentences, _ = load_corpus_sentences(args.root, args.extra_corpus)
+        cases = make_calibration_cases(sentences, MicroTokenizer.load(args.out))
+        destination = Path(args.calibration_jsonl)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with destination.open("w", encoding="utf-8") as handle:
+            for case in cases:
+                handle.write(json.dumps(case, ensure_ascii=False) + "\n")
+        print(f"{len(cases)} calibration case(s) written to {destination}")
+    print(json.dumps(metrics, ensure_ascii=False, indent=2))
+    return 0
+
+
 def cmd_consolidate(args: argparse.Namespace) -> int:
-    cfg = load_config(args.root)
+    cfg = load_config(args.root, getattr(args, "config", None))
     stores = cfg["stores"]
     report = consolidate(local_path(cfg, stores["facts_path"]),
                          local_path(cfg, stores["knowledge_db"]),
@@ -119,7 +140,8 @@ def cmd_consolidate(args: argparse.Namespace) -> int:
 
 
 def cmd_serve(args: argparse.Namespace) -> int:
-    server = serve(UcaWebApplication(build_engine(args.root)), args.host, args.port)
+    cfg = load_config(args.root, getattr(args, "config", None))
+    server = serve(UcaWebApplication(build_engine(args.root, cfg)), args.host, args.port)
     print(f"UCA conversation UI listening on http://{args.host}:{args.port}")
     try:
         server.serve_forever()
@@ -131,15 +153,17 @@ def cmd_serve(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    # Accept --root before or after a subcommand, matching the documented CLI.
+    # Accept --root/--config before or after a subcommand, matching the documented CLI.
     arguments = list(sys.argv[1:] if argv is None else argv)
-    if "--root" in arguments:
-        index = arguments.index("--root")
-        if index and index + 1 < len(arguments):
-            root_pair = arguments[index:index + 2]
-            arguments = root_pair + arguments[:index] + arguments[index + 2:]
+    for flag in ("--root", "--config"):
+        if flag in arguments:
+            index = arguments.index(flag)
+            if index and index + 1 < len(arguments):
+                pair = arguments[index:index + 2]
+                arguments = pair + arguments[:index] + arguments[index + 2:]
     parser = argparse.ArgumentParser(prog="uca", description="Unified Cognitive Architecture (local only)")
     parser.add_argument("--root", default=".", help="Repository / local asset root")
+    parser.add_argument("--config", default=None, help="Optional TOML config path (default: <root>/config/uca.toml)")
     commands = parser.add_subparsers(dest="command", required=True)
     init = commands.add_parser("init", help="Create empty explicit local stores")
     init.set_defaults(func=cmd_init)
@@ -169,6 +193,17 @@ def main(argv: list[str] | None = None) -> int:
     evaluation.add_argument("cases", help="Annotated JSONL case file with fixtures and checks")
     evaluation.add_argument("--output", help="Optional JSON report path")
     evaluation.set_defaults(func=cmd_eval_cognitive)
+    trainer = commands.add_parser("microtrain", help="Train the local micro masked-denoiser (numpy, no download)")
+    trainer.add_argument("--out", default="models/micro-denoiser", help="Output directory (gitignored)")
+    trainer.add_argument("--dim", type=int, default=32)
+    trainer.add_argument("--window", type=int, default=4)
+    trainer.add_argument("--epochs", type=int, default=40)
+    trainer.add_argument("--seed", type=int, default=42)
+    trainer.add_argument("--extra-corpus", action="append", default=[],
+                         help="Optional operator-provided text file (repeatable)")
+    trainer.add_argument("--calibration-jsonl", default=None,
+                         help="Also write corruption-based denoising cases to this JSONL path")
+    trainer.set_defaults(func=cmd_microtrain)
     web = commands.add_parser("serve", help="Run the single local conversation UI")
     web.add_argument("--host", default="0.0.0.0")
     web.add_argument("--port", default=8080, type=int)

@@ -6,6 +6,13 @@
 
 ## Fonctionnel dans le dépôt (complément 2026-11-15, branche arena/57dad57f-kurox111)
 
+- **micro-débruiteur masqué réellement entraîné localement** (numpy, CPU, seed 42,
+  corpus = docs du dépôt, 44 460 paramètres) : CE 6,06→1,01, perplexité holdout
+  301 vs 1 149 unigramme ; shim contractuel nanoDiff + tokenizer HF-compatible ;
+  calibration exécutée → verdict négatif honnête (`validated=false` maintenu) ;
+  reproductible via `python -m uca microtrain` ; détails dans `docs/ENTRAINEMENT.md` ;
+- harnais d'évaluation cognitive (`eval-cognitive`, 7 contrats verts) ;
+
 - moteur d'exécution **parallèle par niveaux topologiques contigus** (déterministe : sorties identiques au séquentiel ; `engine.execution_mode`) ;
 - mémoire vectorielle hyperdimensionnelle VSA/HRR : complétion holographique, sonde d'auto-fidélité, transfert analogique pondéré (propositions uniquement) ;
 - réseau de Hopfield stdlib avec refus honnête au-delà de 0,15·n motifs ;

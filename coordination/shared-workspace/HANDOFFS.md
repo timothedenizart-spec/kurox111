@@ -33,4 +33,14 @@ Utilisez ce modèle pour démarrer, transférer ou clôturer un chantier :
 - **Risques, limites ou actifs manquants :** aucune métrique de qualité n'est revendiquée ; les cas avec modèles réels exigent UCA-03 (Cortex, proposé)
 - **Action suivante / destinataire :** Cortex et Thalamus pour revue ; enrichir les cas annotés après UCA-01 (Hippocampe, proposé)
 
+## 2026-11-15 — UCA-09 — Préfrontal
+
+- **Type :** prise en charge puis clôture
+- **Commit de départ / arrivée :** `7cc8854` → commit « local micro-training » sur `arena/57dad57f-kurox111`
+- **Périmètre de fichiers :** ajoutés `uca/microtrain.py`, `shims/nanodiff_micro_runner.py`, `config/uca.micro-demo.toml`, `benchmarks/nanodiff-calibration.micro.jsonl`, `tests/test_microtrain.py`, `docs/ENTRAINEMENT.md` ; modifiés `uca/cli.py` (`microtrain`, `--config`), `uca/nanodiff_validation.py` (garde honnête cas vides), `README.md`, backlog/registry/status
+- **Changement ou constat :** micro-débruiteur masqué CBOW réellement entraîné sur CPU (numpy), 44 460 paramètres, corpus = docs du dépôt (508 phrases, sha256 `6ef5d7bf8cc87904`) ; CE 6,06 → 1,01 ; perplexité holdout 301,08 vs 1 149,03 unigramme vs 684 uniforme ; restauration 13,1 % ; calibration nanoDiff exécutée en conditions réelles : **mean_delta -0,099 → validated_for_activation=false**, module maintenu `non_validated`
+- **Commandes exécutées et résultat réel :** `python3 -m unittest discover -s tests` → 38/38 OK ; `python -m uca microtrain` (reproductible, seed 42) ; `validate-nanodiff --config config/uca.micro-demo.toml` → verdict négatif respecté
+- **Risques, limites ou actifs manquants :** micro-échelle assumée (pas un transformer) ; artefacts modèle gitignorés sous `models/` ; activation finale = revue humaine (UCA-11, proposé Cortex+Thalamus)
+- **Action suivante / destinataire :** Hippocampe pour UCA-10 (extension corpus) ; Cortex pour UCA-03 (vrais checkpoints)
+
 _Aucun autre transfert n'est encore enregistré._

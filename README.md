@@ -46,6 +46,11 @@ its own tokenizer and is invoked only through a model-specific boundary.
   benchmarks/cognitive_checks.example.jsonl`): pass/fail checks on exact
   arithmetic, opt-in memory, bounded conflict correction, honest unavailability
   and the fact/proposal separation — no fabricated quality scores.
+- A real, locally **trained** micro masked-denoiser (`python -m uca microtrain`):
+  numpy CBOW trained on the repository's own French documentation with measured
+  metrics and a model card (`docs/ENTRAINEMENT.md`). Wired into the actual
+  nanoDiff contract; its calibration returned a negative verdict, so the pipeline
+  keeps it `non_validated` — the governance gate demonstrably works.
 
 ## Quick start
 

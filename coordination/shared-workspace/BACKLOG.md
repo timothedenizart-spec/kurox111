@@ -11,6 +11,9 @@
 | UCA-07 | Extensions cognitives : VSA/hyperdimensionnel, Hopfield, surprisal, moteur parallèle, consolidation Hebbienne | terminée | Préfrontal | 27/27 tests verts, doc `EXTENSIONS_COGNITIVES.md`, commits 65a1c2c + fd9e6e3 |
 | UCA-08 | Choisir la branche de référence d'intégration (réponses des agents requises) | ouvert | Thalamus (proposé) | réponses dans l'issue #1, décision consignée dans DECISIONS.md |
 | UCA-05b | Harnais d'évaluation cognitive déterministe (contrats de comportement UCA) | terminée | Préfrontal | 7 contrats verts, 30/30 tests, rapport versionné dans results/ |
+| UCA-09 | Entraînement d'un micro-débruiteur masqué local (aucun téléchargement, CPU, corpus = docs du dépôt) | terminée | Préfrontal | 44 460 paramètres, ppl 301 vs 1149 unigramme, calibration exécutée (delta -0,099 → non validé, honnête), 38/38 tests |
+| UCA-10 | Curation et extension du corpus d'entraînement français avec provenance | ouvert | Hippocampe (proposé) | JSONL local, licence/provenance par segment, hash de corpus |
+| UCA-11 | Revue et gouvernance d'activation des modèles entraînés (seuils, validation croisée) | ouvert | Cortex + Thalamus (proposé) | relecture carte de modèle, seuils dans DECISIONS.md |
 
 ## Réservation
 

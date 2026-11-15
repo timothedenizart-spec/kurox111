@@ -54,8 +54,16 @@ def validate_masked_denoiser(adapter: MaskedNanoDiffAdapter, cases: list[dict[st
                             "candidate_similarity": candidate, "delta": delta,
                             "changed": output.get("changed", False), "runner_score": output.get("runner_score")})
         reports[strategy] = {"records": records,
-                              "mean_delta": sum(item["delta"] for item in records) / len(records)}
-    mean_delta = sum(all_deltas) / len(all_deltas) if all_deltas else 0.0
+                              "mean_delta": (sum(item["delta"] for item in records) / len(records)
+                                             if records else None)}
+    if not all_deltas:
+        return {"schema": "uca.nanodiff-calibration.v1", "created_at": datetime.now(timezone.utc).isoformat(),
+                "status": "not_executable", "strategies": reports, "mean_delta": None,
+                "min_mean_delta": min_mean_delta, "validated_for_activation": False,
+                "reason": "No calibration case produced an executable denoising; calibration is inconclusive.",
+                "limitations": ["Similarity to operator references is a narrow denoising proxy, not factual verification.",
+                                "Review per-case outputs and factual/coherence labels before setting models.nanodiff.validated=true."]}
+    mean_delta = sum(all_deltas) / len(all_deltas)
     # This merely gates deployment using references supplied by the operator. It
     # cannot prove factuality, so human review remains mandatory.
     canonical = json.dumps({"strategies": reports, "mean_delta": mean_delta}, sort_keys=True).encode()

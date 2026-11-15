@@ -1,0 +1,12 @@
+# Configuration de démonstration : câble le micro-débruiteur localement entraîné
+# (UCA-09) dans le pipeline. Les artefacts sous models/ sont gitignorés : régénérez-les
+# avec `python -m uca microtrain`. validated reste false — l'activation exige une
+# revue humaine du rapport de calibration (docs/ENTRAINEMENT.md).
+[models.nanodiff]
+enabled = true
+path = "models/micro-denoiser"
+tokenizer_path = "models/micro-denoiser/tokenizer"
+runner_command = "python3 shims/nanodiff_micro_runner.py models/micro-denoiser"
+mask_token_id = 2
+validated = false
+strategies = ["single_pass", "iterative_low_mask"]
