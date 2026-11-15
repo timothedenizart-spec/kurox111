@@ -63,6 +63,23 @@ class ExactArithmeticKernel:
     MAX_EXPONENT = 20
     MAX_NUMERATOR_BITS = 4096
 
+    @staticmethod
+    def _rebalance(text: str, candidate: str) -> str:
+        """Re-attach immediately preceding '(' groups that the digit-anchored
+        regex clipped (measured weakness: `calcule (2+3)×7` lost its opening
+        parenthesis). Stops when parentheses balance."""
+        start = text.find(candidate)
+        if start < 0:
+            return candidate
+        prefix = text[:start]
+        while candidate.count(")") > candidate.count("("):
+            opener = re.search(r"((?:\(\s*)+)$", prefix)
+            if not opener:
+                break
+            candidate = opener.group(1) + candidate
+            prefix = prefix[:opener.start()]
+        return candidate
+
     @classmethod
     def extract(cls, text: str) -> str | None:
         lower = text.lower()
@@ -71,6 +88,7 @@ class ExactArithmeticKernel:
         ))
         for candidate in _EXPRESSION.findall(text):
             candidate = candidate.strip(" .?!:;")
+            candidate = cls._rebalance(text, candidate)
             normalized = candidate.replace("×", "*").replace("÷", "/").replace("−", "-")
             has_operator = any(symbol in normalized for symbol in ("+", "-", "*", "/", "^"))
             # Avoid turning ordinary years or IDs into calculations unless an explicit

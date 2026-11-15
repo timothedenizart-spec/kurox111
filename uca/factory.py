@@ -12,6 +12,7 @@ from .pipeline import (AnalogicalMemoryModule, ConsolidatedAssociationModule, Fi
                        FinalVerificationModule, GlobalWorkspaceModule, InputProcessingModule,
                        KnowledgeRetrievalModule, MettaSymbolicModule, NanoDiffModule, NcmConceptModule,
                        SmolAnalysisModule, SurprisalMonitorModule, UserMemoryModule)
+from .refiner import NcmResponseRefinerModule
 from .storage import ExplicitMemoryStore, FTSKnowledgeStore, OperatorFactStore
 
 
@@ -52,6 +53,7 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
         NanoDiffModule(MaskedNanoDiffAdapter(nano_spec, cfg), enabled=bool(nano_spec.get("enabled", False))),
         GlobalWorkspaceModule(cfg.get("cognitive", {})),
         FinalVerificationModule(knowledge, str(metta_spec.get("runner_command", ""))),
+        NcmResponseRefinerModule(enabled=True),
         FinalResponseModule(),
     ]
     engine_spec = cfg["engine"]

@@ -636,7 +636,7 @@ class FinalVerificationModule(CognitiveModule):
 
 class FinalResponseModule(CognitiveModule):
     def __init__(self) -> None:
-        super().__init__("final_response", dependencies=("final_verification",))
+        super().__init__("final_response", dependencies=("ncm_response_refiner",))
 
     def run(self, snapshot: dict[str, Any]) -> ModuleResult:
         documents = [item.get("content", {}) for item in snapshot.get("sources", [])]
@@ -647,14 +647,26 @@ class FinalResponseModule(CognitiveModule):
                         if item.get("kind") == ArtifactKind.COMPUTATION.value]
         verification = [item.get("content", {}) for item in snapshot.get("artifacts", [])
                         if item.get("kind") == ArtifactKind.VERIFICATION.value]
-        lines = ["Réponse UCA — synthèse locale traçable."]
+        refinement = None
+        for item in reversed(snapshot.get("artifacts", [])):
+            if item.get("kind") == ArtifactKind.REFINEMENT.value:
+                refinement = item.get("content", {})
+                break
+        if refinement:
+            lines = ["Réponse UCA — synthèse locale traçable, affinée par le raffineur conceptuel "
+                     "(heuristiques déterministes ; aucune preuve ajoutée)."]
+            lines.append("Réflexion (signaux internes du système) :")
+            for entry in refinement.get("reflection_lines", [])[:5]:
+                lines.append(f"- {entry}")
+        else:
+            lines = ["Réponse UCA — synthèse locale traçable."]
         if documents:
             lines.append("Passages documentaires locaux pertinents :")
             for doc in documents[:4]:
                 excerpt = " ".join(str(doc.get("content", "")).split())[:420]
                 lines.append(f"- [{doc.get('document_id', '?')} | {doc.get('provenance', 'provenance inconnue')}] {excerpt}")
         if facts:
-            lines.append("Faits symboliques retournés par MeTTa :")
+            lines.append("Faits symboliques (pont MeTTa ou index opérateur explicite, étiqueté en aval) :")
             for fact in facts[:6]:
                 lines.append(f"- [{fact.get('fact_id', '?')}] {fact.get('statement', '')}")
         if computations:
@@ -667,7 +679,21 @@ class FinalResponseModule(CognitiveModule):
             if text:
                 lines.append(f"Analyse intermédiaire de {preferred.get('model', 'modèle local')} (à vérifier, non promue au rang de fait) : {text}")
         if not documents and not facts and not analyses and not computations:
-            lines.append("Aucune source documentaire, fait MeTTa, calcul exact ou sortie de modèle local n'était disponible pour répondre de façon étayée à cette demande.")
+            lines.append("Aucune source documentaire, fait symbolique, calcul exact ou sortie de modèle local n'était disponible pour répondre de façon étayée à cette demande.")
+            if refinement:
+                lines.append("Ce que l'UCA peut déjà faire localement sans corpus ni modèles : calcul arithmétique exact, "
+                             "contrôle des propositions, et traçabilité complète des absences.")
+        if refinement:
+            conflict_lines = refinement.get("conflict_lines", [])
+            if conflict_lines:
+                lines.append("Conflits symboliques ouverts — non arbitrés par vote :")
+                for entry in conflict_lines:
+                    lines.append(f"- {entry}")
+            limit_lines = refinement.get("limit_lines", [])
+            if limit_lines:
+                lines.append("Limites actives (rapportées par la réflexion) :")
+                for entry in limit_lines:
+                    lines.append(f"- {entry}")
         if verification:
             checks = verification[-1].get("checks", [])
             unresolved = sum(1 for check in checks if check.get("status") != "supported_by_available_excerpt")

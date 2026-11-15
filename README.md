@@ -46,6 +46,16 @@ its own tokenizer and is invoked only through a model-specific boundary.
   benchmarks/cognitive_checks.example.jsonl`): pass/fail checks on exact
   arithmetic, opt-in memory, bounded conflict correction, honest unavailability
   and the fact/proposal separation — no fabricated quality scores.
+- A deterministic **concept-level response refiner** (NCM-local) wired into the
+  reflection system: it reads the workspace dossier, verification result and
+  surprisal flags, then emits an explicit refinement plan (reflection lines, open
+  conflicts surfaced for human arbitration, active limits) that `final_response`
+  composes. It never adds facts and never picks a winner by vote.
+- A measured **probe lab** (`python -m uca probes`): engineering micro-experiments
+  that identify improvements with numbers (parallel speedup, surprisal separation,
+  VSA scaling margins, arithmetic-extraction robustness, timeout isolation,
+  opt-in gating, bounded correction, absence honesty). Weaknesses become backlog
+  entries; two measured defects were already found and fixed this way.
 - A real, locally **trained** micro masked-denoiser (`python -m uca microtrain`):
   numpy CBOW trained on the repository's own French documentation with measured
   metrics and a model card (`docs/ENTRAINEMENT.md`). Wired into the actual

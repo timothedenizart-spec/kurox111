@@ -14,7 +14,9 @@
 | UCA-09 | Entraînement d'un micro-débruiteur masqué local (aucun téléchargement, CPU, corpus = docs du dépôt) | terminée | Préfrontal | 44 460 paramètres, ppl 301 vs 1149 unigramme, calibration exécutée (delta -0,099 → non validé, honnête), 38/38 tests |
 | UCA-10 | Curation et extension du corpus d'entraînement français avec provenance | ouvert | Hippocampe (proposé) | JSONL local, licence/provenance par segment, hash de corpus |
 | UCA-11 | Revue et gouvernance d'activation des modèles entraînés (seuils, validation croisée) | ouvert | Cortex + Thalamus (proposé) | relecture carte de modèle, seuils dans DECISIONS.md |
-| UCA-12 | Interface autonome en un seul fichier : ouverture automatique, tout préchargé, mode hors-ligne honnête | terminée | Préfrontal | `interface/uca.html` généré (22,5 Ko), calculateur BigInt vérifié sous node (10/10), 42/42 tests, prévisualisations live |
+| UCA-12 | Interface autonome en un seul fichier : ouverture automatique, tout préchargé, mode hors-ligne honnête | terminée | Préfrontal | `interface/uca.html` généré (22,5 Ko), calculateur BigInt vérifié sous node (10/10), tests verts, prévisualisations live |
+| UCA-13 | Raffineur conceptuel NCM-local relié au système de réflexion (workspace + vérification + surprisal) | terminée | Préfrontal | `uca/refiner.py`, artefact REFINEMENT, 15 modules, contrats 9/9, tests de réflexion verts |
+| UCA-14 | Dimension VSA adaptative selon la masse de faits + cleanup Hopfield à marge faible (constat mesuré probe-lab) | ouvert | Préfrontal | mesures avant/après dans results/, tests verts |
 
 ## Réservation
 

@@ -133,6 +133,29 @@ séparation faits/propositions. Un contrôle non évaluable échoue ouvertement 
 jamais de passage silencieux. Rapport versionné : 
 `coordination/shared-workspace/results/UCA-05b-cognitive-eval-2026-11-15.json` (7/7).
 
+## 7. Raffineur conceptuel relié à la réflexion — `uca/refiner.py` (UCA-13)
+
+Rôle « NCM » (affiner la réponse finale) rempli localement et déterministement,
+**sans prétendre être le runner externe LM1B/VQ** dont le slot contractuel reste
+en place. Le raffineur ne lit *que* les artefacts de réflexion — dossier du
+GlobalWorkspace (couverture, écarts d'ancrage, registre de conflits), artefact de
+vérification, drapeaux de surprisal — et émet un **plan de composition** :
+lignes de réflexion, conflits ouverts (jamais arbitrés par vote), limites actives,
+ordre des sections. `final_response` le consomme et compose l'unique réponse.
+Invariants d'honnêteté testés : aucun fait ajouté, incertitudes préservées,
+absence honnête renforcée (avec ce que l'UCA peut déjà faire).
+
+## 8. Laboratoire de sondes mesurées — `uca/probes.py`
+
+Huit micro-expériences d'ingénierie (`python -m uca probes`) qui mesurent où le
+système est solide et où il peut progresser : accélération parallèle réelle,
+séparation surprisal, marges de discrimination VSA par dimension (64/512/2048),
+robustesse de l'extracteur arithmétique, isolation des timeouts, verrou opt-in de
+la mémoire, correction bornée sur conflit, honnêteté d'absence avec raffineur.
+Toute faiblesse mesurée devient un chantier du backlog avec sa mesure initiale ;
+deux ont déjà été trouvées puis corrigées (parenthèses d'extraction, étalonnage
+de la sonde surprisal) avec tests de régression.
+
 ## Ce que ces extensions ne prétendent pas
 
 - Aucune conscience, aucune équivalence biologique, aucune chaîne de pensée cachée.

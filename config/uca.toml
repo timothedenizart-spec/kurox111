@@ -83,5 +83,6 @@ order = [
   "nanodiff_specialist",
   "global_workspace",
   "final_verification",
+  "ncm_response_refiner",
   "final_response"
 ]

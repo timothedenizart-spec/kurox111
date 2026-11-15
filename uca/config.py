@@ -29,7 +29,8 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "input_processing", "user_memory", "knowledge_retrieval", "associative_consolidation",
         "symbolic_processing", "analogical_memory", "ncm_concept_generation",
         "smollm2_135_analysis", "smollm2_360_review", "surprisal_monitor",
-        "nanodiff_specialist", "global_workspace", "final_verification", "final_response"]},
+        "nanodiff_specialist", "global_workspace", "final_verification",
+        "ncm_response_refiner", "final_response"]},
 }
 
 

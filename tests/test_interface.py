@@ -13,7 +13,7 @@ from uca.interface import build_interface, collect_boot_payload, render_page
 class InterfaceBuilderTests(unittest.TestCase):
     def test_payload_is_real_engine_data(self) -> None:
         payload = collect_boot_payload(".", demo_prompts=("calcule 22/7 + 3",))
-        self.assertEqual(len(payload["status"]["modules"]), 14)
+        self.assertEqual(len(payload["status"]["modules"]), 15)
         self.assertEqual(payload["status"]["execution_mode"], "parallel_levels")
         self.assertIn("43/7", payload["demo_answers"][0]["answer"])
         self.assertTrue(payload["status"]["parallel_levels"])

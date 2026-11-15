@@ -14,6 +14,7 @@ from .eval_cognition import load_eval_cases, run_evaluation
 from .factory import build_engine
 from .interface import build_interface
 from .microtrain import make_calibration_cases, run_training
+from .probes import run_all_probes
 from .model_adapters import MaskedNanoDiffAdapter
 from .nanodiff_validation import load_cases, validate_masked_denoiser
 from .storage import import_documents, initialize_knowledge_db
@@ -135,6 +136,20 @@ def cmd_interface(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_probes(args: argparse.Namespace) -> int:
+    report = run_all_probes()
+    rendered = json.dumps(report, ensure_ascii=False, indent=2)
+    if args.output:
+        Path(args.output).write_text(rendered + "\n", encoding="utf-8")
+        print(f"Probe-lab report written to {args.output}")
+    else:
+        print(rendered)
+    weak = report["summary"]["a_ameliorer"]
+    print(f"Probes: {report['summary']['solide']}/{report['summary']['total']} solides"
+          + (f" — à améliorer: {', '.join(weak)}" if weak else ""))
+    return 0
+
+
 def cmd_consolidate(args: argparse.Namespace) -> int:
     cfg = load_config(args.root, getattr(args, "config", None))
     stores = cfg["stores"]
@@ -218,6 +233,9 @@ def main(argv: list[str] | None = None) -> int:
     interface.add_argument("--output", default="interface/uca.html", help="Target HTML file")
     interface.add_argument("--no-open", action="store_true", help="Do not auto-open the browser")
     interface.set_defaults(func=cmd_interface)
+    probes = commands.add_parser("probes", help="Run the measured probe lab to identify improvements")
+    probes.add_argument("--output", help="Optional JSON report path")
+    probes.set_defaults(func=cmd_probes)
     web = commands.add_parser("serve", help="Run the single local conversation UI")
     web.add_argument("--host", default="0.0.0.0")
     web.add_argument("--port", default=8080, type=int)

@@ -80,6 +80,24 @@ class HyperMemory:
         self.dimension = dimension
         self._atoms: dict[str, list[int]] = {}
         self._facts: list[dict[str, Any]] = []
+        # Optional numpy acceleration (identical results, much faster scoring).
+        # The pure-Python path remains the reference and keeps UCA stdlib-only.
+        self._np = None
+        try:
+            import numpy as _np  # type: ignore
+            self._np = _np
+        except ImportError:
+            self._np = None
+        self._fact_matrix = None  # (F, dim) int16, refreshed lazily
+
+    def _fact_stack(self):
+        if self._np is None:
+            return None
+        if self._fact_matrix is None or self._fact_matrix.shape[0] != len(self._facts):
+            if not self._facts:
+                return None
+            self._fact_matrix = self._np.asarray([f["vector"] for f in self._facts], dtype=self._np.int32)
+        return self._fact_matrix
 
     def vector(self, key: str) -> list[int]:
         if key not in self._atoms:
@@ -118,26 +136,40 @@ class HyperMemory:
                                   self.vector(self.ROLE_OBJECT))
         part_s = bind(self.vector(subject), role_s)
         part_p = bind(self.vector(predicate), role_p)
-        scores: dict[str, float] = {}
-        for key, vec in self._atoms.items():
-            if key.startswith("role:"):
-                continue
-            hypothesis = bundle(part_s, part_p, bind(vec, role_o))
-            scores[key] = max(similarity(hypothesis, fact["vector"]) for fact in self._facts)
+        keys = [key for key in sorted(self._atoms) if not key.startswith("role:")]
+        vectors = [self._atoms[key] for key in keys]
+        stack = self._fact_stack()
+        if stack is not None:
+            np = self._np
+            atom_matrix = np.asarray([bundle(part_s, part_p, bind(vec, role_o))
+                                      for vec in vectors], dtype=np.int32)
+            # best cosine of each hypothesis against every stored fact
+            fact_norms = np.linalg.norm(stack, axis=1)
+            hyp_norms = np.linalg.norm(atom_matrix, axis=1)
+            sims = (stack @ atom_matrix.T) / np.outer(fact_norms, hyp_norms)
+            best = sims.max(axis=0)
+            scores = {key: float(score) for key, score in zip(keys, best)}
+        else:
+            scores = {}
+            for key, vec in zip(keys, vectors):
+                hypothesis = bundle(part_s, part_p, bind(vec, role_o))
+                scores[key] = max(similarity(hypothesis, fact["vector"]) for fact in self._facts)
         ranked = sorted(scores.items(), key=lambda item: (-item[1], item[0]))
         return [{"object": key, "score": round(score, 4)} for key, score in ranked[:limit]]
 
-    def reconstruct_check(self) -> dict[str, Any]:
-        """Self-fidelity probe: does each encoded fact recall its own object?
+    def reconstruct_check(self, sample_limit: int | None = None) -> dict[str, Any]:
+        """Self-fidelity probe: do encoded facts recall their own object?
 
-        This is an internal consistency diagnostic of the encoding capacity,
-        not a validation of the facts themselves.
+        With large registries, a deterministic prefix sample is used
+        (`sample_limit`) and reported as such. This is an internal consistency
+        diagnostic of the encoding capacity, not a validation of the facts.
         """
         if not self._facts:
             return {"facts": 0, "top1_accuracy": None, "note": "empty memory"}
+        checked = self._facts if sample_limit is None else self._facts[:sample_limit]
         hits = 0
         details = []
-        for fact in self._facts:
+        for fact in checked:
             completion = self.complete(fact["subject"], fact["predicate"], limit=1)
             best = completion[0]["object"] if completion else ""
             score = completion[0]["score"] if completion else 0.0
@@ -145,8 +177,9 @@ class HyperMemory:
             hits += int(ok)
             details.append({"fact_id": fact["fact_id"], "expected": fact["object"],
                             "recalled": best, "score": round(score, 4), "ok": ok})
-        return {"facts": len(self._facts), "top1_accuracy": round(hits / len(self._facts), 4),
-                "details": details}
+        return {"facts": len(self._facts), "checked": len(checked),
+                "sampled": len(checked) != len(self._facts),
+                "top1_accuracy": round(hits / len(checked), 4), "details": details}
 
     def entity_profile(self, entity: str, facts: Iterable[dict[str, str]]) -> list[int]:
         """Distributional profile: superposition of an entity's predicate-object

@@ -1,0 +1,96 @@
+{
+  "schema": "uca.probe-lab.v1",
+  "created_at": "2026-11-15T16:48:23.893468+00:00",
+  "probes": [
+    {
+      "name": "parallel_speedup",
+      "verdict": "solide",
+      "measurements": {
+        "sequential_wall_s": 0.54,
+        "parallel_wall_s": 0.17,
+        "speedup": 3.18
+      },
+      "candidate_improvement": null
+    },
+    {
+      "name": "surprisal_separation",
+      "verdict": "solide",
+      "measurements": {
+        "background_mean": 1.6594,
+        "calm_mean": 1.3992,
+        "wild_mean": 4.6493,
+        "separation_ratio": 3.32,
+        "wild_flagged": true
+      },
+      "candidate_improvement": null
+    },
+    {
+      "name": "vsa_scaling_fidelity",
+      "verdict": "solide",
+      "measurements": {
+        "dim_64": 1.0,
+        "dim_512": 1.0,
+        "dim_2048": 1.0,
+        "margin_mean_par_dim": {
+          "dim_64": 0.2136,
+          "dim_512": 0.3887,
+          "dim_2048": 0.4405
+        },
+        "fact_count": 150,
+        "accelerated": true
+      },
+      "candidate_improvement": null
+    },
+    {
+      "name": "arithmetic_extraction_robustness",
+      "verdict": "solide",
+      "measurements": {
+        "cases": 7,
+        "mismatches": []
+      },
+      "candidate_improvement": null
+    },
+    {
+      "name": "timeout_isolation",
+      "verdict": "solide",
+      "measurements": {
+        "blocked_state": "timed_out",
+        "witness_state": "completed"
+      },
+      "candidate_improvement": null
+    },
+    {
+      "name": "memory_optin_gate",
+      "verdict": "solide",
+      "measurements": {
+        "memory_artifacts": 0
+      },
+      "candidate_improvement": null
+    },
+    {
+      "name": "conflict_bounded_correction",
+      "verdict": "solide",
+      "measurements": {
+        "verification_attempts": 2,
+        "conflict_surfaced_in_refinement": true,
+        "refinement_artifacts": 1
+      },
+      "candidate_improvement": null
+    },
+    {
+      "name": "absence_honesty_with_refiner",
+      "verdict": "solide",
+      "measurements": {
+        "refiner_active": true,
+        "honest_absence": true
+      },
+      "candidate_improvement": null
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "solide": 8,
+    "a_ameliorer": []
+  },
+  "notice": "Findings are measurements, not quality claims; 'à améliorer' items become backlog entries."
+}

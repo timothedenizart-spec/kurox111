@@ -32,6 +32,7 @@ class ArtifactKind(str, Enum):
     ANALYSIS = "analysis"
     SYNTHESIS = "synthesis"
     VERIFICATION = "verification"
+    REFINEMENT = "refinement"
     COMPUTATION = "computation"
     FINAL = "final"
     DIAGNOSTIC = "diagnostic"

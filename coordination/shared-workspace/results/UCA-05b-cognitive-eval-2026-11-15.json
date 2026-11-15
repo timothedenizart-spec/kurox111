@@ -1,6 +1,6 @@
 {
   "schema": "uca.cognitive-eval.v1",
-  "created_at": "2026-11-15T15:59:06.788393+00:00",
+  "created_at": "2026-11-15T16:48:03.548355+00:00",
   "environment": {
     "python": "3.11.2 (main, Apr  8 2026, 01:58:00) [GCC 12.2.0]",
     "platform": "Linux-6.1.158+-x86_64-with-glibc2.36"
@@ -234,11 +234,92 @@
           "detail": "aucune proposition promue au rang de fait"
         }
       ]
+    },
+    {
+      "id": "raffineur-conflit-visible-non-arbitre",
+      "passed": true,
+      "checks": [
+        {
+          "check": {
+            "type": "artifact_count",
+            "kind": "refinement",
+            "min": 1,
+            "max": 1
+          },
+          "ok": true,
+          "detail": "refinement: 1 artefact(s) (min=1, max=1)"
+        },
+        {
+          "check": {
+            "type": "response_contains",
+            "value": "Conflits symboliques ouverts"
+          },
+          "ok": true,
+          "detail": "réponse contient 'Conflits symboliques ouverts'"
+        },
+        {
+          "check": {
+            "type": "response_contains",
+            "value": "arbitrage humain requis"
+          },
+          "ok": true,
+          "detail": "réponse contient 'arbitrage humain requis'"
+        },
+        {
+          "check": {
+            "type": "module_status",
+            "module": "ncm_response_refiner",
+            "status": "functional"
+          },
+          "ok": true,
+          "detail": "ncm_response_refiner: état 'functional' (attendu 'functional')"
+        }
+      ]
+    },
+    {
+      "id": "raffineur-absence-honnete",
+      "passed": true,
+      "checks": [
+        {
+          "check": {
+            "type": "artifact_count",
+            "kind": "refinement",
+            "min": 1
+          },
+          "ok": true,
+          "detail": "refinement: 1 artefact(s) (min=1, max=None)"
+        },
+        {
+          "check": {
+            "type": "response_contains",
+            "value": "Aucune source documentaire"
+          },
+          "ok": true,
+          "detail": "réponse contient 'Aucune source documentaire'"
+        },
+        {
+          "check": {
+            "type": "response_contains",
+            "value": "Ce que l'UCA peut déjà faire"
+          },
+          "ok": true,
+          "detail": "réponse contient \"Ce que l'UCA peut déjà faire\""
+        },
+        {
+          "check": {
+            "type": "module_status",
+            "module": "ncm_response_refiner",
+            "status": "functional"
+          },
+          "ok": true,
+          "detail": "ncm_response_refiner: état 'functional' (attendu 'functional')"
+        }
+      ]
     }
   ],
   "summary": {
-    "total": 7,
-    "passed": 7,
+    "total": 9,
+    "passed": 9,
     "failed": 0
   },
   "notice": "Behavioral pass/fail contracts over the live pipeline. No quality, truthfulness or intelligence score is claimed by this report."

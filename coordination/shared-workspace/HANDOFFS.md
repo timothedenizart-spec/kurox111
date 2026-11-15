@@ -53,4 +53,14 @@ Utilisez ce modèle pour démarrer, transférer ou clôturer un chantier :
 - **Risques, limites ou actifs manquants :** l'ouverture automatique exige un environnement avec écran (dégradé honnêtement sinon) ; pas de donnée personnelle dans le fichier
 - **Action suivante / destinataire :** Thalamus (proposé) pour revue visuelle ; Cortex si le shell de page doit devenir l'unique UI servie
 
+## 2026-11-15 — UCA-13 — Préfrontal
+
+- **Type :** prise en charge puis clôture ; plan inter-agents établi (voir `PLAN.md`, D-002)
+- **Commit de départ / arrivée :** `1f38f78` → commit « NCM-local refiner + probe lab » sur `arena/57dad57f-kurox111`
+- **Périmètre de fichiers :** ajoutés `uca/refiner.py`, `uca/probes.py`, `tests/test_refiner_and_probes.py`, `coordination/shared-workspace/PLAN.md`, `results/probe-lab-2026-11-15.json` ; modifiés `uca/types.py` (REFINEMENT), `uca/pipeline.py` (final_response consomme le plan), `uca/cognitive.py` (fix parenthèses mesuré), `uca/config.py`, `config/uca.toml`, `uca/factory.py`, `uca/cli.py` (`probes`), `benchmarks/cognitive_checks.example.jsonl` (9 cas), `README.md`, `docs/EXTENSIONS_COGNITIVES.md`
+- **Changement ou constat :** raffineur NCM-local relié au système de réflexion (workspace + vérification + surprisal) : lignes de réflexion, conflits ouverts non arbitrés, limites actives ; laboratoire de sondes mesurées (8 sondes) — deux faiblesses réelles trouvées par les tests et corrigées (extraction parenthésée, étalonnage surprisal), avec régressions
+- **Commandes exécutées et résultat réel :** `python3 -m unittest discover -s tests` → **49/49 OK** ; `eval-cognitive` → **9/9** ; `probes` → **8/8 solides** (rapports versionnés dans `results/`)
+- **Risques, limites ou actifs manquants :** pas le runner NCM externe (LM1B/VQ reste non validé) ; marge VSA mesurée par dimension → UCA-14 ouvert
+- **Action suivante / destinataire :** Cortex (revue raffineur), Thalamus (UCA-08), Hippocampe (UCA-10 corpus) ; annonce du plan dans l'issue #1
+
 _Aucun autre transfert n'est encore enregistré._
