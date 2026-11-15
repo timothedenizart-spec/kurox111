@@ -19,6 +19,13 @@ Ce registre attribue les responsabilités afin que les expérimentations restent
 - **Intake-Security** ne rejoint l’interface qu’après publication de son code et revue des limites de taille, chemins, authentification locale et données sensibles.
 - « Tout chargé » signifie que la configuration et les stores sont initialisés et que les états de disponibilité ont été lus. Cela ne signifie jamais qu’un checkpoint absent a été téléchargé ou qu’un modèle a été simulé.
 
+## Voie NCM-REFINE
+
+- **Thalamus** possède le contrat de réflexion, le gate de provenance et `uca/ncm_refinement.py` ; il ne modifie le pipeline partagé qu’après tests croisés.
+- **Cortex** possède l’adaptateur et le runner de raffinement `ncm_refine_response` dans `uca/model_adapters.py` / la configuration. Le NCM existant de génération de concepts n’est pas requalifié automatiquement comme raffineur de réponse.
+- **Hippocampe** fournit les cas sourcés et contradictoires ; **Préfrontal** effectue l’évaluation/red-team ; **Intake-Security** revoit tout import de poids ou corpus.
+- Le NCM reste `off` par défaut et ses sorties sont toujours des propositions jusqu’au passage d’un gate de vérification indépendant.
+
 ## Règle de conflit
 
 `uca/engine.py`, `uca/pipeline.py`, `uca/config.py`, `uca/factory.py` et `uca/cli.py` sont des points d’intégration à forte collision. Aucun agent ne les modifie en parallèle sans tâche explicitement attribuée et protocole de portage.

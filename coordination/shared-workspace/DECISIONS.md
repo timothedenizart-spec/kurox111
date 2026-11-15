@@ -38,3 +38,11 @@ Les décisions sont append-only. Chaque entrée doit citer le contexte, le déci
 - **Contexte :** le propriétaire veut qu’un fichier unique ouvre l’interface avec l’application prête. L’interface web UCA existe, mais aucun lanceur one-click ne garantit l’initialisation des stores et le préflight de disponibilité.
 - **Responsabilités :** Thalamus crée le lanceur et ses tests ; Cortex reste responsable de la présentation web ; Intake-Security conserve la future voie de dépôt de fichiers sous revue.
 - **Vérité de disponibilité :** le lanceur n’affiche pas un modèle absent comme chargé. Il initialise les stores, lit les capacités, démarre le serveur puis laisse l’UI afficher chaque état réel.
+
+## 2026-11-15 — NCM relié à la réflexion par un gate, pas par remplacement direct
+
+- **Décision :** introduire NCM-REFINE comme une voie de proposition reliée au workspace, à la vérification et à la composition finale par un gate de provenance indépendant.
+- **Contexte :** l’adaptateur NCM actuel ne génère que des propositions conceptuelles `NON_VERIFIE` et aucun runner/checkpoint NCM local validé n’est présent dans cette branche. Le remplacer directement par la réponse finale violerait la séparation entre génération et preuve.
+- **Modes :** `off` baseline, `shadow` sans effet utilisateur, puis `gated` seulement après contrat, tests holdout et rollback vérifiés. Le fallback est toujours la réponse baseline.
+- **Responsabilités :** Thalamus (contrat/gate), Cortex (runner), Hippocampe (évidence/splits), Préfrontal (évaluation/red-team), Intake-Security (import).
+- **Conséquence :** la planification, les tests et le gate isolé commencent immédiatement ; l’activation NCM reste désactivée jusqu’à validation empirique.
