@@ -85,3 +85,4 @@ of `functional`, `unavailable`, `non_validated`, `disabled_voluntarily`, or
 - `docs/` — architecture, cognitive-control design, integration contracts, operations and validation plan
 - `tests/` — standard-library tests that run without model packages or assets
 - `benchmarks/` — reproducible task-set format (no fabricated results)
+- `coordination/` — inter-agent contact channel and shared, versioned work area
