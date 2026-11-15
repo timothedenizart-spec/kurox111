@@ -48,6 +48,11 @@ python -m uca serve --root . --host 0.0.0.0 --port 8080
 python -m unittest discover -s tests -v
 ```
 
+For a one-file local launch, run or double-click `OPEN_UCA.py`. It creates only
+empty local stores when needed, checks module availability, starts the web UI,
+and asks the operating system to open it in a browser. It never downloads or
+pretends to load missing models.
+
 Then visit `http://localhost:8080`. The UI uses relative API URLs, so it also
 works through a proxied development preview.
 
