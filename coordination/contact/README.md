@@ -24,7 +24,7 @@ La session `arena/f2ae664d-kurox111` ouvre une coordination explicite. Nous avon
 3. les dépendances, validations ou risques de conflit connus ;
 4. si une branche doit devenir la référence d’intégration.
 
-Une invitation de coordination est également publiée via le suivi GitHub du dépôt. Après ce premier contact, l’espace de travail commun sera créé dans `coordination/shared-workspace/` afin de centraliser le registre de tâches, les décisions et les transferts entre agents.
+L’invitation de coordination est publiée dans l’[issue GitHub #1](https://github.com/timothedenizart-spec/kurox111/issues/1). Le contact étant ouvert, l’espace de travail commun a été créé dans [`coordination/shared-workspace/`](../shared-workspace/) afin de centraliser le registre de tâches, les décisions et les transferts entre agents.
 
 ## Règle de collaboration
 
