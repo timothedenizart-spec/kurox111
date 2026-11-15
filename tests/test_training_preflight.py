@@ -30,6 +30,7 @@ def make_manifest(root: Path, *, device: str = "cpu") -> dict:
     return {
         "schema": TRAINING_SCHEMA,
         "run_id": "tiny-lora-smoke-v1",
+        "objective": "continued_pretraining",
         "base_model": {"path": str(model.relative_to(root)), "sha256": "a" * 64,
                        "architecture": "causal_lm", "tokenizer_path": str(model.relative_to(root)), "license": "MIT"},
         "data": {"train_path": str(train.relative_to(root)), "validation_path": str(validation.relative_to(root)),
@@ -74,6 +75,14 @@ class TrainingPreflightTests(unittest.TestCase):
             self.assertFalse(report.ready)
             self.assertTrue(any("placeholder" in error for error in report.errors))
             self.assertTrue(any("CUDA requested" in error for error in report.errors))
+
+    def test_missing_or_unknown_objective_is_a_blocker(self) -> None:
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary); manifest = make_manifest(root)
+            manifest.pop("objective")
+            report = preflight_training(manifest, root)
+            self.assertFalse(report.ready)
+            self.assertTrue(any("objective" in error for error in report.errors))
 
     def test_sha256_file_is_streaming_equivalent(self) -> None:
         with TemporaryDirectory() as temporary:

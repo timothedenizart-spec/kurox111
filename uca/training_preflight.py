@@ -162,6 +162,9 @@ def preflight_training(manifest: Mapping[str, Any], root: str | Path = ".") -> T
     if data.get("schema") != TRAINING_SCHEMA:
         errors.append(f"schema must equal {TRAINING_SCHEMA!r}")
     _text(data.get("run_id"), "run_id", errors)
+    objective = _text(data.get("objective"), "objective", errors).lower()
+    if objective not in {"continued_pretraining", "instruction_tuning", "two_stage"}:
+        errors.append("objective must be continued_pretraining, instruction_tuning, or two_stage")
     model = _mapping(data, "base_model", errors)
     corpus = _mapping(data, "data", errors)
     method = _mapping(data, "method", errors)

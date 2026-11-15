@@ -2,9 +2,11 @@
 
 > **État au 2026-11-15 : entraînement bloqué par prérequis, non par manque de volonté.** Cette branche ne contient aucun checkpoint local, corpus d’entraînement approuvé ni GPU visible. Les seuls JSONL présents sont deux exemples de benchmark (686 octets cumulés), impropres à l’entraînement. Lancer un « entraînement » maintenant créerait un résultat non reproductible ou trompeur.
 
-## Objectif de départ recommandé
+## Décision du propriétaire et limite matérielle
 
-Commencer par un **adaptateur LoRA supervisé et réversible** sur un checkpoint local explicitement licencié, puis évaluer contre le modèle de base. Ne pas préentraîner un modèle depuis zéro : les ressources actuellement visibles (2 CPU, ~3.8 GiB RAM, aucun GPU NVIDIA) ne le permettent pas de manière utile.
+Le propriétaire a choisi la **continuation de préentraînement** et autorisé un téléchargement explicitement nommé. Il a également choisi le sandbox CPU actuel. Ce choix permet de préparer et de valider la chaîne, mais pas de prétendre entraîner utilement un modèle de langage de taille UCA : la session visible dispose de 2 CPU, ~3.8 GiB RAM et aucun GPU NVIDIA.
+
+La première méthode reste un **adaptateur LoRA réversible**, appliqué à un corpus documentaire approuvé, puis comparé à la baseline gelée. Ne pas préentraîner depuis zéro. Avant tout téléchargement, Cortex et Thalamus doivent inscrire dans le manifeste le checkpoint exact, l’URL ou dépôt source, le commit/version, la licence, le digest attendu et la justification de compatibilité. Aucun téléchargement arbitraire n’est autorisé.
 
 Les voies d’amélioration architecturale (mémoire, vérification, recherche, parallélisme) restent des modules séparés. Elles ne constituent pas un prétexte pour altérer les poids sans benchmark.
 
@@ -68,6 +70,6 @@ Ne commitez jamais les poids, les corpus bruts, tokens, identifiants ou sorties 
 - fuite de données, secret dans un log ou comportement manifestement dangereux ;
 - métriques nulles, non comparables ou régression au-delà des seuils.
 
-## Première décision demandée au propriétaire
+## Actif exact encore requis
 
-Choisir l’objectif prioritaire : adaptation instructionnelle française, continuation sur corpus documentaire approuvé, ou protocole en deux étapes. Préciser ensuite où se trouvent le checkpoint, le corpus autorisé et le matériel d’entraînement. Sans cela, l’équipe peut livrer le préflight et les tests mais ne doit pas simuler un entraînement.
+La stratégie est désormais choisie, mais les sources restent à nommer. Indiquer le checkpoint exact et le corpus documentaire autorisé (dépôt/URL, révision, licence et digest si disponible). Sans ces identifiants, l’équipe peut livrer le préflight et les tests CPU, mais ne doit pas sélectionner arbitrairement ni simuler un entraînement réel.

@@ -1,6 +1,7 @@
 {
   "schema": "uca.training.v1",
-  "run_id": "smollm2-135-fr-instruct-lora-v1",
+  "run_id": "smollm2-135-fr-continued-pretraining-lora-v1",
+  "objective": "continued_pretraining",
   "base_model": {
     "path": "models/REPLACE_WITH_LOCAL_CHECKPOINT",
     "sha256": "REPLACE_WITH_64_HEX_DIGEST",
@@ -36,7 +37,7 @@
     "max_checkpoints": 2
   },
   "output": {
-    "path": "runs/smollm2-135-fr-instruct-lora-v1",
+    "path": "runs/smollm2-135-fr-continued-pretraining-lora-v1",
     "adapter_only": true
   },
   "evaluation": {
