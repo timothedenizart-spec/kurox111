@@ -8,9 +8,10 @@ from .auxiliary import AuxiliaryRegistry
 from .config import load_config, local_path
 from .engine import UnifiedCognitiveEngine
 from .model_adapters import ExternalNcmAdapter, LocalCausalGenerator, MaskedNanoDiffAdapter
-from .pipeline import (FinalResponseModule, FinalVerificationModule, GlobalWorkspaceModule,
-                       InputProcessingModule, KnowledgeRetrievalModule, MettaSymbolicModule,
-                       NanoDiffModule, NcmConceptModule, SmolAnalysisModule, UserMemoryModule)
+from .pipeline import (AnalogicalMemoryModule, ConsolidatedAssociationModule, FinalResponseModule,
+                       FinalVerificationModule, GlobalWorkspaceModule, InputProcessingModule,
+                       KnowledgeRetrievalModule, MettaSymbolicModule, NanoDiffModule, NcmConceptModule,
+                       SmolAnalysisModule, SurprisalMonitorModule, UserMemoryModule)
 from .storage import ExplicitMemoryStore, FTSKnowledgeStore, OperatorFactStore
 
 
@@ -24,7 +25,8 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
     model360_config = cfg["models"]["smollm2_360"]
     smol135 = SmolAnalysisModule("smollm2_135_analysis", "SmolLM2-135M-Instruct",
                                  LocalCausalGenerator(model135_config, cfg, "SmolLM2-135M-Instruct"),
-                                 ("user_memory", "knowledge_retrieval", "symbolic_processing", "ncm_concept_generation"))
+                                 ("user_memory", "knowledge_retrieval", "symbolic_processing",
+                                  "analogical_memory", "ncm_concept_generation"))
     smol135.enabled = bool(model135_config.get("enabled", True))
     smol360 = SmolAnalysisModule("smollm2_360_review", "SmolLM2-360M-Instruct",
                                  LocalCausalGenerator(model360_config, cfg, "SmolLM2-360M-Instruct"),
@@ -37,12 +39,16 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
         InputProcessingModule(cfg.get("cognitive", {})),
         UserMemoryModule(memory, enabled=True),
         KnowledgeRetrievalModule(knowledge, enabled=True),
+        ConsolidatedAssociationModule(local_path(cfg, stores.get("associations_path", "data/associations.json")),
+                                      enabled=True),
         MettaSymbolicModule(str(metta_spec.get("runner_command", "")),
                             OperatorFactStore(local_path(cfg, stores["facts_path"])),
                             enabled=bool(metta_spec.get("enabled", True))),
+        AnalogicalMemoryModule(enabled=True),
         NcmConceptModule(ExternalNcmAdapter(ncm_spec), enabled=bool(ncm_spec.get("enabled", False))),
         smol135,
         smol360,
+        SurprisalMonitorModule(enabled=True),
         NanoDiffModule(MaskedNanoDiffAdapter(nano_spec, cfg), enabled=bool(nano_spec.get("enabled", False))),
         GlobalWorkspaceModule(cfg.get("cognitive", {})),
         FinalVerificationModule(knowledge, str(metta_spec.get("runner_command", ""))),
@@ -56,4 +62,5 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
         run_history_limit=int(engine_spec.get("run_history_limit", 30)),
         auxiliary=AuxiliaryRegistry(cfg.get("auxiliary", {}), Path(cfg["_root"])),
         cognitive_settings=cfg.get("cognitive", {}),
+        execution_mode=str(engine_spec.get("execution_mode", "sequential")),
     )

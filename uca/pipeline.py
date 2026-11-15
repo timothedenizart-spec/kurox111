@@ -1,15 +1,19 @@
 """Concrete modules in the required UCA sequential pipeline."""
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 import re
 import unicodedata
 
 from .cognitive import CognitiveControlLayer
+from .consolidation import load_associations
 from .model_adapters import ExternalNcmAdapter, LocalCausalGenerator, MaskedNanoDiffAdapter, invoke_json_runner
 from .modules import Capability, CognitiveModule
+from .predictive import LocalSurprisalModel, corpus_background, novelty_report
 from .storage import ExplicitMemoryStore, FTSKnowledgeStore, OperatorFactStore
 from .types import Artifact, ArtifactKind, ModuleResult, ModuleStatus, Provenance
+from .vsa import HyperMemory
 
 
 def artifact(kind: ArtifactKind, producer: str, content: dict[str, Any], *,
@@ -171,7 +175,10 @@ class MettaSymbolicModule(CognitiveModule):
     existing 50-fact base while a MeTTa runtime is being installed.
     """
     def __init__(self, command: str, facts: OperatorFactStore | None = None, enabled: bool = True) -> None:
-        super().__init__("symbolic_processing", enabled=enabled, dependencies=("input_processing",))
+        # knowledge_retrieval is declared because the bridge query embeds document IDs:
+        # parallel scheduling must preserve that information flow.
+        super().__init__("symbolic_processing", enabled=enabled,
+                         dependencies=("input_processing", "knowledge_retrieval"))
         self.command = command
         self.facts = facts
 
@@ -338,9 +345,171 @@ class NanoDiffModule(CognitiveModule):
         self.adapter.unload()
 
 
+class ConsolidatedAssociationModule(CognitiveModule):
+    """Surfaces offline Hebbian consolidations as review-only proposals.
+
+    The associations come from `python -m uca consolidate` (deterministic
+    co-occurrence replay over local stores). Absence of the store is reported
+    as unavailable; it is never fabricated or treated as negative evidence.
+    """
+    def __init__(self, path: Path, enabled: bool = True) -> None:
+        super().__init__("associative_consolidation", enabled=enabled, dependencies=("input_processing",))
+        self.path = Path(path)
+
+    def capability(self) -> Capability:
+        disabled = super().capability()
+        if disabled.status is not ModuleStatus.FUNCTIONAL:
+            return disabled
+        edges = load_associations(self.path)
+        if edges:
+            return Capability(ModuleStatus.FUNCTIONAL,
+                              f"Consolidated association store available ({len(edges)} edges)",
+                              {"edge_count": len(edges)})
+        return Capability(ModuleStatus.UNAVAILABLE,
+                          "No consolidated associations; run `python -m uca consolidate` on local stores")
+
+    def run(self, snapshot: dict[str, Any]) -> ModuleResult:
+        edges = load_associations(self.path)[:16]
+        records = tuple(
+            artifact(ArtifactKind.PROPOSAL, self.module_id,
+                     {"text": (f"Association consolidée hors-ligne : {edge['a']} ⇔ {edge['b']} "
+                               f"(force {edge['strength']}, {edge['co_occurrences']} co-occurrences)"),
+                      "association": {"a": edge["a"], "b": edge["b"], "strength": edge["strength"]},
+                      "status": "NON_VERIFIE", "eligible_for_review_only": True},
+                     uncertainty=("Hebbian offline co-occurrence with documentary provenance; "
+                                  "an association is not an asserted fact.",),
+                     references=tuple(edge.get("supporting_document_ids", [])[:3]),
+                     implementation="deterministic Hebbian consolidation replay")
+            for edge in edges
+        )
+        return ModuleResult(artifacts=records,
+                            message=f"Surfaced {len(records)} consolidated association(s) for review")
+
+
+class AnalogicalMemoryModule(CognitiveModule):
+    """Hyperdimensional holographic memory over structured symbolic facts.
+
+    Encodes each (subject, predicate, object) triple by VSA binding/bundling,
+    publishes an internal reconstruction-fidelity diagnostic, then emits a few
+    *analogical transfer* proposals for predicate gaps of structurally similar
+    entities. Cosine scores are similarity, never confidence in truth.
+    """
+    def __init__(self, enabled: bool = True) -> None:
+        super().__init__("analogical_memory", enabled=enabled, dependencies=("symbolic_processing",))
+
+    @staticmethod
+    def _structured_facts(snapshot: dict[str, Any]) -> list[dict[str, str]]:
+        facts: list[dict[str, str]] = []
+        for item in snapshot.get("symbolic_facts", []):
+            content = item.get("content", {})
+            relation = content.get("relation", {})
+            values = [relation.get(key) for key in ("subject", "predicate", "object")] if isinstance(relation, dict) else []
+            if all(isinstance(value, str) and value.strip() for value in values):
+                facts.append({"subject": values[0].strip(), "predicate": values[1].strip(),
+                              "object": values[2].strip(), "fact_id": str(content.get("fact_id", ""))})
+        return facts
+
+    def run(self, snapshot: dict[str, Any]) -> ModuleResult:
+        facts = self._structured_facts(snapshot)
+        memory = HyperMemory()
+        for fact in facts:
+            memory.encode_fact(fact["subject"], fact["predicate"], fact["object"], fact_id=fact["fact_id"])
+        artifacts: list[Artifact] = []
+        fidelity = memory.reconstruct_check()
+        fidelity.pop("details", None)
+        artifacts.append(artifact(
+            ArtifactKind.DIAGNOSTIC, self.module_id,
+            {"holographic_encoding": {"fact_count": len(facts), **fidelity},
+             "interpretation": "Internal encoding-fidelity probe of the hyperdimensional memory only."},
+            uncertainty=("Reconstruction fidelity measures the memory channel, not the truth of facts.",),
+            implementation="deterministic VSA binding/bundling over SHA-256 seeded atoms"))
+        subjects = sorted({fact["subject"] for fact in facts})
+        predicates = sorted({fact["predicate"] for fact in facts})
+        proposals: list[Artifact] = []
+        for target in subjects:
+            held = {fact["predicate"] for fact in facts if fact["subject"] == target}
+            for predicate in predicates:
+                if predicate in held:
+                    continue
+                candidates = memory.analogical_transfer(target, predicate, sources=subjects, facts=facts, limit=2)
+                for candidate in candidates:
+                    if candidate["analogy_weight"] < 0.01:
+                        continue
+                    proposals.append(artifact(
+                        ArtifactKind.PROPOSAL, self.module_id,
+                        {"text": (f"Hypothèse analogique : {target} · {predicate} ≈ "
+                                  f"{candidate['object']} (poids {candidate['analogy_weight']})"),
+                         "analogy": {"target": target, "predicate": predicate,
+                                     "candidate_object": candidate["object"],
+                                     "weight": candidate["analogy_weight"]},
+                         "status": "NON_VERIFIE", "eligible_for_review_only": True},
+                        uncertainty=("Analogical transfer by structural neighbourhood; "
+                                     "an untested hypothesis, not a fact.",),
+                        references=tuple(fact["fact_id"] for fact in facts if fact["fact_id"])[:4],
+                        implementation="holographic role-profile analogy"))
+                    if len(proposals) >= 8:
+                        break
+                if len(proposals) >= 8:
+                    break
+            if len(proposals) >= 8:
+                break
+        artifacts.extend(proposals)
+        return ModuleResult(artifacts=tuple(artifacts),
+                            message=(f"Hyperdimensional memory encoded {len(facts)} structured fact(s); "
+                                     f"{len(proposals)} analogical proposal(s) emitted"))
+
+
+class SurprisalMonitorModule(CognitiveModule):
+    """Predictive-coding styled novelty signal over generated analyses.
+
+    A local bigram model trained on available evidence assigns each generated
+    sentence a Shannon surprisal. Sentences far above the corpus background are
+    flagged for verification. With no local corpus, the module reports the
+    absence honestly instead of inventing expectations.
+    """
+    def __init__(self, enabled: bool = True) -> None:
+        super().__init__("surprisal_monitor", enabled=enabled,
+                         dependencies=("smollm2_360_review", "knowledge_retrieval", "symbolic_processing"))
+
+    def run(self, snapshot: dict[str, Any]) -> ModuleResult:
+        corpus = [str(item.get("content", {}).get("content", "")) for item in snapshot.get("sources", [])]
+        corpus += [str(item.get("content", {}).get("statement", "")) for item in snapshot.get("symbolic_facts", [])]
+        corpus = [text for text in corpus if text.strip()][:80]
+        model = LocalSurprisalModel()
+        model.train(corpus)
+        analyses = [str(item.get("content", {}).get("text", ""))
+                    for item in snapshot.get("artifacts", [])
+                    if item.get("kind") == ArtifactKind.ANALYSIS.value][-2:]
+        if not model.is_trained:
+            artifacts = (artifact(ArtifactKind.DIAGNOSTIC, self.module_id,
+                                  {"status": "no_local_corpus",
+                                   "interpretation": "No local evidence text to set a surprisal background; monitoring is inconclusive."},
+                                  uncertainty=("Without a local corpus, novelty relative to evidence cannot be estimated.",),
+                                  implementation="adaptive bigram surprisal monitor"),)
+            return ModuleResult(artifacts=artifacts, message="Surprisal monitor inactive: empty local corpus")
+        background = corpus_background(model, corpus)
+        reports = [novelty_report(model, text, background_mean=background["background_mean"])
+                   for text in analyses if text.strip()]
+        flagged = sum(1 for report in reports if report.get("flagged"))
+        artifacts = (artifact(ArtifactKind.DIAGNOSTIC, self.module_id,
+                              {"background": background, "surprisal_reports": reports,
+                               "flagged_count": flagged,
+                               "interpretation": ("Mean token surprisal relative to the local corpus; a flag "
+                                                  "queues verification, it never asserts falsehood.")},
+                              uncertainty=("High surprisal marks novelty against local evidence, not error.",),
+                              implementation="Shannon bigram surprisal over local evidence"),)
+        return ModuleResult(artifacts=artifacts,
+                            message=f"Surprisal monitor reviewed {len(reports)} analysis text(s); {flagged} flagged")
+
+
 class GlobalWorkspaceModule(CognitiveModule):
     def __init__(self, cognitive_config: dict[str, Any] | None = None) -> None:
-        super().__init__("global_workspace", dependencies=("smollm2_135_analysis", "smollm2_360_review"))
+        # The dossier aggregates *all* upstream artifacts: surprisal and
+        # nanoDiff outputs are declared dependencies so parallel scheduling
+        # preserves the sequential information flow.
+        super().__init__("global_workspace",
+                         dependencies=("smollm2_135_analysis", "smollm2_360_review",
+                                       "surprisal_monitor", "nanodiff_specialist"))
         self.controller = CognitiveControlLayer(cognitive_config)
 
     def run(self, snapshot: dict[str, Any]) -> ModuleResult:

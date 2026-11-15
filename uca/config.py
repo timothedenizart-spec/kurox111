@@ -8,9 +8,11 @@ import tomllib
 
 DEFAULT_CONFIG: dict[str, Any] = {
     "engine": {"mode": "sequential_unload", "default_timeout_seconds": 45,
-               "max_corrections": 1, "cache_enabled": False, "run_history_limit": 30},
+               "max_corrections": 1, "cache_enabled": False, "run_history_limit": 30,
+               "execution_mode": "parallel_levels"},
     "stores": {"memory_path": "data/memory.json", "knowledge_db": "data/knowledge.sqlite",
-               "knowledge_table": "documents", "facts_path": "data/operator_facts.json"},
+               "knowledge_table": "documents", "facts_path": "data/operator_facts.json",
+               "associations_path": "data/associations.json"},
     "cognitive": {"working_memory_capacity": 12, "max_evidence_nodes": 48, "max_evidence_edges": 160},
     "models": {
         "smollm2_135": {"enabled": True, "path": "", "max_new_tokens": 280, "device": "auto"},
@@ -24,8 +26,9 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "auxiliary": {name: {"enabled": False} for name in
                   ("lora", "ties", "dare", "aoe", "fla", "e2e", "scallop")},
     "pipeline": {"order": [
-        "input_processing", "user_memory", "knowledge_retrieval", "symbolic_processing",
-        "ncm_concept_generation", "smollm2_135_analysis", "smollm2_360_review",
+        "input_processing", "user_memory", "knowledge_retrieval", "associative_consolidation",
+        "symbolic_processing", "analogical_memory", "ncm_concept_generation",
+        "smollm2_135_analysis", "smollm2_360_review", "surprisal_monitor",
         "nanodiff_specialist", "global_workspace", "final_verification", "final_response"]},
 }
 

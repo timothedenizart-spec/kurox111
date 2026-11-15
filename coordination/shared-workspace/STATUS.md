@@ -4,6 +4,15 @@
 
 **Base de coordination :** commit `dbb28a9` (`Add bounded cognitive control and exact reasoning`)
 
+## Fonctionnel dans le dépôt (complément 2026-11-15, branche arena/57dad57f-kurox111)
+
+- moteur d'exécution **parallèle par niveaux topologiques contigus** (déterministe : sorties identiques au séquentiel ; `engine.execution_mode`) ;
+- mémoire vectorielle hyperdimensionnelle VSA/HRR : complétion holographique, sonde d'auto-fidélité, transfert analogique pondéré (propositions uniquement) ;
+- réseau de Hopfield stdlib avec refus honnête au-delà de 0,15·n motifs ;
+- moniteur de surprisal de Shannon sur les preuves locales (signal de vérification, pas verdict) ;
+- consolidation Hebbienne hors-ligne (`python -m uca consolidate`), déterministe et sourcée par documents ;
+- suite de tests portée à 27 (tous verts, stdlib uniquement).
+
 ## Fonctionnel dans le dépôt
 
 - orchestration UCA séquentielle, traçable et dégradable ;

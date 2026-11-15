@@ -73,3 +73,14 @@ perception/control plan and a safe exact-arithmetic route; stage 9 adds bounded
 working memory, an evidence graph, a structured conflict register and
 metacognitive coverage. These are transparent control artifacts, not hidden
 reasoning or model-weight fusion. See [`COGNITIVE_CONTROL.md`](COGNITIVE_CONTROL.md).
+
+## Brain- and mathematics-inspired extension (session arena/57dad57f-kurox111)
+
+The pipeline now carries a hyperdimensional vector-symbolic memory with
+analogical transfer (`analogical_memory`), an offline Hebbian consolidation
+store (`associative_consolidation`), a Shannon-surprisal novelty monitor
+(`surprisal_monitor`), and — at the coordination layer — a contiguous
+topological-level **parallel engine** whose scheduling is bit-identical in
+outputs to the sequential one. A Hopfield attractor network with explicit
+capacity bounds is available in `uca/associative.py`. Full rationale, maths and
+honesty boundaries: [`EXTENSIONS_COGNITIVES.md`](EXTENSIONS_COGNITIVES.md).

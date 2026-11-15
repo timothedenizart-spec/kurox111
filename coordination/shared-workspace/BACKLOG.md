@@ -8,6 +8,7 @@
 | UCA-04 | Étudier nanoDiff comme débruiteur masqué | ouvert | non assigné | tokenizer/masque/checkpoint réels, calibration multi-stratégies, pas de remplacement automatique |
 | UCA-05 | Évaluer les contrôles cognitifs sur tâches annotées | ouvert | non assigné | jeux de cas, critères explicites, résultats versionnés sans surinterprétation |
 | UCA-06 | Examiner LoRA/TIES/DARE/AoE/FLA/E2E | ouvert | non assigné | manifests, compatibilité, tests réels avant activation |
+| UCA-07 | Extensions cognitives : VSA/hyperdimensionnel, Hopfield, surprisal, moteur parallèle, consolidation Hebbienne | en cours | Cognition-avancée | modules stdlib déterministes, tests unitaires verts, doc `EXTENSIONS_COGNITIVES.md`, aucune promesse non vérifiable |
 
 ## Réservation
 

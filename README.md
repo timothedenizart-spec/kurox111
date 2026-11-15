@@ -25,9 +25,16 @@ its own tokenizer and is invoked only through a model-specific boundary.
 - A deterministic cognitive-control layer: bounded working memory, interpretable
   evidence-attention priorities, sparse provenance/lexical evidence graph, conflict
   register, metacognitive coverage, and a restricted exact rational-arithmetic kernel.
-- The required 11-stage default pipeline: input, opt-in memory, FTS5 retrieval,
-  MeTTa bridge, NCM, SmolLM2-135M, SmolLM2-360M, nanoDiff, global workspace,
-  verification, and final response.
+- Brain- and mathematics-inspired extensions (`docs/EXTENSIONS_COGNITIVES.md`):
+  a hyperdimensional vector-symbolic memory (VSA/HRR) with holographic completion,
+  self-fidelity probes and weighted analogical transfer; a Hopfield attractor network
+  with honest capacity limits; a Shannon-surprisal novelty monitor over local evidence;
+  offline Hebbian consolidation replay; and a dependency-level parallel engine whose
+  contiguity keeps outputs bit-identical to sequential execution.
+- The default pipeline: input, opt-in memory, FTS5 retrieval, offline consolidated
+  associations, MeTTa bridge, hyperdimensional analogical memory, NCM, SmolLM2-135M,
+  SmolLM2-360M, surprisal monitor, nanoDiff, global workspace, verification, and final
+  response.
 - Actual standard-library JSON memory and SQLite FTS5 integrations; local
   Transformers adapters when installed; safe external-runner contracts for NCM,
   MeTTa, and masked nanoDiff.
