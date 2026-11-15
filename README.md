@@ -59,8 +59,17 @@ python -m uca init --root .              # creates empty local stores, never dow
 python -m uca status --root .
 python -m uca chat --root . "Bonjour"
 python -m uca serve --root . --host 0.0.0.0 --port 8080
+python -m uca interface                  # un SEUL fichier s'ouvre automatiquement,
+                                         # tout préchargé (interface/uca.html)
 python -m unittest discover -s tests -v
 ```
+
+`interface/uca.html` est autonome : aucune ressource externe ; l'état réel du
+moteur, les démonstrations calculées, les métriques du modèle entraîné et le
+rapport de contrats cognitifs y sont embarqués à la génération. Hors-ligne, la
+conversation est honnêtement désactivée (jamais simulée) et une console
+d'**arithmétique rationnelle exacte** (BigInt) reste pleinement fonctionnelle ;
+servie par `uca serve`, la même page active le chat contre le vrai API.
 
 Then visit `http://localhost:8080`. The UI uses relative API URLs, so it also
 works through a proxied development preview.

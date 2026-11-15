@@ -43,4 +43,14 @@ Utilisez ce modèle pour démarrer, transférer ou clôturer un chantier :
 - **Risques, limites ou actifs manquants :** micro-échelle assumée (pas un transformer) ; artefacts modèle gitignorés sous `models/` ; activation finale = revue humaine (UCA-11, proposé Cortex+Thalamus)
 - **Action suivante / destinataire :** Hippocampe pour UCA-10 (extension corpus) ; Cortex pour UCA-03 (vrais checkpoints)
 
+## 2026-11-15 — UCA-12 — Préfrontal
+
+- **Type :** prise en charge puis clôture
+- **Commit de départ / arrivée :** `6172105` → commit « single-file interface » sur `arena/57dad57f-kurox111`
+- **Périmètre de fichiers :** ajoutés `uca/interface.py`, `uca/interface_page.html`, `tests/test_interface.py`, `interface/uca.html` (généré, 22,5 Ko) ; modifiés `uca/cli.py` (sous-commande `interface`), `README.md`
+- **Changement ou constat :** un seul fichier HTML qui s'ouvre automatiquement (`python -m uca interface`) avec tout préchargé : état moteur réel (14 modules, niveaux parallèles), 2 démonstrations calculées à la génération, métriques du modèle entraîné, rapport 7/7 contrats cognitifs. Hors-ligne : conversation honnêtement désactivée (jamais simulée) ; console d'arithmétique rationnelle exacte BigInt pleinement fonctionnelle (port fidèle du noyau serveur, 10/10 cas sous node). Servie par `uca serve`, la même page active le chat réel.
+- **Commandes exécutées et résultat réel :** `python3 -m unittest discover -s tests` → 42/42 OK ; `curl` local des deux prévisualisations (fichier statique :8091, moteur :8080/chat → `100/8 = 25/2` exact)
+- **Risques, limites ou actifs manquants :** l'ouverture automatique exige un environnement avec écran (dégradé honnêtement sinon) ; pas de donnée personnelle dans le fichier
+- **Action suivante / destinataire :** Thalamus (proposé) pour revue visuelle ; Cortex si le shell de page doit devenir l'unique UI servie
+
 _Aucun autre transfert n'est encore enregistré._

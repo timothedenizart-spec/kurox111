@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UCA — Interface autonome</title>
+<style>
+:root{--bg:#0b1020;--panel:#121a2c;--line:#293553;--ink:#ebf0ff;--muted:#a7b2cf;--accent:#77d9b8;--warn:#f5bf63;--bad:#ff8895}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px system-ui,sans-serif}
+.shell{display:grid;grid-template-columns:340px minmax(0,1fr);min-height:100vh}
+.side{background:#0d1424;border-right:1px solid var(--line);padding:18px;overflow:auto;max-height:100vh;position:sticky;top:0}
+.main{max-width:980px;width:100%;padding:24px;margin:0 auto}
+h1{font-size:20px;margin:0 0 2px}h2{font-size:15px;margin:22px 0 8px;color:var(--accent)}
+.sub,.muted{color:var(--muted)}.badge{border:1px solid var(--line);padding:2px 8px;border-radius:999px;font-size:11px;display:inline-block;margin:2px 2px 2px 0}
+.functional,.completed{color:var(--accent)}.unavailable,.non_validated{color:var(--warn)}.failed_execution{color:var(--bad)}.disabled_voluntarily{color:var(--muted)}
+.module{border-bottom:1px solid var(--line);padding:7px 0}.reason{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px;line-height:1.5}
+pre{overflow:auto;background:#080d19;border:1px solid var(--line);padding:10px;border-radius:8px;font-size:12px;white-space:pre-wrap;margin:8px 0 0}
+table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left;font-size:12.5px}
+.notice{color:var(--warn);font-size:12.5px;line-height:1.45}.ok{color:var(--accent)}
+.level{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted);margin:4px 0;line-height:1.5}
+textarea,input[type=text]{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:10px;font:14px system-ui}
+button{background:#183e48;border:1px solid #367685;color:var(--ink);border-radius:7px;padding:8px 14px;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}.composer{display:flex;gap:8px;align-items:flex-start;margin-top:10px}
+.msg{background:#0e1626;border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0;white-space:pre-wrap}
+.msg.user{border-color:#3c5b77}.banner{padding:10px 14px;border:1px solid var(--line);border-radius:8px;margin-bottom:14px;font-size:13px}
+.banner.off{border-color:#6b5322;background:#171208}.banner.on{border-color:#1f5c46;background:#0a1d16}
+@media(max-width:820px){.shell{display:block}.side{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line)}}
+</style></head><body>
+<div class="shell"><aside class="side">
+<h1>UCA</h1><div class="sub">Interface autonome · un seul fichier</div>
+<div id="bootmeta" class="reason"></div>
+<div id="counts" style="margin:10px 0"></div>
+<h2>Modules</h2><div id="modules">…</div>
+<h2>Niveaux parallèles</h2><div id="levels">…</div>
+</aside><main class="main">
+<div id="livebanner" class="banner off">Détection du mode…</div>
+<h2>Conversation</h2>
+<div class="card"><div id="chat"></div>
+<div class="composer"><textarea id="msg" rows="2" placeholder="Écrivez à l'IA unifiée…"></textarea><button id="send">Envoyer</button></div>
+<div id="livestate" class="notice" style="margin-top:8px"></div></div>
+<h2>Console de calcul exact</h2>
+<div class="card"><div class="muted" style="font-size:12px">Port navigateur fidèle du noyau <b>ExactArithmeticKernel</b> : + − * / ^ · parenthèses · entiers et décimaux, en rationnels exacts (BigInt). Fonctionne hors-ligne : c'est un calcul réel, local à cette page.</div>
+<div class="composer"><input id="expr" type="text" placeholder="ex. 22/7 + 3 · 2^10 · (5+1)/6 · 1.5*4"><button id="calc">Calculer</button></div>
+<pre id="calcOut">Le résultat exact s'affichera ici.</pre></div>
+<h2>Démonstrations réelles <span class="muted" style="font-weight:normal;font-size:11px">(calculées par le moteur au moment de la génération de ce fichier)</span></h2>
+<div id="demos"></div>
+<h2>Modèle entraîné localement</h2>
+<div class="card" id="model">…</div>
+<h2>Contrats cognitifs</h2>
+<div class="card" id="evals">…</div>
+</main></div>
+<script>
+window.UCA_BOOT = {"generated_at": "2026-11-15T16:27:12.646830+00:00", "status": {"pipeline": ["input_processing", "user_memory", "knowledge_retrieval", "associative_consolidation", "symbolic_processing", "analogical_memory", "ncm_concept_generation", "smollm2_135_analysis", "smollm2_360_review", "surprisal_monitor", "nanodiff_specialist", "global_workspace", "final_verification", "final_response"], "execution_mode": "parallel_levels", "parallel_levels": [["input_processing"], ["user_memory", "knowledge_retrieval", "associative_consolidation"], ["symbolic_processing"], ["analogical_memory", "ncm_concept_generation"], ["smollm2_135_analysis"], ["smollm2_360_review"], ["surprisal_monitor", "nanodiff_specialist"], ["global_workspace"], ["final_verification"], ["final_response"]], "resource_mode": "sequential_unload", "resource_notes": {"sequential_unload": "Weights are released after each model stage; textual artifacts remain in context.", "resident": "Loaded adapters may stay in RAM/VRAM; use only when capacity is known.", "tokenizer_boundary": "No tensors or embeddings cross model boundaries: adapters exchange decoded text only."}, "cognitive_control": {"status": "functional", "settings": {"working_memory_capacity": 12, "max_evidence_nodes": 48, "max_evidence_edges": 160}, "scope": "bounded attention, evidence graph, metacognitive coverage, and exact arithmetic"}, "modules": {"input_processing": {"status": "functional", "reason": "Ready", "details": {}, "execution": "not_run"}, "user_memory": {"status": "unavailable", "reason": "Memory file not found: /home/user/kurox111/data/memory.json", "details": {}, "execution": "not_run"}, "knowledge_retrieval": {"status": "unavailable", "reason": "SQLite FTS5 database not found: /home/user/kurox111/data/knowledge.sqlite", "details": {"passage_count": 0}, "execution": "not_run"}, "associative_consolidation": {"status": "unavailable", "reason": "No consolidated associations; run `python -m uca consolidate` on local stores", "details": {}, "execution": "not_run"}, "symbolic_processing": {"status": "unavailable", "reason": "No MeTTa/Hyperon runner or actual operator facts are available", "details": {}, "execution": "not_run"}, "analogical_memory": {"status": "functional", "reason": "Ready", "details": {}, "execution": "not_run"}, "ncm_concept_generation": {"status": "disabled_voluntarily", "reason": "Disabled voluntarily by local configuration", "details": {}, "execution": "not_run"}, "smollm2_135_analysis": {"status": "unavailable", "reason": "No local checkpoint path configured for SmolLM2-135M-Instruct", "details": {}, "execution": "not_run"}, "smollm2_360_review": {"status": "unavailable", "reason": "No local checkpoint path configured for SmolLM2-360M-Instruct", "details": {}, "execution": "not_run"}, "surprisal_monitor": {"status": "functional", "reason": "Ready", "details": {}, "execution": "not_run"}, "nanodiff_specialist": {"status": "disabled_voluntarily", "reason": "Disabled voluntarily by local configuration", "details": {}, "execution": "not_run"}, "global_workspace": {"status": "functional", "reason": "Ready", "details": {}, "execution": "not_run"}, "final_verification": {"status": "functional", "reason": "Ready", "details": {}, "execution": "not_run"}, "final_response": {"status": "functional", "reason": "Ready", "details": {}, "execution": "not_run"}}, "auxiliary": {"lora": {"status": "disabled_voluntarily", "reason": "Disabled voluntarily by configuration", "details": {}}, "ties": {"status": "disabled_voluntarily", "reason": "Disabled voluntarily by configuration", "details": {}}, "dare": {"status": "disabled_voluntarily", "reason": "Disabled voluntarily by configuration", "details": {}}, "aoe": {"status": "disabled_voluntarily", "reason": "Disabled voluntarily by configuration", "details": {}}, "fla": {"status": "disabled_voluntarily", "reason": "Disabled voluntarily by configuration", "details": {}}, "e2e": {"status": "disabled_voluntarily", "reason": "Disabled voluntarily by configuration", "details": {}}, "scallop": {"status": "disabled_voluntarily", "reason": "Disabled voluntarily by configuration", "details": {}}}}, "demo_answers": [{"prompt": "calcule 22/7 + 3", "answer": "Réponse UCA — synthèse locale traçable.\n\nCalculs exacts vérifiés par le noyau symbolique :\n\n- 22/7 + 3 = 43/7 (arithmétique rationnelle déterministe)\n\nLimites : les extraits proviennent uniquement du corpus local installé ; ils ne constituent pas une encyclopédie exhaustive. Les propositions générées restent distinctes des faits vérifiés."}, {"prompt": "Que contient le corpus local à cette heure ?", "answer": "Réponse UCA — synthèse locale traçable.\n\nAucune source documentaire, fait MeTTa, calcul exact ou sortie de modèle local n'était disponible pour répondre de façon étayée à cette demande.\n\nLimites : les extraits proviennent uniquement du corpus local installé ; ils ne constituent pas une encyclopédie exhaustive. Les propositions générées restent distinctes des faits vérifiés."}], "model_metrics": {"seeds_and_split": {"seed": 42, "holdout_sentences": 52, "train_sentences": 456}, "holdout_sentence_list": ["readme then two lines long", "self-fidelity probes and weighted analogical transfer a hopfield attractor network", "arithmetic opt-in memory bounded conflict correction honest unavailability", "python -m uca serve --root", "one user-facing response many visible traces normal mode returns only", "expected local asset paths are configured in config uca toml", "- action attendue signalement ici de tout travail concurrent sur uca engine py ou uca pipeline py avant intégration croisée", "uca-10 curation et extension du corpus d'entraînement français avec provenance ouvert hippocampe proposé jsonl local licence provenance par segment hash de corpus", "pour réserver remplacez non assigné par votre alias ajoutez une entrée dans", "- contexte plusieurs agents peuvent intervenir sans canal direct connu", "- conséquence aucun contact externe ne doit être simulé les réponses", "- type prise en charge transfert clôture blocage", "- status md décrit l'état courant pas une promesse de résultat", "préservez les artefacts append-only la séparation faits propositions et les", "- réseau de hopfield stdlib avec refus honnête au-delà de 0 15 n motifs", "actifs non fournis dans le dépôt", "not a claim that models have been trained or evaluated here", "- producer timestamp input artifact ids and references", "modules receive a json snapshot and return a", "every module exposes functional unavailable non_validated", "the default 11-stage order is preserved", "it accepts literal constants parentheses", "converted into documentary or metta facts", "the globalworkspace runs cognitivecontrollayer workspace over existing", "this score only allocates limited workspace capacity", "these bounds make the controller usable locally and prevent a long corpus from", "extensions cognitives nouvelles architectures inspirées du cerveau et des mathématiques", "dérivé de façon déterministe graine sha-256 du nom", "- liaison bind a b a b produit composante par composante involutif", "- auto-diagnostic de fidélité reconstruct_check la mémoire vérifie elle-même que", "- transfert analogique les profils d'entités sont des superpositions de leurs rôles", "propositions analogiques n'entrent jamais dans le registre des faits", "adressable par contenu dont les motifs stockés sont des minima d'énergie", "convergence déterministe garantie e décroît monotonement", "limites honnêtes appliquées par le code la capacité classique est 0 15 n motifs", "inspiration le codage prédictif décrit le cerveau comme une machine à minimiser", "l'erreur de prédiction la théorie de l'information de shannon donne la mesure", "fondements implémentés un bigramme adaptatif lissage additif entraîné", "moteur parallèle par niveaux topologiques uca engine py", "inspiration le cerveau est massivement parallèle l'orchestrateur séquentiel", "les mathématiques de l'ordonnancement algorithme de kahn", "observables en passé échoué sur un pipeline réel monté dans une racine", "point config uca toml at operator-owned local assets only", "complete hugging face-compatible checkpoint directory and install the optional", "runner is configured uca performs a plainly labeled explicit fact-index", "an assertion it never promotes them itself", "operation masked_denoise architecture nanodiff_masked_denoiser token_ids masked_token_ids mask_positions mask_token_id 123", "validated true no positive result is shipped", "these appear in the central administrative registry", "but real shape dtype architecture-compatible expert metadata", "python -m uca serve --root", "from uca config import load_config"], "parameters": {"vocab_size": 684, "dim": 32, "window": 4, "total_parameters": 44460}, "loss_curve": {"first_epoch_mean_ce": 6.0619, "final_epoch_mean_ce": 1.0149, "epochs": 60, "monotone_note": "means over masked-position minibatches"}, "holdout": {"model_perplexity": 301.08, "unigram_baseline_perplexity": 1149.03, "uniform_baseline_perplexity": 684.0, "positions_evaluated": 483}, "restoration": {"corrupted_tokens": 61, "exactly_restored": 8, "accuracy": 0.1311}, "corpus": {"files": ["README.md", "coordination/contacts/AGENT_REGISTRY.md", "coordination/contacts/CONTACT_REQUEST.md", "coordination/contacts/INBOX.md", "coordination/shared-workspace/BACKLOG.md", "coordination/shared-workspace/DECISIONS.md", "coordination/shared-workspace/HANDOFFS.md", "coordination/shared-workspace/README.md", "coordination/shared-workspace/STATUS.md", "docs/ARCHITECTURE.md", "docs/COGNITIVE_CONTROL.md", "docs/EXTENSIONS_COGNITIVES.md", "docs/INTEGRATION.md", "docs/OPERATIONS.md"], "sentence_count": 508, "corpus_sha256": "6ef5d7bf8cc87904"}, "hf_tokenizer_export": true, "mask_token_id": 2}, "cognitive_eval": {"file": "UCA-05b-cognitive-eval-2026-11-15.json", "summary": {"total": 7, "passed": 7, "failed": 0}, "case_ids": ["arithmetique-exacte", "absence-honnete", "memoire-optin-uniquement", "conflit-symbolique-borne", "analogies-jamais-promues", "consolidation-absente-declaree", "consolidation-active-provenant"]}};
+const BOOT = window.UCA_BOOT;
+const $ = s => document.querySelector(s);
+function esc(s){const x=document.createElement('div');x.textContent=String(s??'');return x.innerHTML}
+/* ---------- panneau latéral ---------- */
+(function(){
+  $('#bootmeta').innerHTML='Généré : '+esc(BOOT.generated_at)+'<br>Mode moteur : <b>'+esc(BOOT.status.execution_mode)+'</b> · pipeline de '+BOOT.status.pipeline.length+' modules';
+  const m=BOOT.status.modules;const counts={};let html='';
+  for(const [id,it] of Object.entries(m)){counts[it.status]=(counts[it.status]||0)+1;
+    html+='<div class="module"><b>'+esc(id)+'</b> <span class="badge '+esc(it.status)+'">'+esc(it.status)+'</span><div class="reason">'+esc(it.reason||'')+'</div></div>'}
+  $('#modules').innerHTML=html;
+  $('#counts').innerHTML=Object.entries(counts).map(([k,v])=>'<span class="badge '+esc(k)+'">'+esc(k)+' · '+v+'</span>').join('');
+  const lv=BOOT.status.parallel_levels||[];let lh='';
+  lv.forEach((lvl,i)=>{lh+='<div class="level">L'+i+' &nbsp;'+lvl.map(esc).join(' <span class="ok">|</span> ')+'</div>'});
+  $('#levels').innerHTML=lh||'<span class="muted">mode séquentiel</span>';
+})();
+/* ---------- détection en ligne / hors-ligne ---------- */
+let live=false;
+(async function(){
+  try{const r=await fetch('/api/status',{cache:'no-store'});if(r.ok)live=true;}catch(e){live=false;}
+  const b=$('#livebanner');
+  if(live){b.className='banner on';b.innerHTML='<b class="ok">Connecté.</b> API UCA locale détectée : la conversation est active contre le vrai moteur Python.';$('#livestate').textContent='';}
+  else{b.className='banner off';b.innerHTML='<b>Mode hors-ligne.</b> Fichier ouvert sans serveur : la conversation est désactivée honnêtement (un fichier statique ne peut pas exécuter le moteur). Lancez <code>python -m uca serve</code> puis ouvrez via http. La console de calcul exact et toutes les données préchargées restent disponibles ci-dessous.';
+    $('#msg').disabled=true;$('#send').disabled=true;$('#livestate').textContent='Composer désactivé hors-ligne — aucune réponse ne sera simulée.';}
+})();
+$('#send').onclick=async()=>{const t=$('#msg').value.trim();if(!t||!live)return;
+  $('#chat').insertAdjacentHTML('beforeend','<div class="msg user">'+esc(t)+'</div>');$('#msg').value='';$('#send').disabled=true;
+  const id='w'+Date.now();$('#chat').insertAdjacentHTML('beforeend','<div class="msg" id="'+id+'">Exécution séquentielle des modules…</div>');
+  try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,developer:false})});
+    const x=await r.json();document.getElementById(id).textContent=x.answer||(x.error||'Erreur API');}
+  catch(e){document.getElementById(id).textContent='Erreur : '+e.message;}
+  $('#send').disabled=false;};
+/* ---------- calculateur rationnel exact (BigInt) ---------- */
+function fr(n,d){n=BigInt(n);d=BigInt(d);if(d===0n)throw Error('Division par zéro');if(d<0n){n=-n;d=-d}let a=n<0n?-n:n,b=d;while(b){[a,b]=[b,a%b]}const g=a;return{n:n/g,d:d/g}}
+const fadd=(a,b)=>fr(a.n*b.d+b.n*a.d,a.d*b.d),fsub=(a,b)=>fr(a.n*b.d-b.n*a.d,a.d*b.d),
+      fmul=(a,b)=>fr(a.n*b.n,a.d*b.d),fdiv=(a,b)=>fr(a.n*b.d,a.d*b.n),
+      fpow=(a,e)=>{if(e.d!==1n)throw Error('Exposant non entier');let k=e.n;if(k>64n||k< -64n)throw Error('Exposant borné à ±64');
+        if(a.n===0n&&k<0n)throw Error('Zéro à puissance négative');const r=fr(a.n**(k<0n?-k:k),a.d**(k<0n?-k:k));return k<0n?fr(r.d,r.n):r};
+function fstr(f){return f.d===1n?String(f.n):f.n+'/'+f.d}
+function evaluate(src){
+  if(src.length>120)throw Error('Expression trop longue');
+  const toks=src.match(/\d+\.\d+|\d+|[+\-*/^()]/g)||[];
+  if(toks.join('')!==src.replace(/[\s,]/g,''))throw Error('Caractères non admis (chiffres et + - * / ^ ( ) uniquement)');
+  let i=0;const peek=()=>toks[i],next=()=>toks[i++];
+  function parseExpr(){let v=parseTerm();while(peek()==='+'||peek()==='-')v=(next()==='+')?fadd(v,parseTerm()):fsub(v,parseTerm());return v}
+  function parseTerm(){let v=parsePow();while(peek()==='*'||peek()==='/')v=(next()==='*')?fmul(v,parsePow()):fdiv(v,parsePow());return v}
+  function parsePow(){const base=parseUnary();if(peek()==='^'){next();return fpow(base,parsePow())}return base}
+  function parseUnary(){if(peek()==='+'){next();return parseUnary()}if(peek()==='-'){next();const v=parseUnary();return fr(-v.n,v.d)}return parseAtom()}
+  function parseAtom(){const t=next();if(t===undefined)throw Error('Fin inattendue');
+    if(t==='('){const v=parseExpr();if(next()!==')')throw Error('Parenthèse non fermée');return v}
+    if(/^\d+\.\d+$/.test(t)){const[w,dec]=t.split('.');if(w.length>40||dec.length>12)throw Error('Littéral trop grand');return fr(BigInt(w+dec),10n**BigInt(dec.length))}
+    if(/^\d+$/.test(t)){if(t.length>40)throw Error('Littéral trop grand');return fr(BigInt(t),1n)}
+    throw Error('Jeton inattendu : '+t)}
+  const value=parseExpr();if(i!==toks.length)throw Error('Expression mal formée');
+  const bits=value.n<0n?(-value.n).toString(2).length:value.n.toString(2).length;
+  if(bits>4096)throw Error('Résultat exact trop grand (borne de sûreté)');
+  return value;
+}
+$('#calc').onclick=()=>{try{const v=evaluate($('#expr').value);const approx=Number(v.n)/Number(v.d);
+    $('#calcOut').textContent=$('#expr').value+' = '+fstr(v)+'   (≈ '+approx+')'+'\narithmétique rationnelle exacte · BigInt';}
+  catch(e){$('#calcOut').textContent='Refus honnête : '+e.message;}};
+$('#expr').addEventListener('keydown',e=>{if(e.key==='Enter')$('#calc')?.click()});
+/* ---------- sections préchargées ---------- */
+(function(){let html='';for(const d of BOOT.demo_answers){
+  html+='<div class="card"><div class="muted" style="font-size:12px">Demande :</div><div><b>'+esc(d.prompt)+'</b></div><pre>'+esc(d.answer)+'</pre></div>'}
+  $('#demos').innerHTML=html||'<div class="card notice">Aucune démonstration embarquée.</div>';})();
+(function(){const m=BOOT.model_metrics;
+  if(!m){$('#model').innerHTML='<span class="notice">Aucun modèle entraîné détecté (models/micro-denoiser absent). Entraînez-le : <code>python -m uca microtrain</code> — 100 % local, CPU, reproductible.</span>';return;}
+  $('#model').innerHTML='<table>'+
+    '<tr><th>Type</th><td>CBOW masqué réellement entraîné (numpy, CPU) — pas un transformer, pas SmolLM2</td></tr>'+
+    '<tr><th>Paramètres</th><td>'+m.parameters.total_parameters.toLocaleString('fr')+'</td></tr>'+
+    '<tr><th>Vocabulaire</th><td>'+m.parameters.vocab_size+' mots</td></tr>'+
+    '<tr><th>Perte CE (1ʳᵉ→dernière époque)</th><td>'+m.loss_curve.first_epoch_mean_ce+' → '+m.loss_curve.final_epoch_mean_ce+'</td></tr>'+
+    '<tr><th>Perplexité holdout (modèle / unigramme / uniforme)</th><td>'+m.holdout.model_perplexity+' / '+m.holdout.unigram_baseline_perplexity+' / '+m.holdout.uniform_baseline_perplexity+'</td></tr>'+
+    '<tr><th>Restauration de tokens corrompus</th><td>'+m.restoration.exactly_restored+'/'+m.restoration.corrupted_tokens+' ('+Math.round(m.restoration.accuracy*100)+' %)</td></tr>'+
+    '<tr><th>Corpus</th><td>'+m.corpus.sentence_count+' phrases du dépôt · sha256 '+esc(m.corpus.corpus_sha256)+' · graine '+m.seeds_and_split.seed+'</td></tr>'+
+    '</table><div class="notice" style="margin-top:8px">Calibration nanoDiff au dernier essai : <b>non validé</b> (delta négatif) — le pipeline maintient le module à l\'écart, volontairement.</div>';})();
+(function(){const e=BOOT.cognitive_eval;
+  if(!e){$('#evals').innerHTML='<span class="notice">Aucun rapport de contrats trouvé. Lancez : <code>python -m uca eval-cognitive benchmarks/cognitive_checks.example.jsonl</code></span>';return;}
+  const s=e.summary;$('#evals').innerHTML='<b class="'+(s.failed===0?'ok':'')+'">'+s.passed+'/'+s.total+' contrats comportementaux verts</b> <span class="muted">('+esc(e.file)+')</span><pre>'+e.case_ids.map(id=>'✓ '+esc(id)).join('\n')+'</pre>';})();
+</script>
+</body></html>

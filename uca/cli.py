@@ -12,6 +12,7 @@ from .config import load_config, local_path
 from .consolidation import consolidate
 from .eval_cognition import load_eval_cases, run_evaluation
 from .factory import build_engine
+from .interface import build_interface
 from .microtrain import make_calibration_cases, run_training
 from .model_adapters import MaskedNanoDiffAdapter
 from .nanodiff_validation import load_cases, validate_masked_denoiser
@@ -125,6 +126,15 @@ def cmd_microtrain(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_interface(args: argparse.Namespace) -> int:
+    result = build_interface(args.root, args.output, config_path=getattr(args, "config", None),
+                             open_browser=not args.no_open)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    if not result["opened_in_browser"]:
+        print(f"Ouverture automatique impossible ici (pas d'écran ?) — ouvrez manuellement : {result['output']}")
+    return 0
+
+
 def cmd_consolidate(args: argparse.Namespace) -> int:
     cfg = load_config(args.root, getattr(args, "config", None))
     stores = cfg["stores"]
@@ -204,6 +214,10 @@ def main(argv: list[str] | None = None) -> int:
     trainer.add_argument("--calibration-jsonl", default=None,
                          help="Also write corruption-based denoising cases to this JSONL path")
     trainer.set_defaults(func=cmd_microtrain)
+    interface = commands.add_parser("interface", help="Build the single-file auto-opening UCA interface")
+    interface.add_argument("--output", default="interface/uca.html", help="Target HTML file")
+    interface.add_argument("--no-open", action="store_true", help="Do not auto-open the browser")
+    interface.set_defaults(func=cmd_interface)
     web = commands.add_parser("serve", help="Run the single local conversation UI")
     web.add_argument("--host", default="0.0.0.0")
     web.add_argument("--port", default=8080, type=int)
