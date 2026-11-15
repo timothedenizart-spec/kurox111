@@ -34,7 +34,7 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
     nano_spec = cfg["models"]["nanodiff"]
     metta_spec = cfg["metta"]
     modules = [
-        InputProcessingModule(),
+        InputProcessingModule(cfg.get("cognitive", {})),
         UserMemoryModule(memory, enabled=True),
         KnowledgeRetrievalModule(knowledge, enabled=True),
         MettaSymbolicModule(str(metta_spec.get("runner_command", "")),
@@ -44,7 +44,7 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
         smol135,
         smol360,
         NanoDiffModule(MaskedNanoDiffAdapter(nano_spec, cfg), enabled=bool(nano_spec.get("enabled", False))),
-        GlobalWorkspaceModule(),
+        GlobalWorkspaceModule(cfg.get("cognitive", {})),
         FinalVerificationModule(knowledge, str(metta_spec.get("runner_command", ""))),
         FinalResponseModule(),
     ]
@@ -55,4 +55,5 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
         max_corrections=int(engine_spec.get("max_corrections", 1)),
         run_history_limit=int(engine_spec.get("run_history_limit", 30)),
         auxiliary=AuxiliaryRegistry(cfg.get("auxiliary", {}), Path(cfg["_root"])),
+        cognitive_settings=cfg.get("cognitive", {}),
     )

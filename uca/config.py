@@ -11,6 +11,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
                "max_corrections": 1, "cache_enabled": False, "run_history_limit": 30},
     "stores": {"memory_path": "data/memory.json", "knowledge_db": "data/knowledge.sqlite",
                "knowledge_table": "documents", "facts_path": "data/operator_facts.json"},
+    "cognitive": {"working_memory_capacity": 12, "max_evidence_nodes": 48, "max_evidence_edges": 160},
     "models": {
         "smollm2_135": {"enabled": True, "path": "", "max_new_tokens": 280, "device": "auto"},
         "smollm2_360": {"enabled": True, "path": "", "max_new_tokens": 360, "device": "auto"},

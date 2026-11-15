@@ -65,3 +65,11 @@ trace. `resident` is available only by explicit configuration. When
 `engine.cache_enabled=true`, only FTS retrieval records are held in a bounded
 in-memory LRU cache keyed by local DB signature and query terms; user memory
 and model responses are never cached by this mechanism.
+
+## Cognitive-control extension
+
+The default 11-stage order is preserved. Stage 1 now adds a deterministic
+perception/control plan and a safe exact-arithmetic route; stage 9 adds bounded
+working memory, an evidence graph, a structured conflict register and
+metacognitive coverage. These are transparent control artifacts, not hidden
+reasoning or model-weight fusion. See [`COGNITIVE_CONTROL.md`](COGNITIVE_CONTROL.md).

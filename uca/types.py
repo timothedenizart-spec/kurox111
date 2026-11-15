@@ -32,6 +32,7 @@ class ArtifactKind(str, Enum):
     ANALYSIS = "analysis"
     SYNTHESIS = "synthesis"
     VERIFICATION = "verification"
+    COMPUTATION = "computation"
     FINAL = "final"
     DIAGNOSTIC = "diagnostic"
 
@@ -104,6 +105,7 @@ class CognitiveContext:
     sources: list[dict[str, Any]] = field(default_factory=list)
     symbolic_facts: list[dict[str, Any]] = field(default_factory=list)
     propositions: list[dict[str, Any]] = field(default_factory=list)
+    computations: list[dict[str, Any]] = field(default_factory=list)
     scores: list[dict[str, Any]] = field(default_factory=list)
     uncertainties: list[dict[str, Any]] = field(default_factory=list)
     execution_history: list[ModuleReport] = field(default_factory=list)
@@ -123,6 +125,10 @@ class CognitiveContext:
         elif artifact.kind is ArtifactKind.PROPOSAL:
             # Proposal is intentionally separate from fact/source bins.
             self.propositions.append(serialized)
+        elif artifact.kind is ArtifactKind.COMPUTATION:
+            # Exact calculations are a separate substrate, never silently promoted
+            # into a documentary or symbolic fact.
+            self.computations.append(serialized)
         if artifact.confidence is not None:
             self.scores.append({"artifact_id": artifact.id, "score": artifact.confidence,
                                 "producer": artifact.provenance.producer})
@@ -149,6 +155,7 @@ class CognitiveContext:
             "sources": json.loads(json.dumps(self.sources)),
             "symbolic_facts": json.loads(json.dumps(self.symbolic_facts)),
             "propositions": json.loads(json.dumps(self.propositions)),
+            "computations": json.loads(json.dumps(self.computations)),
             "scores": json.loads(json.dumps(self.scores)),
             "uncertainties": json.loads(json.dumps(self.uncertainties)),
             "execution_history": [record.to_dict() for record in self.execution_history],
@@ -172,6 +179,7 @@ class CognitiveContext:
                 "normalized_text": self.normalized_text,
                 "symbolic_facts": self.symbolic_facts,
                 "propositions": self.propositions,
+                "computations": self.computations,
                 "scores": self.scores,
                 "execution_history": [record.to_dict() for record in self.execution_history],
                 "artifacts": [artifact.to_dict() for artifact in self.artifacts],

@@ -19,9 +19,12 @@ its own tokenizer and is invoked only through a model-specific boundary.
 - `UnifiedCognitiveEngine`: immutable-result sequential execution, dependencies,
   soft time limits, trace records, run IDs, bounded correction pass, error
   isolation, and per-module enablement.
-- A typed common exchange format with sources, symbolic facts, unverified
-  propositions, analyses, confidence, uncertainty, provenance, and full
+- A typed common exchange format with sources, symbolic facts, exact computations,
+  unverified propositions, analyses, confidence, uncertainty, provenance, and full
   execution history.
+- A deterministic cognitive-control layer: bounded working memory, interpretable
+  evidence-attention priorities, sparse provenance/lexical evidence graph, conflict
+  register, metacognitive coverage, and a restricted exact rational-arithmetic kernel.
 - The required 11-stage default pipeline: input, opt-in memory, FTS5 retrieval,
   MeTTa bridge, NCM, SmolLM2-135M, SmolLM2-360M, nanoDiff, global workspace,
   verification, and final response.
@@ -49,7 +52,9 @@ works through a proxied development preview.
 The initial answer is intentionally conservative: without local model weights
 or an imported corpus it will report the absence rather than fabricate an
 answer. Importing an FTS shard or pointing at a checkpoint is an explicit local
-operator action; see [`docs/OPERATIONS.md`](docs/OPERATIONS.md).
+operator action; see [`docs/OPERATIONS.md`](docs/OPERATIONS.md). The bounded
+attention/evidence graph and exact arithmetic substrate are documented in
+[`docs/COGNITIVE_CONTROL.md`](docs/COGNITIVE_CONTROL.md).
 
 ## Design promises
 
@@ -77,6 +82,6 @@ of `functional`, `unavailable`, `non_validated`, `disabled_voluntarily`, or
 
 - `uca/` — engine, typed exchange objects, module adapters, UI and benchmark
 - `config/uca.toml` — local-only configuration and ordered default pipeline
-- `docs/` — architecture, integration contracts, operations and validation plan
+- `docs/` — architecture, cognitive-control design, integration contracts, operations and validation plan
 - `tests/` — standard-library tests that run without model packages or assets
 - `benchmarks/` — reproducible task-set format (no fabricated results)
