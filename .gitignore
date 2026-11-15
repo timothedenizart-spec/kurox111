@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+data/memory.json
+data/operator_facts.json
+models/
+checkpoints/
+runs/
+cache/
+.uca/
+.DS_Store
