@@ -56,7 +56,8 @@ The latter deliberately reports
 `not_executable`, as no old architecture existed in the audited repository.
 
 Also run `uca_without_memory`, `uca_without_retrieval`, `uca_without_symbolic`,
-`uca_without_ncm`, and `uca_without_nanodiff` as ablations. It records wall
+`uca_without_ncm`, and `uca_without_nanodiff` as ablations. `uca_without_ncm`
+removes both NCM concept generation and guarded reasoning refinement. It records wall
 time, process max-RSS delta and optional CUDA peak allocation. It leaves
 factual accuracy, reasoning, maths, linguistic coherence and hallucination
 metrics `null` without a validated evaluator/human labels. Do not report null

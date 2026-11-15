@@ -32,6 +32,7 @@ class LauncherTests(unittest.TestCase):
                     status = json.loads(response.read().decode("utf-8"))
                 self.assertIn("input_processing", status["modules"])
                 self.assertEqual(status["modules"]["smollm2_135_analysis"]["status"], "unavailable")
+                self.assertEqual(status["modules"]["ncm_reasoning_refinement"]["status"], "disabled_voluntarily")
             finally:
                 session.server.shutdown()
                 worker.join(timeout=3)

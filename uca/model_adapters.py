@@ -138,8 +138,59 @@ class ExternalNcmAdapter:
             if isinstance(proposal, str) and proposal.strip():
                 clean.append({"text": proposal.strip()})
             elif isinstance(proposal, dict) and isinstance(proposal.get("text"), str):
-                clean.append({"text": proposal["text"].strip(), "runner_metadata": proposal.get("metadata", {})})
+                text = proposal["text"].strip()
+                if text:
+                    metadata = proposal.get("metadata", {})
+                    clean.append({"text": text, "runner_metadata": metadata if isinstance(metadata, dict) else {}})
         return clean
+
+    def refinement_capability(self) -> Capability:
+        """Require an explicit, separately validated final-review contract.
+
+        A runner that can emit loose concepts is not automatically assumed to
+        understand the reasoning-refinement schema. This gate prevents a new
+        operation from being silently enabled against an uninspected runtime.
+        """
+        if not self.config.get("enabled", False):
+            return Capability(ModuleStatus.DISABLED,
+                              "NCM concept generation is disabled; the refinement stage cannot run alone")
+        basic = self.capability()
+        if basic.status is not ModuleStatus.FUNCTIONAL:
+            return basic
+        if not self.config.get("refinement_validated", False):
+            return Capability(ModuleStatus.NON_VALIDATED,
+                              "NCM reasoning-refinement contract has not been validated")
+        return Capability(ModuleStatus.FUNCTIONAL,
+                          "Validated local NCM reasoning-refinement contract configured")
+
+    def refine_reasoning(self, query: str, dossier: dict[str, Any], timeout: float) -> dict[str, Any]:
+        """Ask an NCM shim for *review targets*, never a factual verdict.
+
+        The payload contains decoded text and UCA artifact IDs only. The shim
+        cannot receive another model's token IDs, embeddings or tensor state.
+        Returned plan text and targets remain an unverified proposal; downstream
+        verification must independently compare them with local evidence.
+        """
+        result = invoke_json_runner(str(self.config["runner_command"]), {
+            "operation": "reasoning_refinement", "query": query, "dossier": dossier,
+            "contract_version": 2,
+        }, timeout)
+        raw_targets = result.get("review_targets", [])
+        if not isinstance(raw_targets, list):
+            raise RuntimeError("NCM reasoning-refinement field 'review_targets' must be a list")
+        targets = [item.strip() for item in raw_targets[:12] if isinstance(item, str) and item.strip()]
+        targets = [item[:800] for item in targets]
+        raw_plan = result.get("response_plan", "")
+        if raw_plan is None:
+            raw_plan = ""
+        if not isinstance(raw_plan, str):
+            raise RuntimeError("NCM reasoning-refinement field 'response_plan' must be a string")
+        plan = raw_plan.strip()[:1600]
+        if not targets and not plan:
+            raise RuntimeError("NCM reasoning-refinement returned neither review_targets nor response_plan")
+        metadata = result.get("metadata", {})
+        return {"review_targets": targets, "response_plan": plan,
+                "runner_metadata": metadata if isinstance(metadata, dict) else {}}
 
 
 class MaskedNanoDiffAdapter:

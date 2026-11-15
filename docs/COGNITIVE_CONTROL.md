@@ -73,6 +73,27 @@ an unresolved limit, not negative evidence. The verifier reuses the structured
 conflict register and can request at most one SmolLM2-360M review/re-verification
 pass. It cannot loop indefinitely.
 
+## 5. Guarded NCM review refinement
+
+When a checkpoint-specific local NCM runner is supplied and independently
+validated for its second JSON contract, `ncm_reasoning_refinement` consumes the
+GlobalWorkspace dossier as decoded text and artifact IDs. It emits an
+explicitly `NON_VERIFIE` **review plan**: targets worth independently checking
+and optional non-factual organization guidance.
+
+The final verifier, not NCM, compares each target lexically with the available
+local documents and symbolic facts. An anchor means only that a target is
+inspectable; it never verifies an NCM claim. Missing anchors are inconclusive.
+The final answer can report the count of targets that were examined, but it does
+not inject NCM plan prose or convert it into a source/fact. This creates a
+traceable feedback connection from generative exploration to checking without
+claiming hidden reasoning, consciousness, or truth by model authority.
+
+Both `models.ncm.refinement_enabled` and
+`models.ncm.refinement_validated` default to `false`. A local fixture proves
+only the contract/gates; qualitative improvement requires the annotated
+ablation protocol in `coordination/shared-workspace/PLAN_NCM_REASONING.md`.
+
 ## Configuration
 
 `[cognitive]` in `config/uca.toml` controls only resource bounds:

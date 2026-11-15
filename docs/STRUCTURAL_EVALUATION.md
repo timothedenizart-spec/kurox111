@@ -9,6 +9,9 @@ faire des affirmations sur la qualité d'une IA.
 - unicité des identifiants d'artefacts ;
 - présence du producteur et résolution des dépendances déclarées ;
 - séparation entre propositions générées et faits symboliques ;
+- pour chaque affinement NCM exécuté : statut `NON_VERIFIE`, garde de
+  non-promotion/non-remplacement, puis présence dans la vérification
+  indépendante ;
 - identifiant, contenu et provenance pour chaque document ;
 - portée et statut des calculs exacts ;
 - présence d'une réponse finale unique ;

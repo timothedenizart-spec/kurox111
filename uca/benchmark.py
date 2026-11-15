@@ -90,11 +90,13 @@ def variant_config(base: dict[str, Any], variant: str) -> dict[str, Any] | None:
         return cfg
     if variant.startswith("uca_without_"):
         target = variant.removeprefix("uca_without_")
-        mapping = {"memory": "user_memory", "retrieval": "knowledge_retrieval", "symbolic": "symbolic_processing",
-                   "ncm": "ncm_concept_generation", "nanodiff": "nanodiff_specialist"}
-        module = mapping.get(target)
-        if module:
-            cfg["pipeline"]["order"] = [item for item in full if item != module]
+        mapping = {"memory": {"user_memory"}, "retrieval": {"knowledge_retrieval"},
+                   "symbolic": {"symbolic_processing"},
+                   "ncm": {"ncm_concept_generation", "ncm_reasoning_refinement"},
+                   "nanodiff": {"nanodiff_specialist"}}
+        modules = mapping.get(target)
+        if modules:
+            cfg["pipeline"]["order"] = [item for item in full if item not in modules]
             return cfg
     return None
 

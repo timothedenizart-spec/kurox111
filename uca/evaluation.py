@@ -48,6 +48,31 @@ def evaluate_context(context: CognitiveContext, expectations: dict[str, Any] | N
                          "Generated proposals remain outside the symbolic-fact bin" if not overlap else
                          f"{len(overlap)} proposal(s) also appear as symbolic facts"))
 
+    ncm_refinements = [item for item in artifacts if item.kind is ArtifactKind.PROPOSAL and
+                       item.content.get("kind") == "ncm_reasoning_refinement"]
+    malformed_ncm_refinements = [item.id for item in ncm_refinements if
+                                 item.content.get("status") != "NON_VERIFIE" or
+                                 item.content.get("must_not_be_promoted_to_fact") is not True or
+                                 item.content.get("must_not_replace_base_answer_automatically") is not True]
+    checks.append(_check("ncm_refinement_remains_unverified", not malformed_ncm_refinements,
+                         "No NCM refinement ran" if not ncm_refinements else
+                         "All NCM refinement artifacts remain explicit non-verified proposals" if not malformed_ncm_refinements else
+                         f"{len(malformed_ncm_refinements)} NCM refinement artifact(s) lack a non-promotion guard"))
+    ncm_completed = any(record.module_id == "ncm_reasoning_refinement" and record.status.value == "completed"
+                        for record in context.execution_history)
+    if ncm_completed:
+        verified_ids = set()
+        for item in artifacts:
+            if item.kind is ArtifactKind.VERIFICATION:
+                refinement = item.content.get("ncm_refinement", {})
+                inspected = refinement.get("artifact_ids", []) if isinstance(refinement, dict) else []
+                if isinstance(inspected, list):
+                    verified_ids.update(str(value) for value in inspected)
+        expected_ids = {item.id for item in ncm_refinements}
+        reached_verifier = bool(expected_ids) and expected_ids.issubset(verified_ids)
+        checks.append(_check("ncm_refinement_reaches_independent_verification", reached_verifier,
+                             f"{len(expected_ids & verified_ids)}/{len(expected_ids)} completed NCM refinement artifact(s) reached verification"))
+
     malformed_documents = [item.id for item in artifacts if item.kind is ArtifactKind.DOCUMENT and
                            not all(item.content.get(key) for key in ("document_id", "content", "provenance"))]
     checks.append(_check("document_provenance_complete", not malformed_documents,

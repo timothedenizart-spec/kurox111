@@ -383,9 +383,86 @@ class GlobalWorkspaceModule(CognitiveModule):
                                      "metacognitive coverage and separate proposals"))
 
 
+class NcmReasoningRefinementModule(CognitiveModule):
+    """Turn a validated NCM output into an explicitly unverified review plan.
+
+    This stage sits after the GlobalWorkspace because it sees the bounded,
+    provenance-aware reasoning dossier. It cannot add a fact or replace a final
+    response: it only supplies review targets that the independent verifier may
+    inspect against available local evidence.
+    """
+    def __init__(self, adapter: ExternalNcmAdapter, enabled: bool = False) -> None:
+        super().__init__("ncm_reasoning_refinement", enabled=enabled,
+                         dependencies=("global_workspace", "ncm_concept_generation"))
+        self.adapter = adapter
+
+    def capability(self) -> Capability:
+        basic = super().capability()
+        return basic if basic.status is not ModuleStatus.FUNCTIONAL else self.adapter.refinement_capability()
+
+    @staticmethod
+    def _entry(item: dict[str, Any], fields: tuple[str, ...]) -> dict[str, Any]:
+        content = item.get("content", {})
+        return {"artifact_id": item.get("id"),
+                **{field: str(content.get(field, ""))[:900] for field in fields}}
+
+    def run(self, snapshot: dict[str, Any]) -> ModuleResult:
+        artifacts = snapshot.get("artifacts", [])
+        documents = [self._entry(item, ("document_id", "content", "provenance")) for item in artifacts
+                     if item.get("kind") == ArtifactKind.DOCUMENT.value][:6]
+        facts = [self._entry(item, ("fact_id", "statement")) for item in artifacts
+                 if item.get("kind") == ArtifactKind.SYMBOLIC_FACT.value][:12]
+        computations = [self._entry(item, ("expression", "exact_value", "verification_status")) for item in artifacts
+                        if item.get("kind") == ArtifactKind.COMPUTATION.value][:4]
+        analyses = [self._entry(item, ("model", "role", "text")) for item in artifacts
+                    if item.get("kind") == ArtifactKind.ANALYSIS.value][-2:]
+        prior_proposals = [self._entry(item, ("text", "status")) for item in artifacts
+                           if item.get("kind") == ArtifactKind.PROPOSAL.value and
+                           item.get("provenance", {}).get("producer") == "ncm_concept_generation"][:8]
+        workspace_items = [item for item in artifacts if item.get("kind") == ArtifactKind.SYNTHESIS.value and
+                           item.get("provenance", {}).get("producer") == "global_workspace"]
+        workspace = workspace_items[-1].get("content", {}) if workspace_items else {}
+        input_ids = tuple(item.get("id") for item in artifacts if isinstance(item.get("id"), str))
+        dossier = {
+            "schema": "uca.ncm-reasoning-dossier.v1",
+            "request_id": snapshot.get("request_id"),
+            "query_type": snapshot.get("query_type"),
+            "evidence": {"documents": documents, "symbolic_facts": facts,
+                         "exact_computations": computations},
+            "model_analyses": analyses,
+            "prior_ncm_proposals": prior_proposals,
+            "workspace_control": {
+                "working_memory": workspace.get("cognitive_control", {}).get("working_memory", []),
+                "conflict_register": workspace.get("cognitive_control", {}).get("conflict_register", []),
+                "grounding_gaps": workspace.get("cognitive_control", {}).get("prediction_error_register", []),
+                "selection_rule": workspace.get("selection_rule", ""),
+            },
+            "constraints": [
+                "Return review targets and an optional response plan, not factual verdicts.",
+                "Do not infer a claim from missing local evidence.",
+                "NCM output remains NON_VERIFIE and cannot replace the final response automatically.",
+            ],
+        }
+        refined = self.adapter.refine_reasoning(snapshot.get("normalized_text") or snapshot["user_text"], dossier,
+                                                self.timeout_seconds or 45)
+        text = refined["response_plan"] or "NCM supplied review targets without a prose response plan."
+        proposal = artifact(
+            ArtifactKind.PROPOSAL, self.module_id,
+            {"text": text, "kind": "ncm_reasoning_refinement", "status": "NON_VERIFIE",
+             "must_not_be_promoted_to_fact": True, "must_not_replace_base_answer_automatically": True,
+             "verification_role": "prioritize independent review targets only",
+             "review_targets": refined["review_targets"], "runner_metadata": refined["runner_metadata"]},
+            uncertainty=("NCM refinement is a non-verified control proposal; only independent local evidence can support a claim.",),
+            inputs=input_ids, implementation="external NCM reasoning_refinement contract v2",
+        )
+        return ModuleResult(artifacts=(proposal,),
+                            message=(f"NCM supplied {len(refined['review_targets'])} non-verified review target(s) "
+                                     "for independent final verification"))
+
+
 class FinalVerificationModule(CognitiveModule):
     def __init__(self, knowledge: FTSKnowledgeStore, metta_command: str) -> None:
-        super().__init__("final_verification", dependencies=("global_workspace",))
+        super().__init__("final_verification", dependencies=("global_workspace", "ncm_reasoning_refinement"))
         self.knowledge = knowledge
         self.metta_command = metta_command
 
@@ -397,6 +474,19 @@ class FinalVerificationModule(CognitiveModule):
                         if item.get("kind") == ArtifactKind.COMPUTATION.value]
         analyses = [item.get("content", {}).get("text", "") for item in snapshot.get("artifacts", [])
                     if item.get("kind") == ArtifactKind.ANALYSIS.value]
+        ncm_refinements = [item for item in snapshot.get("artifacts", [])
+                           if item.get("kind") == ArtifactKind.PROPOSAL.value and
+                           item.get("content", {}).get("kind") == "ncm_reasoning_refinement"]
+        ncm_review_targets: list[dict[str, str]] = []
+        for proposal in ncm_refinements:
+            targets = proposal.get("content", {}).get("review_targets", [])
+            if not isinstance(targets, list):
+                continue
+            for target in targets[:12]:
+                if isinstance(target, str) and target.strip():
+                    ncm_review_targets.append({"artifact_id": str(proposal.get("id", "")),
+                                               "target": target.strip()[:800]})
+        ncm_review_targets = ncm_review_targets[:12]
         claims: list[str] = []
         for text in analyses[-2:]:
             claims.extend([segment.strip() for segment in re.split(r"(?<=[.!?])\s+", str(text)) if len(segment.strip()) > 18][:4])
@@ -410,6 +500,20 @@ class FinalVerificationModule(CognitiveModule):
             status = "supported_by_available_excerpt" if related_documents or related_facts else "not_verified_with_available_resources"
             checks.append({"statement": claim, "status": status,
                            "document_ids": related_documents, "symbolic_fact_ids": related_facts})
+        ncm_target_checks = []
+        for item in ncm_review_targets:
+            target_terms = _tokens(item["target"])
+            related_documents = [doc.get("document_id") for doc in docs
+                                 if len(target_terms & _tokens(str(doc.get("content", "")))) >= 3]
+            related_facts = [fact.get("fact_id") for fact in facts
+                             if len(target_terms & _tokens(str(fact.get("statement", "")))) >= 2]
+            ncm_target_checks.append({
+                "review_target": item["target"], "ncm_artifact_id": item["artifact_id"],
+                "status": "review_target_has_local_anchor" if related_documents or related_facts
+                else "review_target_not_grounded_by_available_resources",
+                "document_ids": related_documents, "symbolic_fact_ids": related_facts,
+                "interpretation": "An anchor makes a review target inspectable; it does not prove an NCM assertion.",
+            })
         calculation_checks = [{"expression": item.get("expression"), "exact_value": item.get("exact_value"),
                                "status": "verified_literal_arithmetic" if item.get("verification_status") == "exact_deterministic"
                                else "not_verified"}
@@ -418,6 +522,13 @@ class FinalVerificationModule(CognitiveModule):
         # limits verification but must not discard the rest of the dossier.
         metta_verifications: list[dict[str, Any]] = []
         verification_warnings: list[str] = []
+        if ncm_target_checks:
+            ungrounded_targets = sum(1 for item in ncm_target_checks
+                                     if item["status"] != "review_target_has_local_anchor")
+            if ungrounded_targets:
+                verification_warnings.append(
+                    f"{ungrounded_targets} NCM review target(s) have no local lexical anchor; this is inconclusive, not a falsehood verdict."
+                )
         if self.metta_command.strip() and claims:
             try:
                 response = invoke_json_runner(self.metta_command, {
@@ -451,6 +562,11 @@ class FinalVerificationModule(CognitiveModule):
             verification_warnings.append(f"{len(grounding_gaps)} generated artifact(s) were prioritized for grounding review.")
         result = artifact(ArtifactKind.VERIFICATION, self.module_id,
                           {"checks": checks, "calculation_checks": calculation_checks,
+                           "ncm_refinement": {
+                               "artifact_ids": [str(item.get("id", "")) for item in ncm_refinements],
+                               "review_target_checks": ncm_target_checks,
+                               "policy": "NCM targets prioritize independent review only; they are never factual verdicts or automatic answer replacements.",
+                           },
                            "grounding_gaps_for_review": grounding_gaps,
                            "requery_document_ids": [hit["document_id"] for hit in query_hits],
                            "metta_verifications": metta_verifications,
@@ -461,7 +577,8 @@ class FinalVerificationModule(CognitiveModule):
                           uncertainty=("Lexical support is not a full fact-check; unavailable corpus/MeTTa assets limit verification.",),
                           implementation="bounded local verification")
         return ModuleResult(artifacts=(result,), warnings=tuple(verification_warnings),
-                            message=f"Checked {len(checks)} generated statement(s)",
+                            message=(f"Checked {len(checks)} generated statement(s) and "
+                                     f"{len(ncm_target_checks)} NCM review target(s) independently"),
                             metadata={"correction_required": correction_required})
 
 
@@ -478,6 +595,9 @@ class FinalResponseModule(CognitiveModule):
                         if item.get("kind") == ArtifactKind.COMPUTATION.value]
         verification = [item.get("content", {}) for item in snapshot.get("artifacts", [])
                         if item.get("kind") == ArtifactKind.VERIFICATION.value]
+        ncm_refinement_count = sum(1 for item in snapshot.get("artifacts", [])
+                                   if item.get("kind") == ArtifactKind.PROPOSAL.value and
+                                   item.get("content", {}).get("kind") == "ncm_reasoning_refinement")
         lines = ["Réponse UCA — synthèse locale traçable."]
         if documents:
             lines.append("Passages documentaires locaux pertinents :")
@@ -507,12 +627,23 @@ class FinalResponseModule(CognitiveModule):
             grounding_gaps = verification[-1].get("grounding_gaps_for_review", [])
             if grounding_gaps:
                 lines.append(f"Contrôle de cohérence : {len(grounding_gaps)} sortie(s) générée(s) ont une faible liaison lexicale aux preuves locales et restent à vérifier.")
+            ncm_refinement = verification[-1].get("ncm_refinement", {})
+            if isinstance(ncm_refinement, dict) and ncm_refinement.get("artifact_ids"):
+                target_checks = ncm_refinement.get("review_target_checks", [])
+                target_checks = target_checks if isinstance(target_checks, list) else []
+                anchored = sum(1 for item in target_checks if isinstance(item, dict) and
+                               item.get("status") == "review_target_has_local_anchor")
+                lines.append(
+                    f"Affinement NCM : {len(target_checks)} cible(s) de revue non vérifiée(s) ont orienté le contrôle final ; "
+                    f"{anchored} ont un ancrage lexical local. Le texte NCM n'est ni un fait ni un remplacement automatique de cette réponse."
+                )
         lines.append("Limites : les extraits proviennent uniquement du corpus local installé ; ils ne constituent pas une encyclopédie exhaustive. Les propositions générées restent distinctes des faits vérifiés.")
         answer = "\n\n".join(lines)
         return ModuleResult(artifacts=(artifact(ArtifactKind.FINAL, self.module_id,
                                                 {"answer": answer, "format": "single_user_response",
                                                  "source_count": len(documents), "symbolic_fact_count": len(facts),
-                                                 "exact_computation_count": len(computations)},
+                                                 "exact_computation_count": len(computations),
+                                                 "ncm_refinement_count": ncm_refinement_count},
                                                 uncertainty=("The final response is limited to the locally available resources listed above.",),
                                                 implementation="evidence-preserving deterministic response composer"),),
                             message="Produced one final response without overwriting intermediate artifacts")

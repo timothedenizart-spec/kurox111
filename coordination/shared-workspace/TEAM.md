@@ -7,7 +7,7 @@
 
 | Nom de rôle | État | Responsabilité | Frontières non négociables | Premier chantier |
 |---|---|---|---|---|
-| **Atlas** | actif | intégration UCA, contrats d'artefacts, planification, tests de structure et gouvernance d'entraînement | ne fabrique ni actifs, ni résultats de benchmark ; ne lance pas d'entraînement sans manifest | UCA-09 : préflight LoRA local |
+| **Atlas** | actif | intégration UCA, contrats d'artefacts, planification, tests de structure et gouvernance d'entraînement | ne fabrique ni actifs, ni résultats de benchmark ; ne lance pas d'entraînement sans manifest | UCA-09 : préflight LoRA local ; UCA-11 : intégration NCM sûre |
 | **Mnemosyne** | réservé | mémoire explicite, import FTS5, provenance documentaire | aucune écriture automatique de mémoire utilisateur | UCA-01 |
 | **Logos** | réservé | MeTTa, faits opérateurs, contraintes formelles et calcul | absence de fait = inconclusif | UCA-02 |
 | **Daedalus** | réservé | checkpoints, adaptateurs, RAM/VRAM, nanoDiff | aucun poids/tokenizer/tensor partagé implicitement | UCA-03 / UCA-04 |

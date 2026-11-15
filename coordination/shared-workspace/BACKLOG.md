@@ -12,6 +12,10 @@
 | UCA-08 | Concevoir recherche active et délibération multi-modèle bornées | ouvert | non assigné | corpus/modèles validés, budget explicite, arrêt garanti et benchmark annoté |
 | UCA-09 | Préparer l'entraînement LoRA local de SmolLM2-360M | bloqué sur actifs approuvés | Atlas | préflight/manifeste prêts ; restent droits de données, tokenizer/checkpoint réel, modules cibles et validation base vs adaptateur |
 | UCA-10 | Lancer l'interface locale automatiquement | terminé, validé sans actifs modèles | Atlas | fichier double-clic, port libre, état réel des modules, navigateur demandé, test de lancement sans modèles simulés |
+| UCA-11 | Intégrer un affinement NCM relié au contrôle de raisonnement | terminé structurellement, activation réelle bloquée | Atlas | contrat textuel, non-promotion en fait, vérification indépendante, tests synthétiques ; runner NCM local validé requis pour activation |
+| UCA-12 | Valider un runner NCM local réel et sa compatibilité | ouvert | Daedalus (réservé) | chemin/version/commande locaux, contrat `reasoning_refinement`, test d'intégration ; aucun téléchargement |
+| UCA-13 | Mesurer l'ablation avec/sans toutes étapes NCM | prêt pour tâches annotées | Aletheia (réservé) | suite annotée, protocole préenregistré, qualité/coût séparés, aucune métrique inventée |
+| UCA-14 | Rendre le raisonnement NCM observable dans l'UI | ouvert | Pharos (réservé) | états, cibles de revue et limites via API/UI ; pas de trace sensible ni de fausse disponibilité |
 
 ## Réservation
 

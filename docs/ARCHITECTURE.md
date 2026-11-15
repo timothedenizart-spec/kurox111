@@ -42,9 +42,15 @@ nanoDiff output cannot enter the fact bin.
    it never calls causal `generate` and candidates are review-only.
 9. `global_workspace` emits a dossier that separates evidence, analyses and
    proposals; different text is a divergence, not an asserted contradiction.
-10. `final_verification` applies bounded, local lexical corroboration, re-queries
-    a configured MeTTa bridge for statement verification, and preserves inconclusive outcomes.
-11. `final_response` makes one evidence-preserving response.
+10. `ncm_reasoning_refinement` is an additional, separately validated NCM
+    control stage. It receives only decoded text plus artifact IDs from the
+    workspace and emits `NON_VERIFIE` review targets; it is disabled by default.
+11. `final_verification` independently checks model statements and any NCM review
+    targets against available local evidence, re-queries a configured MeTTa
+    bridge when present, and preserves inconclusive outcomes.
+12. `final_response` makes one evidence-preserving response. It may report that
+    NCM targets oriented review, but never promotes NCM prose to a fact or an
+    automatic answer replacement.
 
 The engine may make **one** targeted review pass only if a future validated
 verifier writes `correction_required: true`; it preserves prior outputs and
@@ -68,11 +74,13 @@ and model responses are never cached by this mechanism.
 
 ## Cognitive-control extension
 
-The default 11-stage order is preserved. Stage 1 now adds a deterministic
-perception/control plan and a safe exact-arithmetic route; stage 9 adds bounded
-working memory, an evidence graph, a structured conflict register and
-metacognitive coverage. These are transparent control artifacts, not hidden
-reasoning or model-weight fusion. See [`COGNITIVE_CONTROL.md`](COGNITIVE_CONTROL.md).
+The original required sequence is preserved, with one guarded NCM review stage
+inserted between the workspace and final verification. Stage 1 adds a
+deterministic perception/control plan and a safe exact-arithmetic route; stage
+9 adds bounded working memory, an evidence graph, a structured conflict
+register and metacognitive coverage. The NCM review stage is a separately gated
+control proposal, not hidden reasoning, model-weight fusion, or a factual
+authority. See [`COGNITIVE_CONTROL.md`](COGNITIVE_CONTROL.md).
 
 ## Bounded parallel afferent field
 

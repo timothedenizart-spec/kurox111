@@ -29,3 +29,18 @@
 - **Conséquence :** l'architecture peut exploiter un parallélisme réel de
   lectures indépendantes, mais aucun gain qualitatif, de latence ou de VRAM
   n'est revendiqué avant benchmark sur actifs locaux réels.
+
+## D-004 — 2026-11-15 — NCM comme signal de revue, jamais comme autorité de fait
+
+- **Contexte :** la demande UCA-11 veut relier un affinement NCM au contrôle de
+  raisonnement et à la réponse finale, alors qu'aucun runner/checkpoint NCM
+  réel n'est actuellement fourni.
+- **Décision :** ajouter seulement un contrat local, textuel et explicitement
+  désactivé/non validé par défaut. Lorsqu'il est validé par un opérateur, le NCM
+  émet un plan de revue et des cibles de vérification dans un artefact
+  `PROPOSAL` `NON_VERIFIE`, relié au dossier GlobalWorkspace. Le vérificateur
+  confronte ces cibles aux sources/faits/calculs indépendants ; la composition
+  finale ne convertit pas le texte NCM en assertion factuelle.
+- **Conséquence :** le NCM peut améliorer la couverture et l'ordre de contrôle,
+  mais ne prouve rien, ne remplace pas automatiquement une réponse et ne peut
+  être décrit comme améliorant la qualité sans ablation annotée reproductible.

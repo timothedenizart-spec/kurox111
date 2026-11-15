@@ -2,7 +2,9 @@
 
 **Mis à jour :** 2026-11-15 UTC
 
-**Base de coordination :** commit `dbb28a9` (`Add bounded cognitive control and exact reasoning`)
+**Base de coordination :** commit `c2c85cb` (`Add one-file local UCA launcher`) ;
+UCA-11 est validé structurellement et attend un runner NCM réel avant toute
+activation.
 
 ## Fonctionnel dans le dépôt
 
@@ -19,7 +21,11 @@
   confirmations ; aucun entraînement lancé sans actifs approuvés ;
 - lanceur local `Lancer_UCA.py` : sélection de port libre, statut transparent
   des modules, ouverture demandée au navigateur par défaut et interface servie
-  localement ; les actifs absents restent indisponibles plutôt que simulés.
+  localement ; les actifs absents restent indisponibles plutôt que simulés ;
+- affinement NCM de contrôle : contrat `reasoning_refinement` textuel relié au
+  dossier GlobalWorkspace et à la vérification indépendante ; il est désactivé
+  et non activable sans validation distincte du runner, et ne promeut jamais
+  une proposition au rang de fait.
 
 ## Actifs non fournis dans le dépôt
 

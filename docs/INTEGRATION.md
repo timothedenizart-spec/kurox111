@@ -41,11 +41,35 @@ provided 50-fact base usable without misrepresenting its reasoning capability.
 
 ## NCM LM1B / VQ
 
-Enable only after a checkpoint-specific shim is tested. It receives
-`operation: concept_generation` and must output `{"proposals":[{"text":"…"}]}`.
-Set both `enabled = true` and `validated = true`. UCA marks all results
-`NON_VERIFIE` forever unless a distinct symbolic/documentary process supports
-an assertion; it never promotes them itself.
+Enable only after a checkpoint-specific shim is tested. The concept stage
+receives `operation: concept_generation` and must output
+`{"proposals":[{"text":"…"}]}`. Set both `enabled = true` and
+`validated = true`. UCA marks all results `NON_VERIFIE` forever unless a
+distinct symbolic/documentary process supports an assertion; it never promotes
+them itself.
+
+A separate optional control stage can ask the **same local shim** to refine the
+*verification plan*, not to declare a final fact. It is off by default and
+requires both `refinement_enabled = true` and `refinement_validated = true` in
+addition to the base NCM gates. Its stdin contract is:
+
+```json
+{"operation":"reasoning_refinement","query":"…","dossier":{"schema":"uca.ncm-reasoning-dossier.v1"},"contract_version":2}
+```
+
+The dossier contains decoded local evidence text, model analysis text and UCA
+artifact IDs only—never token IDs, embeddings or tensors from another model.
+The shim must return a non-empty `review_targets` list and/or `response_plan`:
+
+```json
+{"review_targets":["claim to inspect"],"response_plan":"optional non-factual review plan","metadata":{}}
+```
+
+UCA stores this as a `NON_VERIFIE` proposal, sends the review targets to the
+independent final verifier, and reports only their local evidence anchors. It
+does not insert `response_plan` prose into the answer as a fact or automatically
+replace a response. A fixture/shim test validates syntax only; it is not a
+checkpoint validation or a quality result.
 
 ## nanoDiff-50m-sft-alpaca (masked denoiser)
 

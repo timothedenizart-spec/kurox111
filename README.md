@@ -31,9 +31,11 @@ its own tokenizer and is invoked only through a model-specific boundary.
   answer quality or general intelligence.
 - A guarded, local-only LoRA adapter-training path for an existing SmolLM2-360M
   checkpoint, with manifest, provenance and explicit confirmation gates.
-- The required 11-stage default pipeline: input, opt-in memory, FTS5 retrieval,
-  MeTTa bridge, NCM, SmolLM2-135M, SmolLM2-360M, nanoDiff, global workspace,
-  verification, and final response.
+- The required ordered pipeline plus a guarded NCM reasoning-refinement stage:
+  input, opt-in memory, FTS5 retrieval, MeTTa bridge, NCM concepts, SmolLM2-135M,
+  SmolLM2-360M, nanoDiff, global workspace, NCM review targets, verification,
+  and one final response. The extra NCM stage is disabled/non-validated by
+  default and can only prioritize independent checking; it never creates facts.
 - Actual standard-library JSON memory and SQLite FTS5 integrations; local
   Transformers adapters when installed; safe external-runner contracts for NCM,
   MeTTa, and masked nanoDiff.

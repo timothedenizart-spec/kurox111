@@ -24,7 +24,8 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "models": {
         "smollm2_135": {"enabled": True, "path": "", "max_new_tokens": 280, "device": "auto"},
         "smollm2_360": {"enabled": True, "path": "", "max_new_tokens": 360, "device": "auto"},
-        "ncm": {"enabled": False, "runner_command": "", "validated": False},
+        "ncm": {"enabled": False, "runner_command": "", "validated": False,
+                "refinement_enabled": False, "refinement_validated": False},
         "nanodiff": {"enabled": False, "path": "", "tokenizer_path": "", "runner_command": "",
                      "mask_token_id": -1, "validated": False,
                      "strategies": ["single_pass", "iterative_low_mask"]},
@@ -35,7 +36,8 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "pipeline": {"order": [
         "input_processing", "user_memory", "knowledge_retrieval", "symbolic_processing",
         "ncm_concept_generation", "smollm2_135_analysis", "smollm2_360_review",
-        "nanodiff_specialist", "global_workspace", "final_verification", "final_response"]},
+        "nanodiff_specialist", "global_workspace", "ncm_reasoning_refinement",
+        "final_verification", "final_response"]},
 }
 
 

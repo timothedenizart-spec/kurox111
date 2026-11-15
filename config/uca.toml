@@ -62,6 +62,10 @@ device = "auto"
 enabled = false
 runner_command = ""
 validated = false
+# A second explicit gate is required before NCM can influence the verification
+# plan for a final response. It remains a NON_VERIFIE proposal even when run.
+refinement_enabled = false
+refinement_validated = false
 
 [models.nanodiff]
 enabled = false
@@ -102,6 +106,7 @@ order = [
   "smollm2_360_review",
   "nanodiff_specialist",
   "global_workspace",
+  "ncm_reasoning_refinement",
   "final_verification",
   "final_response"
 ]

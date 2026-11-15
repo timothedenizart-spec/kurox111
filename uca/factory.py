@@ -10,7 +10,8 @@ from .engine import UnifiedCognitiveEngine
 from .model_adapters import ExternalNcmAdapter, LocalCausalGenerator, MaskedNanoDiffAdapter
 from .pipeline import (FinalResponseModule, FinalVerificationModule, GlobalWorkspaceModule,
                        InputProcessingModule, KnowledgeRetrievalModule, MettaSymbolicModule,
-                       NanoDiffModule, NcmConceptModule, SmolAnalysisModule, UserMemoryModule)
+                       NanoDiffModule, NcmConceptModule, NcmReasoningRefinementModule,
+                       SmolAnalysisModule, UserMemoryModule)
 from .storage import ExplicitMemoryStore, FTSKnowledgeStore, OperatorFactStore
 
 
@@ -45,6 +46,8 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
         smol360,
         NanoDiffModule(MaskedNanoDiffAdapter(nano_spec, cfg), enabled=bool(nano_spec.get("enabled", False))),
         GlobalWorkspaceModule(cfg.get("cognitive", {})),
+        NcmReasoningRefinementModule(ExternalNcmAdapter(ncm_spec),
+                                     enabled=bool(ncm_spec.get("refinement_enabled", False))),
         FinalVerificationModule(knowledge, str(metta_spec.get("runner_command", ""))),
         FinalResponseModule(),
     ]

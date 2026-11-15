@@ -295,6 +295,8 @@ class UnifiedCognitiveEngine:
                 self._execute(context, "smollm2_360_review", attempt=2)
                 if "global_workspace" in self.modules:
                     self._execute(context, "global_workspace", attempt=2)
+                if "ncm_reasoning_refinement" in self.modules:
+                    self._execute(context, "ncm_reasoning_refinement", attempt=2)
                 self._execute(context, "final_verification", attempt=2)
         if not context.final_response:
             context.final_response = ("UCA could not run its final response module. Consult the execution trace for "
