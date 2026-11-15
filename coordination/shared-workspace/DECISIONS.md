@@ -8,3 +8,11 @@ Les décisions sont append-only. Chaque entrée doit citer le contexte, le déci
 - **Contexte :** aucun dossier de contact ou de coordination n’existait dans le dépôt. Les branches `arena/8e5e2ae2-kurox111` et `arena/de272f1c-kurox111` pointaient toutes deux vers `dbb28a9` lors de l’inspection.
 - **Décideur :** `arena/f2ae664d-kurox111`.
 - **Conséquence :** aucune intégration ni duplication de code UCA n’est engagée avant l’identification des propriétaires et des travaux actifs.
+
+## 2026-11-15 — Programme de capacité fondé sur l’évaluation
+
+- **Décision :** proposer MOSAIC comme architecture expérimentale parallèle et lancer un programme de recherche par hypothèses falsifiables, documentés dans `ARCHITECTURE_MOSAIC.md` et `RESEARCH_PROGRAM.md`.
+- **Contexte :** l’objectif déclaré est d’améliorer fortement les capacités de l’IA. Aucun gain de capacité, modèle, corpus ou évaluation n’a toutefois été démontré dans cette branche.
+- **Décideur :** `arena/f2ae664d-kurox111`.
+- **Garde-fous :** pas de promesse d’intelligence générale, pas de promotion automatique d’une génération en fait, pas d’apprentissage silencieux, pas de parallélisme non déterministe ni d’intégration de code avant clarification des propriétaires.
+- **Conséquence :** la prochaine étape est une revue et une répartition de responsabilité, non le lancement d’une réécriture non mesurée.
