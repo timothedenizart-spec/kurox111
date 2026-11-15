@@ -25,13 +25,18 @@ class CognitiveModule(ABC):
     module_id: str
     dependencies: tuple[str, ...] = ()
     timeout_seconds: float | None = None
+    # Only pure read-only modules should set this. The engine still applies a
+    # stage barrier and canonical merge order after concurrent execution.
+    parallel_safe: bool = False
 
     def __init__(self, module_id: str, *, enabled: bool = True,
-                 dependencies: Iterable[str] = (), timeout_seconds: float | None = None) -> None:
+                 dependencies: Iterable[str] = (), timeout_seconds: float | None = None,
+                 parallel_safe: bool = False) -> None:
         self.module_id = module_id
         self.enabled = enabled
         self.dependencies = tuple(dependencies)
         self.timeout_seconds = timeout_seconds
+        self.parallel_safe = parallel_safe
 
     def capability(self) -> Capability:
         if not self.enabled:

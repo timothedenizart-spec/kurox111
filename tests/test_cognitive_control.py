@@ -51,6 +51,8 @@ class CognitiveControlTests(unittest.TestCase):
         self.assertEqual(len(dossier["working_memory"]), 3)
         self.assertEqual(len(dossier["conflict_register"]), 1)
         self.assertIn("prediction_error_register", dossier)
+        self.assertGreater(dossier["information_geometry"]["modality_entropy_bits"], 0)
+        self.assertEqual(dossier["information_geometry"]["modality_counts"]["symbolic_fact"], 2)
         self.assertIn("not a truth confidence", dossier["attention_disclaimer"])
         self.assertTrue(dossier["coverage"]["generated_proposals"])
 

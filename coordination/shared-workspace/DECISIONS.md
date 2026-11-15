@@ -16,3 +16,16 @@
   multi-agents.
 - **Conséquence :** une amélioration de modèle ou de coordination ne peut pas
   promouvoir automatiquement une sortie générée en fait.
+
+## D-003 — 2026-11-15 — Parallélisme afférent borné, délibération séquentielle
+
+- **Contexte :** l'amélioration de la latence ne doit pas créer une course entre
+  modules, une fusion implicite des modèles ou une modification non déterministe
+  du contexte central.
+- **Décision :** paralléliser seulement la mémoire explicite, le FTS et le
+  symbole lorsqu'ils sont `parallel_safe`, depuis un même snapshot post-input.
+  Le moteur réintègre ensuite les artefacts dans l'ordre canonique. NCM et les
+  modèles restent séquentiels derrière cette barrière.
+- **Conséquence :** l'architecture peut exploiter un parallélisme réel de
+  lectures indépendantes, mais aucun gain qualitatif, de latence ou de VRAM
+  n'est revendiqué avant benchmark sur actifs locaux réels.

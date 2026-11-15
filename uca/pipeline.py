@@ -110,7 +110,7 @@ class InputProcessingModule(CognitiveModule):
 
 class UserMemoryModule(CognitiveModule):
     def __init__(self, store: ExplicitMemoryStore, enabled: bool = True) -> None:
-        super().__init__("user_memory", enabled=enabled, dependencies=("input_processing",))
+        super().__init__("user_memory", enabled=enabled, dependencies=("input_processing",), parallel_safe=True)
         self.store = store
 
     def capability(self) -> Capability:
@@ -135,7 +135,7 @@ class UserMemoryModule(CognitiveModule):
 
 class KnowledgeRetrievalModule(CognitiveModule):
     def __init__(self, store: FTSKnowledgeStore, enabled: bool = True) -> None:
-        super().__init__("knowledge_retrieval", enabled=enabled, dependencies=("input_processing",))
+        super().__init__("knowledge_retrieval", enabled=enabled, dependencies=("input_processing",), parallel_safe=True)
         self.store = store
 
     def capability(self) -> Capability:
@@ -171,7 +171,7 @@ class MettaSymbolicModule(CognitiveModule):
     existing 50-fact base while a MeTTa runtime is being installed.
     """
     def __init__(self, command: str, facts: OperatorFactStore | None = None, enabled: bool = True) -> None:
-        super().__init__("symbolic_processing", enabled=enabled, dependencies=("input_processing",))
+        super().__init__("symbolic_processing", enabled=enabled, dependencies=("input_processing",), parallel_safe=True)
         self.command = command
         self.facts = facts
 

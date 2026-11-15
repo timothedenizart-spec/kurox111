@@ -35,8 +35,9 @@ pipeline order editing. All browser requests use relative `/api/...` URLs.
 
 Create an operator-reviewed JSONL task suite then run from Python or the CLI
 extension below. The harness compares `smollm2_360_alone`,
-`smollm2_135_alone`, `nanodiff_compatible_only`, `uca_full`, and the historical
-`legacy_current_project` slot. The latter deliberately reports
+`smollm2_135_alone`, `nanodiff_compatible_only`, `uca_full_sequential`,
+`uca_full_staged_parallel`, and the historical `legacy_current_project` slot.
+The latter deliberately reports
 `not_executable`, as no old architecture existed in the audited repository.
 
 Also run `uca_without_memory`, `uca_without_retrieval`, `uca_without_symbolic`,
@@ -54,6 +55,7 @@ from uca.config import load_config
 import json
 r = run_benchmark(load_config('.'), load_tasks('benchmarks/tasks.example.jsonl'),
                   ['smollm2_360_alone','smollm2_135_alone','nanodiff_compatible_only',
-                   'legacy_current_project','uca_full','uca_without_retrieval'])
+                   'legacy_current_project','uca_full_sequential','uca_full_staged_parallel',
+                   'uca_without_retrieval'])
 print(json.dumps(r, ensure_ascii=False, indent=2))
 ```

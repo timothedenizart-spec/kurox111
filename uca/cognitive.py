@@ -149,6 +149,7 @@ class CognitiveControlLayer:
         self.capacity = max(3, min(int(config.get("working_memory_capacity", 12)), 32))
         self.max_nodes = max(self.capacity, min(int(config.get("max_evidence_nodes", 48)), 96))
         self.max_edges = max(20, min(int(config.get("max_evidence_edges", 160)), 400))
+        self.diversity_bonus = max(0.0, min(float(config.get("diversity_bonus", 0.08)), 0.25))
 
     def perceive(self, text: str, query_type: str) -> tuple[dict[str, Any], ArithmeticOutcome | None, str | None]:
         terms = lexical_terms(text)
@@ -208,6 +209,37 @@ class CognitiveControlLayer:
                 "relevance": round(relevance, 4), "epistemic_weight": epistemic,
                 "traceability": traceability, "overlap_terms": sorted(overlap)[:12]}
 
+    def _diverse_working_memory(self, scored: list[dict[str, Any]], nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Greedily preserve evidence-type/producer diversity under a hard budget.
+
+        The novelty term prevents a large family of similar model outputs from
+        crowding out every independent evidence modality. It is a scheduling
+        heuristic, not evidence aggregation or confidence calibration.
+        """
+        metadata = {item.get("id"): item.get("provenance", {}).get("producer", "unknown") for item in nodes}
+        remaining = list(scored)
+        selected: list[dict[str, Any]] = []
+        seen_kinds: set[str] = set()
+        seen_producers: set[str] = set()
+        while remaining and len(selected) < self.capacity:
+            def rank(entry: dict[str, Any]) -> tuple[float, str]:
+                producer = str(metadata.get(entry.get("artifact_id"), "unknown"))
+                novelty = (self.diversity_bonus if entry.get("kind") not in seen_kinds else 0.0)
+                novelty += (self.diversity_bonus / 2 if producer not in seen_producers else 0.0)
+                return (entry["attention_priority"] + novelty, str(entry.get("artifact_id")))
+            # Artifact ID gives deterministic tie-breaking. `max` keeps the higher
+            # lexical/provenance priority before any novelty preference.
+            winner = max(remaining, key=rank)
+            remaining.remove(winner)
+            producer = str(metadata.get(winner.get("artifact_id"), "unknown"))
+            novelty = (self.diversity_bonus if winner.get("kind") not in seen_kinds else 0.0)
+            novelty += (self.diversity_bonus / 2 if producer not in seen_producers else 0.0)
+            selected.append({**winner, "workspace_selection_priority": round(winner["attention_priority"] + novelty, 4),
+                             "diversity_bonus": round(novelty, 4), "producer": producer})
+            seen_kinds.add(str(winner.get("kind")))
+            seen_producers.add(producer)
+        return selected
+
     @staticmethod
     def _symbolic_conflicts(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
         groups: dict[tuple[str, str], list[tuple[str, str]]] = {}
@@ -238,7 +270,7 @@ class CognitiveControlLayer:
         nodes = raw[:self.max_nodes]
         scored = [self._attention(item, query_terms) for item in nodes]
         scored.sort(key=lambda entry: (-entry["attention_priority"], str(entry["artifact_id"])))
-        working_memory = scored[:self.capacity]
+        working_memory = self._diverse_working_memory(scored, nodes)
         index = {item.get("id"): item for item in nodes}
         edges: list[dict[str, Any]] = []
         for item in nodes:
@@ -279,6 +311,10 @@ class CognitiveControlLayer:
                                        "status": "verification_priority",
                                        "interpretation": "Low lexical grounding is a review signal, not evidence of falsehood."})
         kinds = Counter(item.get("kind") for item in nodes)
+        producers = Counter(str(item.get("provenance", {}).get("producer", "unknown")) for item in nodes)
+        total_nodes = len(nodes)
+        modality_entropy = -sum((count / total_nodes) * math.log2(count / total_nodes) for count in kinds.values()) if total_nodes else 0.0
+        producer_entropy = -sum((count / total_nodes) * math.log2(count / total_nodes) for count in producers.values()) if total_nodes else 0.0
         coverage = {
             "documentary": kinds[ArtifactKind.DOCUMENT.value] > 0,
             "symbolic": kinds[ArtifactKind.SYMBOLIC_FACT.value] > 0,
@@ -303,6 +339,14 @@ class CognitiveControlLayer:
             "evidence_graph": {"nodes": [{"artifact_id": item.get("id"), "kind": item.get("kind"),
                                                "producer": item.get("provenance", {}).get("producer")}
                                               for item in nodes], "edges": edges},
+            "information_geometry": {
+                "modality_counts": dict(sorted(kinds.items())), "producer_counts": dict(sorted(producers.items())),
+                "modality_entropy_bits": round(modality_entropy, 4),
+                "producer_entropy_bits": round(producer_entropy, 4),
+                "effective_modalities": round(2 ** modality_entropy, 4),
+                "effective_producers": round(2 ** producer_entropy, 4),
+                "interpretation": "Diversity descriptors for workspace allocation, not information truth or quality.",
+            },
             "conflict_register": conflicts,
             "prediction_error_register": grounding_gaps,
             "coverage": coverage,

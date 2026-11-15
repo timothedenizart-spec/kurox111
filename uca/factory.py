@@ -56,4 +56,6 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
         run_history_limit=int(engine_spec.get("run_history_limit", 30)),
         auxiliary=AuxiliaryRegistry(cfg.get("auxiliary", {}), Path(cfg["_root"])),
         cognitive_settings=cfg.get("cognitive", {}),
+        scheduling_mode=str(engine_spec.get("scheduling_mode", "sequential")),
+        parallel_max_workers=int(engine_spec.get("parallel_max_workers", 3)),
     )

@@ -25,6 +25,8 @@ its own tokenizer and is invoked only through a model-specific boundary.
 - A deterministic cognitive-control layer: bounded working memory, interpretable
   evidence-attention priorities, sparse provenance/lexical evidence graph, conflict
   register, metacognitive coverage, and a restricted exact rational-arithmetic kernel.
+- A bounded parallel afferent stage: independent local memory, FTS and symbolic
+  retrieval can fan out from one immutable snapshot and merge deterministically.
 - The required 11-stage default pipeline: input, opt-in memory, FTS5 retrieval,
   MeTTa bridge, NCM, SmolLM2-135M, SmolLM2-360M, nanoDiff, global workspace,
   verification, and final response.
@@ -54,7 +56,9 @@ or an imported corpus it will report the absence rather than fabricate an
 answer. Importing an FTS shard or pointing at a checkpoint is an explicit local
 operator action; see [`docs/OPERATIONS.md`](docs/OPERATIONS.md). The bounded
 attention/evidence graph and exact arithmetic substrate are documented in
-[`docs/COGNITIVE_CONTROL.md`](docs/COGNITIVE_CONTROL.md).
+[`docs/COGNITIVE_CONTROL.md`](docs/COGNITIVE_CONTROL.md). The safe staged-parallel
+topology and its evaluation protocol are in
+[`docs/PARALLEL_ARCHITECTURE.md`](docs/PARALLEL_ARCHITECTURE.md).
 
 ## Design promises
 

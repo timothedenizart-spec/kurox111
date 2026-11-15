@@ -177,6 +177,7 @@ class CognitiveContext:
         if developer:
             answer.update({
                 "normalized_text": self.normalized_text,
+                "available_context": self.available_context,
                 "symbolic_facts": self.symbolic_facts,
                 "propositions": self.propositions,
                 "computations": self.computations,

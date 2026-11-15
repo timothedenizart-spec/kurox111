@@ -131,7 +131,7 @@ def main(argv: list[str] | None = None) -> int:
     calibration.set_defaults(func=cmd_validate_nanodiff)
     benchmark = commands.add_parser("benchmark", help="Run reproducible variants; unavailable assets remain explicit")
     benchmark.add_argument("tasks", help="Operator-reviewed JSONL task set")
-    benchmark.add_argument("--variants", default="smollm2_360_alone,smollm2_135_alone,nanodiff_compatible_only,legacy_current_project,uca_full,uca_without_memory,uca_without_retrieval,uca_without_symbolic,uca_without_ncm,uca_without_nanodiff")
+    benchmark.add_argument("--variants", default="smollm2_360_alone,smollm2_135_alone,nanodiff_compatible_only,legacy_current_project,uca_full_sequential,uca_full_staged_parallel,uca_without_memory,uca_without_retrieval,uca_without_symbolic,uca_without_ncm,uca_without_nanodiff")
     benchmark.add_argument("--output", help="Optional JSON report path")
     benchmark.set_defaults(func=cmd_benchmark)
     web = commands.add_parser("serve", help="Run the single local conversation UI")

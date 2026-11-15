@@ -11,6 +11,8 @@
 - format d'artefacts avec provenance, incertitude et séparation faits/propositions/calculs ;
 - contrôle cognitif déterministe : mémoire de travail bornée, graphe d'évidence,
   registre de conflits, signal de manque d'ancrage et calcul rationnel exact ;
+- champ afférent parallèle borné : mémoire/FTS/symbole isolés par snapshot puis
+  fusionnés de façon canonique avant les étapes délibératives ;
 - interface locale, tests et benchmark reproductible.
 
 ## Actifs non fournis dans le dépôt

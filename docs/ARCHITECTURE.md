@@ -73,3 +73,12 @@ perception/control plan and a safe exact-arithmetic route; stage 9 adds bounded
 working memory, an evidence graph, a structured conflict register and
 metacognitive coverage. These are transparent control artifacts, not hidden
 reasoning or model-weight fusion. See [`COGNITIVE_CONTROL.md`](COGNITIVE_CONTROL.md).
+
+## Bounded parallel afferent field
+
+The read-only memory, FTS and symbolic stages can use a common post-input
+snapshot concurrently in `staged_parallel` mode. The coordinator enforces a
+barrier and canonical merge order before NCM or any model runs. This is the
+only current parallel stage; it does not share model tensors or claim a
+performance/quality gain without measurement. See
+[`PARALLEL_ARCHITECTURE.md`](PARALLEL_ARCHITECTURE.md).

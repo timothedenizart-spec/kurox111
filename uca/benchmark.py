@@ -72,6 +72,12 @@ def variant_config(base: dict[str, Any], variant: str) -> dict[str, Any] | None:
     full = cfg["pipeline"]["order"]
     if variant == "uca_full":
         return cfg
+    if variant == "uca_full_sequential":
+        cfg["engine"]["scheduling_mode"] = "sequential"
+        return cfg
+    if variant == "uca_full_staged_parallel":
+        cfg["engine"]["scheduling_mode"] = "staged_parallel"
+        return cfg
     if variant == "smollm2_135_alone":
         cfg["pipeline"]["order"] = ["input_processing", "smollm2_135_analysis", "final_response"]
         return cfg
@@ -126,6 +132,7 @@ def run_benchmark(base_config: dict[str, Any], tasks: list[dict[str, Any]], vari
                 "performance": {"wall_seconds": elapsed, "max_rss_delta_kib": max(0, after_rss - before_rss),
                                 "cuda_peak_bytes_before": before_gpu, "cuda_peak_bytes_after": after_gpu,
                                 "computational_cost_proxy": "local wall time + peak process memory only; no monetary-cost claim"},
+                "execution_topology": engine.status()["execution_topology"],
                 "request_id": context.request_id,
             })
         results.append({"variant": variant, "status": "executed", "runs": runs})

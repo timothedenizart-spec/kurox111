@@ -57,9 +57,13 @@ Working-memory priority is deliberately interpretable:
 + 0.10 × traceability
 ```
 
-This score only allocates limited workspace capacity. It is **not** a Bayesian
-posterior, a confidence in truth, a vote, or an authority ranking. The system
-never selects a conflicting claim merely because more modules repeat it.
+A small configurable novelty bonus prevents one evidence type or producer from
+monopolizing a small workspace. The controller also reports Shannon entropy and
+effective counts for evidence modalities/producers. These are diversity
+indicators for scheduling under a fixed budget, **not** a Bayesian posterior, a
+confidence in truth, a vote, an authority ranking, or a measure of intelligence.
+The system never selects a conflicting claim merely because more modules repeat
+it.
 
 ## 4. Metacognitive limits and correction
 
@@ -77,6 +81,7 @@ pass. It cannot loop indefinitely.
 working_memory_capacity = 12  # 3..32
 max_evidence_nodes = 48       # capacity..96
 max_evidence_edges = 160      # 20..400
+diversity_bonus = 0.08        # 0.00..0.25, scheduling only
 ```
 
 These bounds make the controller usable locally and prevent a long corpus from

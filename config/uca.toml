@@ -4,6 +4,10 @@ default_timeout_seconds = 45
 max_corrections = 1
 cache_enabled = false
 run_history_limit = 30
+# Input remains a barrier; read-only memory, FTS and symbolic evidence may fan
+# out from the same post-input snapshot, then merge in canonical order.
+scheduling_mode = "staged_parallel"
+parallel_max_workers = 3
 
 [stores]
 memory_path = "data/memory.json"
@@ -17,6 +21,9 @@ facts_path = "data/operator_facts.json"
 working_memory_capacity = 12
 max_evidence_nodes = 48
 max_evidence_edges = 160
+# Small novelty pressure keeps one modality/producer from monopolizing the
+# bounded workspace. It is not a truth, reliability or majority score.
+diversity_bonus = 0.08
 
 [models.smollm2_135]
 enabled = true
