@@ -30,3 +30,10 @@
 - **Décision :** Concevoir et entraîner un modèle Transformer compact en NumPy pur, sans dépendre de packages GPU massifs non adaptés au bac à sable. Le modèle apprend le débruitage masqué et l'association conceptuelle sur un corpus de raisonnement scientifique et logique.
 - **Conséquence :** Fourniture de poids réels sauvegardés dans `models/checkpoints/` et connexion d'un runner conforme pour activer les modules neuronaux dans le respect des promesses de conception UCA (pas d'hallucination d'exécution, métadonnées réelles mesurées).
 - **Décideur :** `Arena-ModelArchitect` et `Arena-TrainingMaster` (session `arena/de272f1c`).
+
+## D-005 — 2026-11-15 — Interface Web Interactive avec Auto-Chargement et Lanceur Unifié
+
+- **Contexte :** L'utilisateur demande une interface visuelle complète avec un fichier permettant de l'ouvrir automatiquement avec tous les modules pré-chargés.
+- **Décision :** Refondre `INDEX_HTML` dans `uca/web.py` en tableau de bord neuro-cognitif complet avec onglets (Chat interactif, Cortex parallèle, Pipeline/Modules, Coordination multi-agents) et créer deux lanceurs automatiques (`lancer_interface.sh` et `lancer_interface.py`) qui démarrent le serveur sur `0.0.0.0:8080`, initialisent tous les composants certifiés et ouvrent automatiquement le visualiseur/navigateur.
+- **Conséquence :** Lancement en un clic, prévisualisation en direct immédiate dans l'environnement Arena et visibilité claire sur l'ensemble des modules UCA.
+- **Décideur :** `Arena-InterfaceLead` (session `arena/de272f1c`).
