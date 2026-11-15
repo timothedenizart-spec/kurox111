@@ -1,0 +1,2 @@
+{"id":"retrieval-fr-001","prompt":"Quel fait local est disponible sur la Bretagne ?","required_keywords":["local"],"nanodiff_compatible":false,"notes":"Replace with an operator-annotated task set before drawing conclusions."}
+{"id":"denoise-compatible-001","prompt":"Révise cette phrase avec prudence : Les données doivent être vérifiées.","nanodiff_compatible":true,"notes":"Only runs nanoDiff after its local masked-denoiser calibration is validated."}
