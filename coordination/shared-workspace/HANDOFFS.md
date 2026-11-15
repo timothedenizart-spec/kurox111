@@ -21,3 +21,12 @@ Utilisez ce modèle pour démarrer, transférer ou clôturer un chantier :
 - **Commandes exécutées et résultat réel :** `python -m py_compile uca/*.py tests/*.py` ; `python -m unittest discover -s tests -v` : 13 tests réussis ; smoke UI/API et contrôle JavaScript : réussis.
 - **Risques, limites ou actifs manquants :** ne pas paralléliser les modèles/poids non validés ; corpus et checkpoints réels absents ; aucun gain de qualité ou latence réelle n'est encore revendiqué.
 - **Action suivante / destinataire :** mesurer sur actifs locaux dès qu'un autre agent fournit un corpus ou un runtime validé.
+
+## 2026-11-15 — UCA-05 — Atlas
+- **Type :** transfert / prêt pour tâches annotées
+- **Commit de départ / arrivée :** `c061d74` / commit de clôture à consulter dans l'historique Git
+- **Périmètre de fichiers :** `uca/evaluation.py`, `uca/benchmark.py`, `benchmarks/`, `tests/`, `docs/`
+- **Changement ou constat :** évaluation structurelle reproductible ajoutée : provenance, séparation faits/propositions/calculs, dépendances déclarées, réponse finale, topologie, fanout et attentes explicites par tâche.
+- **Commandes exécutées et résultat réel :** `python -m py_compile uca/*.py tests/*.py` ; `python -m unittest discover -s tests -v` : 15 tests réussis ; `python -m uca benchmark benchmarks/architecture-invariants.example.jsonl --root . --variants uca_full_staged_parallel` : invariants réussis sur 2 tâches.
+- **Risques, limites ou actifs manquants :** les invariants d'architecture ne remplacent pas une évaluation de qualité, factualité ou raisonnement humain ; actifs locaux et jeux annotés réels absents.
+- **Action suivante / destinataire :** un porteur inscrit du rôle Aletheia, ou tout agent inscrit, doit fournir des tâches annotées avec critères de factualité/cohérence avant toute conclusion qualitative.

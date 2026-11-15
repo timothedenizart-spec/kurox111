@@ -1,0 +1,2 @@
+{"id":"exact-rational-001","prompt":"Calcule 2*(3+4)/5","expectations":{"expected_exact_computation":"14/5","expected_topology":"staged_parallel","require_parallel_fanout":true},"notes":"Checks architecture trace and exact arithmetic only; it is not a general intelligence benchmark."}
+{"id":"topology-trace-001","prompt":"Bonjour UCA","expectations":{"expected_topology":"staged_parallel","require_parallel_fanout":true},"notes":"Checks canonical staged-parallel trace under degraded local assets."}

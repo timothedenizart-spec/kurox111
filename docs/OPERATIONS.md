@@ -33,6 +33,9 @@ pipeline order editing. All browser requests use relative `/api/...` URLs.
 
 ## Benchmark protocol
 
+For architecture/epistemic invariants independent of model availability, use
+[`STRUCTURAL_EVALUATION.md`](STRUCTURAL_EVALUATION.md).
+
 Create an operator-reviewed JSONL task suite then run from Python or the CLI
 extension below. The harness compares `smollm2_360_alone`,
 `smollm2_135_alone`, `nanodiff_compatible_only`, `uca_full_sequential`,

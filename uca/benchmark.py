@@ -13,6 +13,7 @@ import subprocess
 import sys
 import time
 
+from .evaluation import evaluate_context
 from .factory import build_engine
 
 
@@ -125,10 +126,15 @@ def run_benchmark(base_config: dict[str, Any], tasks: list[dict[str, Any]], vari
             reports = context.execution_history
             unavailable = [record.module_id for record in reports if record.status.value in ("unavailable", "non_validated")]
             failed = [record.module_id for record in reports if record.status.value == "failed_execution"]
+            structural = evaluate_context(context, task.get("expectations") if isinstance(task.get("expectations"), dict) else {})
+            run_status = "completed_with_degradation" if unavailable or failed else "completed"
+            if not structural["passed"]:
+                run_status = "completed_with_structural_violations"
             runs.append({
-                "task_id": task["id"], "status": "completed_with_degradation" if unavailable or failed else "completed",
+                "task_id": task["id"], "status": run_status,
                 "unavailable_modules": unavailable, "failed_modules": failed,
                 "metrics": _automatic_reference_metrics(context.final_response, task),
+                "structural_evaluation": structural,
                 "performance": {"wall_seconds": elapsed, "max_rss_delta_kib": max(0, after_rss - before_rss),
                                 "cuda_peak_bytes_before": before_gpu, "cuda_peak_bytes_after": after_gpu,
                                 "computational_cost_proxy": "local wall time + peak process memory only; no monetary-cost claim"},

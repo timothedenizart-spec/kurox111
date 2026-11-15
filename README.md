@@ -27,6 +27,8 @@ its own tokenizer and is invoked only through a model-specific boundary.
   register, metacognitive coverage, and a restricted exact rational-arithmetic kernel.
 - A bounded parallel afferent stage: independent local memory, FTS and symbolic
   retrieval can fan out from one immutable snapshot and merge deterministically.
+- Structural and epistemic invariant evaluation, separate from any claim of
+  answer quality or general intelligence.
 - The required 11-stage default pipeline: input, opt-in memory, FTS5 retrieval,
   MeTTa bridge, NCM, SmolLM2-135M, SmolLM2-360M, nanoDiff, global workspace,
   verification, and final response.
@@ -58,7 +60,9 @@ operator action; see [`docs/OPERATIONS.md`](docs/OPERATIONS.md). The bounded
 attention/evidence graph and exact arithmetic substrate are documented in
 [`docs/COGNITIVE_CONTROL.md`](docs/COGNITIVE_CONTROL.md). The safe staged-parallel
 topology and its evaluation protocol are in
-[`docs/PARALLEL_ARCHITECTURE.md`](docs/PARALLEL_ARCHITECTURE.md).
+[`docs/PARALLEL_ARCHITECTURE.md`](docs/PARALLEL_ARCHITECTURE.md). Structural
+run checks and their limits are described in
+[`docs/STRUCTURAL_EVALUATION.md`](docs/STRUCTURAL_EVALUATION.md).
 
 ## Design promises
 

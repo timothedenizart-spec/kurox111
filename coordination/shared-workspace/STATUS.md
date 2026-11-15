@@ -13,7 +13,8 @@
   registre de conflits, signal de manque d'ancrage et calcul rationnel exact ;
 - champ afférent parallèle borné : mémoire/FTS/symbole isolés par snapshot puis
   fusionnés de façon canonique avant les étapes délibératives ;
-- interface locale, tests et benchmark reproductible.
+- interface locale, tests, benchmark reproductible et évaluation structurelle
+  séparée des mesures de qualité de réponse.
 
 ## Actifs non fournis dans le dépôt
 
