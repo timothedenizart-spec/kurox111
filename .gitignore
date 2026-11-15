@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+data/memory.json
+data/operator_facts.json
+models/
+checkpoints/
+runs/
+cache/
+.uca/
+.DS_Store
+# File-drop payloads are local to the running workspace, never commit by accident.
+coordination/shared-workspace/inbox/**
+!coordination/shared-workspace/inbox/.gitkeep
+coordination/shared-workspace/.uploads/**
