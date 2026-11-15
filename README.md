@@ -29,6 +29,8 @@ its own tokenizer and is invoked only through a model-specific boundary.
   retrieval can fan out from one immutable snapshot and merge deterministically.
 - Structural and epistemic invariant evaluation, separate from any claim of
   answer quality or general intelligence.
+- A guarded, local-only LoRA adapter-training path for an existing SmolLM2-360M
+  checkpoint, with manifest, provenance and explicit confirmation gates.
 - The required 11-stage default pipeline: input, opt-in memory, FTS5 retrieval,
   MeTTa bridge, NCM, SmolLM2-135M, SmolLM2-360M, nanoDiff, global workspace,
   verification, and final response.
@@ -62,7 +64,9 @@ attention/evidence graph and exact arithmetic substrate are documented in
 topology and its evaluation protocol are in
 [`docs/PARALLEL_ARCHITECTURE.md`](docs/PARALLEL_ARCHITECTURE.md). Structural
 run checks and their limits are described in
-[`docs/STRUCTURAL_EVALUATION.md`](docs/STRUCTURAL_EVALUATION.md).
+[`docs/STRUCTURAL_EVALUATION.md`](docs/STRUCTURAL_EVALUATION.md). The local
+adapter-training governance and preflight contract are in
+[`docs/TRAINING.md`](docs/TRAINING.md).
 
 ## Design promises
 

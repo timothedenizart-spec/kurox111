@@ -6,17 +6,18 @@ Point `config/uca.toml` at operator-owned local assets only.
 ## SmolLM2
 
 Set `models.smollm2_135.path` and/or `models.smollm2_360.path` to a local,
-complete Hugging Face-compatible checkpoint directory and install the optional
-local dependencies:
-
-```bash
-pip install -e '.[models]'
-```
+complete Hugging Face-compatible checkpoint directory and provide an already
+prepared local environment with the optional model dependencies. UCA does not
+install or download a package, checkpoint, or project.
 
 The adapter calls `AutoTokenizer.from_pretrained(path, local_files_only=True)`
 and `AutoModelForCausalLM.from_pretrained(path, local_files_only=True)` for the
 **same** path. It decodes generated text before putting it in UCA. It never
 passes token IDs or embeddings to another model. It uses no remote code.
+
+For a separately saved, local LoRA SFT adapter on SmolLM2-360M, follow
+[`TRAINING.md`](TRAINING.md). The training gate does not distil, merge weights,
+or infer target modules automatically.
 
 ## MeTTa / Hyperon
 

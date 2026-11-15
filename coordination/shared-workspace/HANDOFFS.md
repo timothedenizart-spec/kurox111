@@ -30,3 +30,12 @@ Utilisez ce modèle pour démarrer, transférer ou clôturer un chantier :
 - **Commandes exécutées et résultat réel :** `python -m py_compile uca/*.py tests/*.py` ; `python -m unittest discover -s tests -v` : 15 tests réussis ; `python -m uca benchmark benchmarks/architecture-invariants.example.jsonl --root . --variants uca_full_staged_parallel` : invariants réussis sur 2 tâches.
 - **Risques, limites ou actifs manquants :** les invariants d'architecture ne remplacent pas une évaluation de qualité, factualité ou raisonnement humain ; actifs locaux et jeux annotés réels absents.
 - **Action suivante / destinataire :** un porteur inscrit du rôle Aletheia, ou tout agent inscrit, doit fournir des tâches annotées avec critères de factualité/cohérence avant toute conclusion qualitative.
+
+## 2026-11-15 — UCA-09 — Atlas
+- **Type :** transfert / bloqué sur actifs locaux approuvés
+- **Commit de départ / arrivée :** `b3594c8` / commit de clôture à consulter dans l'historique Git
+- **Périmètre de fichiers :** `uca/training.py`, `uca/cli.py`, `config/uca.toml`, `training/`, `docs/`, `tests/`
+- **Changement ou constat :** préflight et entraîneur LoRA local ajoutés : checkpoint/tokenizer/poids, hash, droits, manifeste, fingerprint, modules cibles explicites, absence de mémoire utilisateur, interdiction de distillation et confirmation sont obligatoires. La sortie est un adaptateur local séparé non fusionné.
+- **Commandes exécutées et résultat réel :** `python -m py_compile uca/*.py tests/*.py` ; `python -m unittest discover -s tests -v` : 19 tests réussis ; `python -m uca training-preflight --root .` : bloqué comme attendu, faute de checkpoint/dataset/manifest/modules cibles.
+- **Risques, limites ou actifs manquants :** poids SmolLM2-360M, tokenizer, dataset avec droits, modules LoRA inspectés, RAM/VRAM et dépendances locales `.[train]` manquent. Aucun entraînement n'a été lancé.
+- **Action suivante / destinataire :** un porteur inscrit du rôle Daedalus doit fournir les actifs locaux approuvés, exécuter le preflight, puis entraîner seulement l'adaptateur séparé.

@@ -14,6 +14,13 @@ DEFAULT_CONFIG: dict[str, Any] = {
                "knowledge_table": "documents", "facts_path": "data/operator_facts.json"},
     "cognitive": {"working_memory_capacity": 12, "max_evidence_nodes": 48, "max_evidence_edges": 160,
                   "diversity_bonus": 0.08},
+    "training": {
+        "enabled": False, "target": "smollm2_360_lora", "dataset_path": "", "manifest_path": "",
+        "output_dir": "training-runs/smollm2_360_lora", "lora_target_modules": [],
+        "lora_rank": 16, "lora_alpha": 32, "lora_dropout": 0.05,
+        "epochs": 1, "batch_size": 1, "max_length": 512, "learning_rate": 0.0002,
+        "max_grad_norm": 1.0, "seed": 17, "device": "auto",
+    },
     "models": {
         "smollm2_135": {"enabled": True, "path": "", "max_new_tokens": 280, "device": "auto"},
         "smollm2_360": {"enabled": True, "path": "", "max_new_tokens": 360, "device": "auto"},

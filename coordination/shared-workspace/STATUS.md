@@ -14,7 +14,9 @@
 - champ afférent parallèle borné : mémoire/FTS/symbole isolés par snapshot puis
   fusionnés de façon canonique avant les étapes délibératives ;
 - interface locale, tests, benchmark reproductible et évaluation structurelle
-  séparée des mesures de qualité de réponse.
+  séparée des mesures de qualité de réponse ;
+- préflight d'entraînement LoRA local avec manifeste, provenance, hash et
+  confirmations ; aucun entraînement lancé sans actifs approuvés.
 
 ## Actifs non fournis dans le dépôt
 

@@ -1,0 +1,12 @@
+{
+  "schema": "uca.training-manifest.v1",
+  "target": "smollm2_360_lora",
+  "base_model_id": "SmolLM2-360M-Instruct",
+  "base_checkpoint_fingerprint": "REPLACE_WITH_FINGERPRINT_FROM_TRAINING_PREFLIGHT",
+  "dataset_sha256": "REPLACE_WITH_SHA256_OF_LOCAL_DATASET",
+  "distillation": false,
+  "contains_user_memory": false,
+  "data_rights_confirmed": false,
+  "approved_by": "REPLACE_WITH_LOCAL_DATA_STEWARD",
+  "notes": "Fill every field after legal/provenance review. This template is not an approval."
+}

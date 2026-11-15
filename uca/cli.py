@@ -13,6 +13,7 @@ from .factory import build_engine
 from .model_adapters import MaskedNanoDiffAdapter
 from .nanodiff_validation import load_cases, validate_masked_denoiser
 from .storage import import_documents, initialize_knowledge_db
+from .training import CONFIRMATION_PHRASE, TrainingBlockedError, train_lora_adapter, training_preflight
 from .web import UcaWebApplication, serve
 
 
@@ -76,6 +77,23 @@ def cmd_validate_nanodiff(args: argparse.Namespace) -> int:
     return 0 if report["status"] == "executed" else 2
 
 
+def cmd_training_preflight(args: argparse.Namespace) -> int:
+    report = training_preflight(load_config(args.root))
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return 0 if report["can_train"] else 2
+
+
+def cmd_train_lora_adapter(args: argparse.Namespace) -> int:
+    try:
+        report = train_lora_adapter(load_config(args.root), args.confirm)
+    except TrainingBlockedError as error:
+        print(json.dumps({"status": "blocked", "error": str(error),
+                          "confirmation_phrase": CONFIRMATION_PHRASE}, ensure_ascii=False, indent=2))
+        return 2
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return 0
+
+
 def cmd_benchmark(args: argparse.Namespace) -> int:
     cfg = load_config(args.root)
     variants = [item.strip() for item in args.variants.split(",") if item.strip()]
@@ -123,6 +141,11 @@ def main(argv: list[str] | None = None) -> int:
     importer = commands.add_parser("import-documents", help="Import operator-supplied JSONL into SQLite FTS5")
     importer.add_argument("file")
     importer.set_defaults(func=cmd_import_documents)
+    preflight = commands.add_parser("training-preflight", help="Validate local LoRA training assets and governance manifest")
+    preflight.set_defaults(func=cmd_training_preflight)
+    trainer = commands.add_parser("train-lora-adapter", help="Explicitly train a standalone local SmolLM2-360M LoRA adapter")
+    trainer.add_argument("--confirm", required=True, help=f"Must equal {CONFIRMATION_PHRASE}")
+    trainer.set_defaults(func=cmd_train_lora_adapter)
     calibration = commands.add_parser("validate-nanodiff", help="Compare masked-denoiser strategies against curated references")
     calibration.add_argument("cases", help="JSONL cases with text and reference")
     calibration.add_argument("--timeout", type=float, default=45)

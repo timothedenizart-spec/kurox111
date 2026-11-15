@@ -24,6 +24,13 @@ operation outside a chat request:
 Entries without exactly `explicit: true` are ignored. Chat calls do not write
 this file.
 
+## Local adapter training
+
+Follow the guarded preflight and explicit LoRA training procedure in
+[`TRAINING.md`](TRAINING.md). The initial repository has neither a checkpoint
+nor an approved dataset, so `training-preflight` is expected to report a blocked
+state until local assets and a signed manifest are supplied.
+
 ## UI
 
 `python -m uca serve --root . --host 0.0.0.0 --port 8080` provides one

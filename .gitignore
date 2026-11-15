@@ -10,6 +10,11 @@ data/operator_facts.json
 models/
 checkpoints/
 runs/
+training-runs/
+training/manifest.json
+training/*.jsonl
+!training/dataset.example.jsonl
+training/*.pt
 cache/
 .uca/
 .DS_Store

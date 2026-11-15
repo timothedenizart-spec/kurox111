@@ -25,6 +25,27 @@ max_evidence_edges = 160
 # bounded workspace. It is not a truth, reliability or majority score.
 diversity_bonus = 0.08
 
+[training]
+# Training is an explicit operator action. UCA will train a separate LoRA
+# adapter for a local SmolLM2-360M checkpoint only after manifest preflight.
+enabled = false
+target = "smollm2_360_lora"
+dataset_path = ""
+manifest_path = ""
+output_dir = "training-runs/smollm2_360_lora"
+# Must be supplied after inspection of the real checkpoint; never guessed.
+lora_target_modules = []
+lora_rank = 16
+lora_alpha = 32
+lora_dropout = 0.05
+epochs = 1
+batch_size = 1
+max_length = 512
+learning_rate = 0.0002
+max_grad_norm = 1.0
+seed = 17
+device = "auto"
+
 [models.smollm2_135]
 enabled = true
 path = ""
