@@ -33,6 +33,7 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
     ncm_spec = cfg["models"]["ncm"]
     nano_spec = cfg["models"]["nanodiff"]
     metta_spec = cfg["metta"]
+    ncm_adapter = ExternalNcmAdapter(ncm_spec)
     modules = [
         InputProcessingModule(cfg.get("cognitive", {})),
         UserMemoryModule(memory, enabled=True),
@@ -41,13 +42,13 @@ def build_engine(root: str | Path = ".", config: dict[str, Any] | None = None) -
                             OperatorFactStore(local_path(cfg, stores["facts_path"])),
                             enabled=bool(metta_spec.get("enabled", True))),
         ParallelCortexModule(enabled=True),
-        NcmConceptModule(ExternalNcmAdapter(ncm_spec), enabled=bool(ncm_spec.get("enabled", False))),
+        NcmConceptModule(ncm_adapter, enabled=bool(ncm_spec.get("enabled", False))),
         smol135,
         smol360,
         NanoDiffModule(MaskedNanoDiffAdapter(nano_spec, cfg), enabled=bool(nano_spec.get("enabled", False))),
         GlobalWorkspaceModule(cfg.get("cognitive", {})),
         FinalVerificationModule(knowledge, str(metta_spec.get("runner_command", ""))),
-        FinalResponseModule(),
+        FinalResponseModule(adapter=ncm_adapter),
     ]
     engine_spec = cfg["engine"]
     return UnifiedCognitiveEngine(

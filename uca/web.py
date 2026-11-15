@@ -119,9 +119,10 @@ pre{background:#050811;padding:10px;border-radius:6px;overflow:auto;font-family:
     <div class="preset-container">
       <button class="preset-btn" onclick="loadPrompt('Résous 7*x - 14 = 28')">🧮 Équation : 7*x - 14 = 28</button>
       <button class="preset-btn" onclick="loadPrompt('Si pluie alors sol_mouille. Sachant que pluie.')">📜 Logique : Si pluie alors sol_mouille</button>
-      <button class="preset-btn" onclick="loadPrompt('Que savons-nous sur le routage thalamo-cortical et la Bretagne ?')">🧠 Thalamus & Bretagne</button>
       <button class="preset-btn" onclick="loadPrompt('L\'humidité provoque la moisissure. La moisissure entraîne des allergies.')">🌐 Causalité de Pearl</button>
+      <button class="preset-btn" onclick="loadPrompt('Que savons-nous sur le routage thalamo-cortical et la Bretagne ?')">🧠 Thalamus & Bretagne</button>
       <button class="preset-btn" onclick="loadPrompt('Calcule (18 + 12) * 5 / 6')">🔢 Arithmétique : (18 + 12) * 5 / 6</button>
+      <button class="preset-btn" onclick="loadPrompt('Quelle est la distance exacte entre Saturne et Encelade le 4 mai 2035 ?')">🔭 Hors-Domaine (Épistémique)</button>
     </div>
 
     <div class="dialogue-layout">
@@ -326,6 +327,33 @@ async function updatePipelineOrder(){
   }
 }
 
+function formatMarkdown(text){
+  if(!text) return '';
+  const lines = text.split('\n');
+  const html = [];
+  for(let line of lines){
+    line = line.trim();
+    if(!line){ html.push('<br>'); continue; }
+    if(line.startsWith('### ')){
+      html.push(`<h4 style="color:var(--cyan);font-size:14px;font-weight:700;margin:14px 0 6px 0;border-bottom:1px solid rgba(56,189,248,0.15);padding-bottom:3px">${esc(line.substring(4))}</h4>`);
+    } else if(line.startsWith('- 🔸 ') || line.startsWith('- 📄 ') || line.startsWith('- 🔗 ')){
+      const icon = line.substring(2, 4);
+      const content = esc(line.substring(4)).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code style="background:#050914;padding:2px 5px;border-radius:4px;color:#38bdf8">$1</code>');
+      html.push(`<div style="margin-left:10px;margin-bottom:4px;display:flex;align-items:flex-start;gap:6px"><span>${icon}</span><span>${content}</span></div>`);
+    } else if(line.startsWith('- **')){
+      const content = esc(line.substring(2)).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code style="background:#050914;padding:2px 5px;border-radius:4px;color:#38bdf8">$1</code>');
+      html.push(`<div style="margin-left:10px;margin-bottom:4px">• ${content}</div>`);
+    } else if(line.startsWith('- ')){
+      const content = esc(line.substring(2)).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      html.push(`<div style="margin-left:10px;margin-bottom:4px">• ${content}</div>`);
+    } else {
+      const content = esc(line).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code style="background:#050914;padding:2px 5px;border-radius:4px;color:#38bdf8">$1</code>');
+      html.push(`<p style="margin-bottom:6px">${content}</p>`);
+    }
+  }
+  return html.join('');
+}
+
 async function handleSend(e){
   e.preventDefault();
   const input = $('#promptInput');
@@ -348,15 +376,27 @@ async function handleSend(e){
   // Pending bot bubble
   const botBubble = document.createElement('div');
   botBubble.className = 'message';
-  botBubble.innerHTML = `<div class="message-header"><span>🧠 UCA — TRAITEMENT EN COURS...</span></div><div class="muted">Exécution concurrente du cortex parallèle et du pipeline séquentiel...</div>`;
+  botBubble.innerHTML = `<div class="message-header"><span>🧠 UCA — RAFFINEMENT RÉFLEXIF NCM</span></div><div class="muted">Exécution conjointe du Cortex Parallèle, du Global Workspace et du MiniTransformer...</div>`;
   chatLog.appendChild(botBubble);
   botBubble.scrollIntoView({behavior:'smooth'});
 
   try{
     const res = await api('/api/chat', {method:'POST', body:JSON.stringify({message:text, developer:dev})});
     
-    let contentHtml = `<div class="message-header"><span>🧠 UCA — SYNTHÈSE COGNITIVE</span><span>REQUÊTE VALIDÉE</span></div>`;
-    contentHtml += `<div style="white-space:pre-wrap;margin-bottom:10px">${esc(res.answer || 'Aucune réponse.')}</div>`;
+    const finalArt = res.artifacts?.find(a => a.kind === 'final')?.content || {};
+    const metrics = finalArt.reflection_metrics || {};
+    const certText = metrics.certainty !== undefined ? `Certitude : ${(metrics.certainty * 100).toFixed(0)}%` : 'Déterministe';
+    
+    let contentHtml = `
+      <div class="message-header">
+        <span>🧠 UCA — SYNTHÈSE & RAFFINEMENT NCM</span>
+        <div style="display:flex;gap:6px">
+          <span class="pill" style="border-color:#0d9488;color:#2dd4bf">🧬 NCM Actif</span>
+          <span class="pill" style="border-color:#38bdf8;color:#38bdf8">${esc(certText)}</span>
+        </div>
+      </div>
+    `;
+    contentHtml += `<div style="margin-bottom:12px;font-size:13.5px;line-height:1.6">${formatMarkdown(res.answer || 'Aucune réponse.')}</div>`;
 
     if(res.sources && res.sources.length){
       contentHtml += `

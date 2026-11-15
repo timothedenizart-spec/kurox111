@@ -141,6 +141,33 @@ class ExternalNcmAdapter:
                 clean.append({"text": proposal["text"].strip(), "runner_metadata": proposal.get("metadata", {})})
         return clean
 
+    def refine_response(self, query: str, reflection: dict[str, Any],
+                        computations: list[dict[str, Any]],
+                        analyses: list[dict[str, Any]],
+                        documents: list[dict[str, Any]],
+                        facts: list[dict[str, Any]],
+                        proposals: list[dict[str, Any]],
+                        timeout: float = 45.0) -> dict[str, Any] | None:
+        if self.capability().status != ModuleStatus.FUNCTIONAL:
+            return None
+        try:
+            result = invoke_json_runner(str(self.config["runner_command"]), {
+                "operation": "response_refinement",
+                "query": query,
+                "reflection": reflection,
+                "computations": computations,
+                "analyses": analyses,
+                "documents": documents,
+                "facts": facts,
+                "proposals": proposals,
+                "contract_version": 1,
+            }, timeout)
+            if isinstance(result, dict) and result.get("status") == "success":
+                return result
+        except Exception:
+            return None
+        return None
+
 
 class MaskedNanoDiffAdapter:
     """Adapter for a masked denoiser, explicitly *not* a causal LM adapter.

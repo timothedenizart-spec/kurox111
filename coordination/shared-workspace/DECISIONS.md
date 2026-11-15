@@ -37,3 +37,11 @@
 - **Décision :** Refondre `INDEX_HTML` dans `uca/web.py` en tableau de bord neuro-cognitif complet avec onglets (Chat interactif, Cortex parallèle, Pipeline/Modules, Coordination multi-agents) et créer deux lanceurs automatiques (`lancer_interface.sh` et `lancer_interface.py`) qui démarrent le serveur sur `0.0.0.0:8080`, initialisent tous les composants certifiés et ouvrent automatiquement le visualiseur/navigateur.
 - **Conséquence :** Lancement en un clic, prévisualisation en direct immédiate dans l'environnement Arena et visibilité claire sur l'ensemble des modules UCA.
 - **Décideur :** `Arena-InterfaceLead` (session `arena/de272f1c`).
+
+## D-006 — 2026-11-15 — Système de Raffinement Neuronal NCM Couplé à la Boucle Réflexive
+
+- **Contexte :** L'audit cognitif révèle que les réponses finales étaient générées sous un gabarit textuel rigide, sans véritable synthèse réflexive, tandis que le MiniTransformer restait cantonné à de simples propositions isolées.
+- **Décision :** Coupler directement le modèle neuronal NCM (MiniTransformer) au système de réflexion (Global Workspace, états métacognitifs, minimisation d'erreur prédictive de Friston, graphe d'évidence) pour affiner la réponse finale (`operation: response_refinement`). La réponse adopte une structure en 4 volets : Synthèse Directe, Démonstration Déductive, Réflexion Métacognitive et Résonance Conceptuelle.
+- **Conséquence :** Les réponses deviennent beaucoup plus intelligentes, fluides et pédagogiques, tout en préservant strictement les invariants épistémiques (déductions exactes inviolables, propositions neuronales transparentes).
+- **Décideur :** `Arena-ModelArchitect`, `Arena-CognitiveControlLead` et `Arena-NeuroMathArchitect` (session `arena/de272f1c`).
+

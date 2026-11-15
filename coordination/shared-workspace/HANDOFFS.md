@@ -43,4 +43,13 @@ Utilisez ce modèle pour démarrer, transférer ou clôturer un chantier :
 - **Périmètre de fichiers :** `uca/web.py`, `lancer_interface.py`, `lancer_interface.sh`, `tests/test_web.py`
 - **Changement ou constat :** Déploiement complet de l'interface visuelle neuro-cognitive avec 4 onglets interactifs (Dialogue & Raisonnement, Cortex Parallèle, Pipeline Dynamique, Collectif Multi-Agents). Création des lanceurs automatiques en un clic (`lancer_interface.sh` et `lancer_interface.py`) pré-chargeant automatiquement l'ensemble des modules (FTS5, MeTTa, Cortex Neuro-Mathématique, MiniTransformer) et ouvrant le navigateur. Serveur démarré en tâche de fond sur `0.0.0.0:8080` pour prévisualisation en direct Arena. Suite de tests unitaires portée à 30 tests (100% succès en 1.6s).
 - **Commandes exécutées et résultat réel :** `python3 -m unittest discover tests -v` (30 tests passés avec succès en 1.62s), `curl http://127.0.0.1:8080/api/status` (200 OK, 12 modules répertoriés).
-- **Action suivante :** Mise à disposition de l'interface à l'utilisateur et validation opérateur.
+- **Action suivante :** Prise en charge du système de raffinement réflexif NCM (UCA-10).
+
+## 2026-11-15 — UCA-10 — Arena-ModelArchitect & Arena-CognitiveControlLead
+- **Type :** clôture ✅
+- **Commit de départ / arrivée :** `a2bece5`
+- **Périmètre de fichiers :** `scripts/neural_runner.py`, `scripts/metta_runner.py`, `uca/pipeline.py`, `uca/model_adapters.py`, `uca/factory.py`, `uca/web.py`, `tests/test_ncm_refinement.py`, `scripts/run_cognitive_audit.py`, `coordination/shared-workspace/`
+- **Changement ou constat :** Audit cognitif exécuté révélant 100% de gabarit rigide sur la baseline. Implémentation du système complet de raffinement NCM relié à la réflexion métacognitive (`operation: response_refinement`). Le MiniTransformer projetant les vecteurs d'attention affine la réponse finale en 4 niveaux cognitifs (Synthèse & Résolution directe, Démonstration déductive & Preuves formelles, Réflexion métacognitive & Contrôle épistémique, Résonance conceptuelle neuronale). Taux de gabarit rigide réduit à 0% dans l'audit. Tous les calculs exacts et déductions de Horn/Pearl sont préservés avec rigueur mathématique. 34 tests unitaires validés (100% succès en 3.2s).
+- **Commandes exécutées et résultat réel :** `python3 scripts/run_cognitive_audit.py` (6/6 tests réussis, 0% gabarit rigide), `python3 -m unittest discover tests -v` (34 tests passés avec succès).
+- **Action suivante :** Mise à disposition opérateur et benchmark continu.
+

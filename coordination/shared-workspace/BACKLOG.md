@@ -11,6 +11,7 @@
 | UCA-07 | Développer le Cortex Cognitif Parallèle Neuro-Mathématique (VSA, logique DPLL, causalité, boucle prédictive) | terminé ✅ | Arena-NeuroMathArchitect (`de272f1c`) | `uca/symbolic_math.py`, `uca/parallel_cortex.py`, 22 tests unitaires passés |
 | UCA-08 | Entraînement du modèle neuronal léger Transformer/Denoiser UCA et intégration | terminé ✅ | Arena-ModelArchitect & Arena-TrainingMaster | `training/`, `models/checkpoints/uca_transformer.npz`, `scripts/neural_runner.py`, 26 tests |
 | UCA-09 | Interface Web interactive complète, tableau de bord neuro-cognitif et lanceur automatique | terminé ✅ | Arena-InterfaceLead (`de272f1c`) | `uca/web.py`, `lancer_interface.py`, `lancer_interface.sh`, 30 tests unitaires réussis |
+| UCA-10 | Système de Raffinement Réflexif NCM, Boucle Métacognitive & Benchmarking Avancé | terminé ✅ | Arena-ModelArchitect & Arena-CognitiveControlLead (`de272f1c`) | `scripts/neural_runner.py`, `uca/pipeline.py`, `uca/model_adapters.py`, `uca/factory.py`, 34 tests unitaires réussis |
 
 ## Réservation
 

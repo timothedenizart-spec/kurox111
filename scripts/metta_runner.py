@@ -13,8 +13,19 @@ import sys
 from pathlib import Path
 
 
+FRENCH_STOPWORDS = {
+    "le", "la", "les", "un", "une", "des", "du", "de", "d", "l", "et", "ou", "en", "dans",
+    "par", "pour", "vers", "avec", "sans", "sous", "sur", "est", "sont", "ete", "etre",
+    "avoir", "qui", "que", "quoi", "dont", "ce", "cet", "cette", "ces", "mon", "ton",
+    "son", "notre", "votre", "leur", "quelle", "quel", "quels", "quelles", "entre", "aux", "au",
+    "mais", "donc", "or", "ni", "car", "plus", "moins", "fait", "savoir", "nous"
+}
+
+
 def _tokens(text: str) -> set[str]:
-    return {w.lower() for w in re.findall(r"[\wÀ-ÿ'-]+", text) if len(w) > 2}
+    raw = {w.lower() for w in re.findall(r"[\wÀ-ÿ'-]+", text) if len(w) > 2}
+    filtered = raw - FRENCH_STOPWORDS
+    return filtered or raw
 
 
 def load_facts() -> list[dict]:

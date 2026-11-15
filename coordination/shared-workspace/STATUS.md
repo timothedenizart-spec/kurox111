@@ -14,7 +14,8 @@
 - contrôle cognitif déterministe : mémoire de travail bornée, graphe d'évidence, registre de conflits et calcul exact ;
 - Cortex Cognitif Parallèle Neuro-Mathématique (UCA-07) : algèbre rationnelle et équations, logique formelle déductive (Horn), graphes de causalité structurelle de Pearl, calcul hyperdimensionnel VSA et boucle prédictive Fristonienne ;
 - Modèle neuronal Transformer/Denoiser entraîné localement (UCA-08) : architecture native NumPy, 35 époques, perte réduite de -83.21% (6.25 -> 1.05), précision masquée 96.34%, checkpoint sauvegardé dans `models/checkpoints/` et runner opérationnel pour `models.ncm` ;
-- interface locale, 26 tests unitaires validés (1.29s) et benchmark reproductible.
+- interface locale complète et lanceurs automatiques en un clic (UCA-09) : `lancer_interface.sh` et `lancer_interface.py` pré-chargeant tous les modules avec prévisualisation en direct Arena ;
+- Système de Raffinement Réflexif NCM & Boucle Métacognitive (UCA-10) : couplage du MiniTransformer au Global Workspace (`response_refinement`), réponses structurées en 4 niveaux cognitifs, audit cognitif éliminant 100% du gabarit rigide, 34 tests unitaires validés (3.2s).
 
 ## Actifs non fournis dans le dépôt
 
