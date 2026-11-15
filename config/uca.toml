@@ -46,7 +46,7 @@ strategies = ["single_pass", "iterative_low_mask"]
 
 [metta]
 enabled = true
-runner_command = ""
+runner_command = "python3 scripts/metta_runner.py"
 
 [auxiliary.lora]
 enabled = false

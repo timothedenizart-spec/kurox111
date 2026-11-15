@@ -42,6 +42,14 @@ class StorageAndAdapterTests(unittest.TestCase):
         adapter = MaskedNanoDiffAdapter(cfg, root)
         self.assertEqual(adapter.capability().status, ModuleStatus.NON_VALIDATED)
 
+    def test_metta_runner_invocation_and_contract(self) -> None:
+        from uca.model_adapters import invoke_json_runner
+        runner = f"{sys.executable} scripts/metta_runner.py"
+        res = invoke_json_runner(runner, {"operation": "metta_query", "query": "Bretagne", "context": {}, "contract_version": 1}, 10.0)
+        self.assertEqual(res.get("status"), "success")
+        facts = res.get("facts", [])
+        self.assertTrue(any(f.get("subject") == "Bretagne" for f in facts))
+
 
 if __name__ == "__main__":
     unittest.main()
