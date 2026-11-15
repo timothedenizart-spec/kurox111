@@ -39,3 +39,12 @@ Utilisez ce modèle pour démarrer, transférer ou clôturer un chantier :
 - **Commandes exécutées et résultat réel :** `python -m py_compile uca/*.py tests/*.py` ; `python -m unittest discover -s tests -v` : 19 tests réussis ; `python -m uca training-preflight --root .` : bloqué comme attendu, faute de checkpoint/dataset/manifest/modules cibles.
 - **Risques, limites ou actifs manquants :** poids SmolLM2-360M, tokenizer, dataset avec droits, modules LoRA inspectés, RAM/VRAM et dépendances locales `.[train]` manquent. Aucun entraînement n'a été lancé.
 - **Action suivante / destinataire :** un porteur inscrit du rôle Daedalus doit fournir les actifs locaux approuvés, exécuter le preflight, puis entraîner seulement l'adaptateur séparé.
+
+## 2026-11-15 — UCA-10 — Atlas
+- **Type :** clôture / prêt à ouvrir localement
+- **Commit de départ / arrivée :** `98df609` / commit de clôture à consulter dans l'historique Git
+- **Périmètre de fichiers :** `Lancer_UCA.py`, `Lancer_UCA.sh`, `Lancer_UCA.bat`, `uca/launcher.py`, `uca/cli.py`, `tests/test_launcher.py`, `docs/`, `coordination/`
+- **Changement ou constat :** l'entrée Python plaçable en double-clic se replace à la racine du dépôt, construit UCA avec les actifs/configuration locaux, choisit un port libre, affiche une métadonnée de disponibilité puis demande l'ouverture du navigateur. Les états des actifs réellement absents restent visibles dans l'UI et ne sont ni téléchargés ni simulés.
+- **Commandes exécutées et résultat réel :** `python -m py_compile uca/*.py tests/*.py Lancer_UCA.py` ; `python -m unittest discover -s tests -v` : 22 tests réussis ; smoke de `Lancer_UCA.py --no-browser` depuis un autre répertoire avec `/api/status` : réussi ; smoke `python -m uca launch --root . --no-browser --port 0` : réussi. Le test unitaire intercepte et vérifie l'appel à `webbrowser.open`; aucun navigateur graphique réel n'a été affirmé comme observé.
+- **Risques, limites ou actifs manquants :** checkpoints, corpus, runner MeTTa et actifs expérimentaux restent absents et sont déclarés `unavailable`/`non_validated`. Le serveur du lanceur est volontairement lié à `127.0.0.1` par défaut ; utiliser `uca launch --host 0.0.0.0` seulement quand l'opérateur a besoin d'une écoute réseau locale.
+- **Action suivante / destinataire :** ouvrir `Lancer_UCA.py` sur la machine opérateur ; ajouter/configurer seulement des actifs locaux autorisés, puis contrôler leur état dans l'interface.

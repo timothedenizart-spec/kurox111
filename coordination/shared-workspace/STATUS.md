@@ -16,7 +16,10 @@
 - interface locale, tests, benchmark reproductible et évaluation structurelle
   séparée des mesures de qualité de réponse ;
 - préflight d'entraînement LoRA local avec manifeste, provenance, hash et
-  confirmations ; aucun entraînement lancé sans actifs approuvés.
+  confirmations ; aucun entraînement lancé sans actifs approuvés ;
+- lanceur local `Lancer_UCA.py` : sélection de port libre, statut transparent
+  des modules, ouverture demandée au navigateur par défaut et interface servie
+  localement ; les actifs absents restent indisponibles plutôt que simulés.
 
 ## Actifs non fournis dans le dépôt
 

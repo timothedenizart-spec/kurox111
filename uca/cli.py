@@ -12,6 +12,7 @@ from .config import load_config, local_path
 from .factory import build_engine
 from .model_adapters import MaskedNanoDiffAdapter
 from .nanodiff_validation import load_cases, validate_masked_denoiser
+from .launcher import launch
 from .storage import import_documents, initialize_knowledge_db
 from .training import CONFIRMATION_PHRASE, TrainingBlockedError, train_lora_adapter, training_preflight
 from .web import UcaWebApplication, serve
@@ -107,6 +108,10 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_launch(args: argparse.Namespace) -> int:
+    return launch(args.root, args.host, args.port, open_browser=not args.no_browser)
+
+
 def cmd_serve(args: argparse.Namespace) -> int:
     server = serve(UcaWebApplication(build_engine(args.root)), args.host, args.port)
     print(f"UCA conversation UI listening on http://{args.host}:{args.port}")
@@ -157,6 +162,11 @@ def main(argv: list[str] | None = None) -> int:
     benchmark.add_argument("--variants", default="smollm2_360_alone,smollm2_135_alone,nanodiff_compatible_only,legacy_current_project,uca_full_sequential,uca_full_staged_parallel,uca_without_memory,uca_without_retrieval,uca_without_symbolic,uca_without_ncm,uca_without_nanodiff")
     benchmark.add_argument("--output", help="Optional JSON report path")
     benchmark.set_defaults(func=cmd_benchmark)
+    launcher = commands.add_parser("launch", help="Start the local UI and open it automatically in a browser")
+    launcher.add_argument("--host", default="127.0.0.1")
+    launcher.add_argument("--port", default=0, type=int, help="0 chooses a free local port")
+    launcher.add_argument("--no-browser", action="store_true")
+    launcher.set_defaults(func=cmd_launch)
     web = commands.add_parser("serve", help="Run the single local conversation UI")
     web.add_argument("--host", default="0.0.0.0")
     web.add_argument("--port", default=8080, type=int)

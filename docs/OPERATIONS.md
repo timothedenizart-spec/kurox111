@@ -24,6 +24,11 @@ operation outside a chat request:
 Entries without exactly `explicit: true` are ignored. Chat calls do not write
 this file.
 
+## Automatic local UI launcher
+
+Open `Lancer_UCA.py` to start the interface and browser automatically. Details
+and platform wrappers are in [`LAUNCHER.md`](LAUNCHER.md).
+
 ## Local adapter training
 
 Follow the guarded preflight and explicit LoRA training procedure in

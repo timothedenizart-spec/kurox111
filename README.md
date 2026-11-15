@@ -45,6 +45,7 @@ its own tokenizer and is invoked only through a model-specific boundary.
 ## Quick start
 
 ```bash
+python Lancer_UCA.py                       # starts the local UI and opens the browser automatically
 python -m uca init --root .              # creates empty local stores, never downloads data
 python -m uca status --root .
 python -m uca chat --root . "Bonjour"
@@ -52,8 +53,10 @@ python -m uca serve --root . --host 0.0.0.0 --port 8080
 python -m unittest discover -s tests -v
 ```
 
-Then visit `http://localhost:8080`. The UI uses relative API URLs, so it also
-works through a proxied development preview.
+`Lancer_UCA.py` prints its automatically selected local URL and opens it in the
+default browser. The explicit `serve` command above uses
+`http://localhost:8080`. The UI uses relative API URLs, so it also works
+through a proxied development preview.
 
 The initial answer is intentionally conservative: without local model weights
 or an imported corpus it will report the absence rather than fabricate an
@@ -66,7 +69,8 @@ topology and its evaluation protocol are in
 run checks and their limits are described in
 [`docs/STRUCTURAL_EVALUATION.md`](docs/STRUCTURAL_EVALUATION.md). The local
 adapter-training governance and preflight contract are in
-[`docs/TRAINING.md`](docs/TRAINING.md).
+[`docs/TRAINING.md`](docs/TRAINING.md). For a one-file automatic UI launch,
+see [`docs/LAUNCHER.md`](docs/LAUNCHER.md).
 
 ## Design promises
 

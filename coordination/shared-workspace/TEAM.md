@@ -12,7 +12,7 @@
 | **Logos** | réservé | MeTTa, faits opérateurs, contraintes formelles et calcul | absence de fait = inconclusif | UCA-02 |
 | **Daedalus** | réservé | checkpoints, adaptateurs, RAM/VRAM, nanoDiff | aucun poids/tokenizer/tensor partagé implicitement | UCA-03 / UCA-04 |
 | **Aletheia** | réservé | vérification, jeux de tâches, ablations et statistiques | aucun score de vérité inventé | UCA-05 / UCA-07 |
-| **Pharos** | réservé | UI développeur, observabilité et reproductibilité | la trace doit rester lisible et non sensible | UI / benchmark |
+| **Pharos** | réservé | UI développeur, observabilité, lancement local et reproductibilité | la trace doit rester lisible et non sensible ; ne pas simuler des modèles chargés | UCA-10 : lanceur d'interface |
 
 ## Règle de prise de relais
 

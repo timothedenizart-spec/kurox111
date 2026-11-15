@@ -10,7 +10,8 @@
 | UCA-06 | Examiner LoRA/TIES/DARE/AoE/FLA/E2E | ouvert | non assigné | manifests, compatibilité, tests réels avant activation |
 | UCA-07 | Valider le champ afférent parallèle et le merge déterministe | prêt pour validation sur actifs réels | UCA-orchestrateur | tests de snapshots isolés terminés ; restent mesures de latence et ablation séquentiel/parallèle sur actifs réels |
 | UCA-08 | Concevoir recherche active et délibération multi-modèle bornées | ouvert | non assigné | corpus/modèles validés, budget explicite, arrêt garanti et benchmark annoté |
-| UCA-09 | Préparer l'entraînement LoRA local de SmolLM2-360M | en cours | Atlas | préflight, manifeste, droits de données, tokenizer/checkpoint réel, validation base vs adaptateur |
+| UCA-09 | Préparer l'entraînement LoRA local de SmolLM2-360M | bloqué sur actifs approuvés | Atlas | préflight/manifeste prêts ; restent droits de données, tokenizer/checkpoint réel, modules cibles et validation base vs adaptateur |
+| UCA-10 | Lancer l'interface locale automatiquement | terminé, validé sans actifs modèles | Atlas | fichier double-clic, port libre, état réel des modules, navigateur demandé, test de lancement sans modèles simulés |
 
 ## Réservation
 
