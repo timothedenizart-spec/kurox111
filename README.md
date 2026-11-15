@@ -35,6 +35,7 @@ its own tokenizer and is invoked only through a model-specific boundary.
   future Scallop integration. These never claim execution without a compatible,
   validated asset.
 - A dependency-free local web conversation UI and reproducible benchmark runner.
+- A content-addressed experiment registry that records code/configuration/asset provenance and refuses non-finite or unmeasured metric values instead of fabricating a claimed gain.
 
 ## Quick start
 
