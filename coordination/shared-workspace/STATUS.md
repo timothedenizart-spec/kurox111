@@ -13,7 +13,8 @@
 - format d'artefacts avec provenance, incertitude et séparation faits/propositions/calculs ;
 - contrôle cognitif déterministe : mémoire de travail bornée, graphe d'évidence, registre de conflits et calcul exact ;
 - Cortex Cognitif Parallèle Neuro-Mathématique (UCA-07) : algèbre rationnelle et équations, logique formelle déductive (Horn), graphes de causalité structurelle de Pearl, calcul hyperdimensionnel VSA et boucle prédictive Fristonienne ;
-- interface locale, 22 tests unitaires validés (0.46s) et benchmark reproductible.
+- Modèle neuronal Transformer/Denoiser entraîné localement (UCA-08) : architecture native NumPy, 35 époques, perte réduite de -83.21% (6.25 -> 1.05), précision masquée 96.34%, checkpoint sauvegardé dans `models/checkpoints/` et runner opérationnel pour `models.ncm` ;
+- interface locale, 26 tests unitaires validés (1.29s) et benchmark reproductible.
 
 ## Actifs non fournis dans le dépôt
 

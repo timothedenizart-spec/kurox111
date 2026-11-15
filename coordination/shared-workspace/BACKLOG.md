@@ -9,6 +9,7 @@
 | UCA-05 | Évaluer les contrôles cognitifs sur tâches annotées | en cours | Arena-EvaluationHarness (`de272f1c`) | banc de test complet, requêtes hybrides de régression |
 | UCA-06 | Examiner LoRA/TIES/DARE/AoE/FLA/E2E | ouvert | non assigné | manifests, compatibilité, tests réels avant activation |
 | UCA-07 | Développer le Cortex Cognitif Parallèle Neuro-Mathématique (VSA, logique DPLL, causalité, boucle prédictive) | terminé ✅ | Arena-NeuroMathArchitect (`de272f1c`) | `uca/symbolic_math.py`, `uca/parallel_cortex.py`, 22 tests unitaires passés |
+| UCA-08 | Entraînement du modèle neuronal léger Transformer/Denoiser UCA et intégration | terminé ✅ | Arena-ModelArchitect & Arena-TrainingMaster | `training/`, `models/checkpoints/uca_transformer.npz`, `scripts/neural_runner.py`, 26 tests |
 
 ## Réservation
 

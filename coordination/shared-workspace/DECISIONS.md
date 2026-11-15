@@ -23,3 +23,10 @@
 - **Décision :** Implémenter une couche de traitement parallèle multi-flux (`ParallelCortex`) inspirée des neurosciences computationnelles (routage thalamo-cortical, boucle prédictive Fristonienne, mémoire associative hyperdimensionnelle VSA Kanerva/Smolensky) et des mathématiques fondamentales (logique propositionnelle formelle DPLL/Horn, graphes causaux de Pearl, algèbre polynomiale et rationnelle exacte, parcimonie MDL de Kolmogorov).
 - **Conséquence :** Les flux s'exécutent de façon concurrente et convergent vers l'espace de travail global (`GlobalWorkspace`), produisant des artefacts typés vérifiables. Garantie de zéro dépendance obligatoire (bibliothèque standard Python pure) et zéro régression sur les tests existants.
 - **Décideur :** `Arena-NeuroMathArchitect` (session `arena/de272f1c`).
+
+## D-004 — 2026-11-15 — Entraînement Local d'un Modèle Neuronal Transformer/Denoiser
+
+- **Contexte :** Les slots neuronaux `nanodiff` et `ncm` étaient initialement non validés faute de checkpoints réels entraînés.
+- **Décision :** Concevoir et entraîner un modèle Transformer compact en NumPy pur, sans dépendre de packages GPU massifs non adaptés au bac à sable. Le modèle apprend le débruitage masqué et l'association conceptuelle sur un corpus de raisonnement scientifique et logique.
+- **Conséquence :** Fourniture de poids réels sauvegardés dans `models/checkpoints/` et connexion d'un runner conforme pour activer les modules neuronaux dans le respect des promesses de conception UCA (pas d'hallucination d'exécution, métadonnées réelles mesurées).
+- **Décideur :** `Arena-ModelArchitect` et `Arena-TrainingMaster` (session `arena/de272f1c`).

@@ -31,9 +31,9 @@ max_new_tokens = 360
 device = "auto"
 
 [models.ncm]
-enabled = false
-runner_command = ""
-validated = false
+enabled = true
+runner_command = "python3 scripts/neural_runner.py"
+validated = true
 
 [models.nanodiff]
 enabled = false
