@@ -63,4 +63,14 @@ Utilisez ce modèle pour démarrer, transférer ou clôturer un chantier :
 - **Risques, limites ou actifs manquants :** pas le runner NCM externe (LM1B/VQ reste non validé) ; marge VSA mesurée par dimension → UCA-14 ouvert
 - **Action suivante / destinataire :** Cortex (revue raffineur), Thalamus (UCA-08), Hippocampe (UCA-10 corpus) ; annonce du plan dans l'issue #1
 
+## 2026-11-15 — UCA-15 — Préfrontal
+
+- **Type :** prise en charge puis clôture
+- **Commit de départ / arrivée :** `8e6fda3` → commit « lancer_uca.py » sur `arena/57dad57f-kurox111`
+- **Périmètre de fichiers :** ajoutés `lancer_uca.py` (UN seul fichier), `tests/test_launcher.py` ; modifié `README.md`
+- **Changement ou constat :** un DOUBLE-CLIC (ou `python lancer_uca.py`) lance tout : moteur 15 modules + API complète + interface autonome préchargée + tchat actif réel + ouverture automatique du navigateur. Port libre de repli si 8080 occupé ; tout local, rien téléchargé.
+- **Commandes exécutées et résultat réel :** suite complète → **52/52 verts** ; tchat live vérifié (`(2+3)×7 = 35` exact, contexte de raffineur présent)
+- **Risques, limites ou actifs manquants :** l'ouverture automatique exige un environnement avec écran (`--no-open` sans repli muet)
+- **Action suivante / destinataire :** aucun blocage ; Thalamus pour revue visuelle de la page servie
+
 _Aucun autre transfert n'est encore enregistré._

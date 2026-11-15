@@ -69,6 +69,9 @@ python -m uca init --root .              # creates empty local stores, never dow
 python -m uca status --root .
 python -m uca chat --root . "Bonjour"
 python -m uca serve --root . --host 0.0.0.0 --port 8080
+python lancer_uca.py                     # UN seul fichier qui lance TOUT :
+                                         # moteur + interface + tchat actif,
+                                         # ouverture automatique du navigateur
 python -m uca interface                  # un SEUL fichier s'ouvre automatiquement,
                                          # tout préchargé (interface/uca.html)
 python -m unittest discover -s tests -v

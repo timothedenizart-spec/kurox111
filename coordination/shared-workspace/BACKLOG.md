@@ -17,6 +17,7 @@
 | UCA-12 | Interface autonome en un seul fichier : ouverture automatique, tout préchargé, mode hors-ligne honnête | terminée | Préfrontal | `interface/uca.html` généré (22,5 Ko), calculateur BigInt vérifié sous node (10/10), tests verts, prévisualisations live |
 | UCA-13 | Raffineur conceptuel NCM-local relié au système de réflexion (workspace + vérification + surprisal) | terminée | Préfrontal | `uca/refiner.py`, artefact REFINEMENT, 15 modules, contrats 9/9, tests de réflexion verts |
 | UCA-14 | Dimension VSA adaptative selon la masse de faits + cleanup Hopfield à marge faible (constat mesuré probe-lab) | ouvert | Préfrontal | mesures avant/après dans results/, tests verts |
+| UCA-15 | Un seul fichier qui lance tout : interface + tchat actif + ouverture auto | terminée | Préfrontal | `lancer_uca.py` (double-clic ou CLI), 52/52 tests, tchat live vérifié sur API |
 
 ## Réservation
 
