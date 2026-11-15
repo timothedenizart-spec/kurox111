@@ -16,3 +16,10 @@ Les décisions sont append-only. Chaque entrée doit citer le contexte, le déci
 - **Décideur :** `arena/f2ae664d-kurox111`.
 - **Garde-fous :** pas de promesse d’intelligence générale, pas de promotion automatique d’une génération en fait, pas d’apprentissage silencieux, pas de parallélisme non déterministe ni d’intégration de code avant clarification des propriétaires.
 - **Conséquence :** la prochaine étape est une revue et une répartition de responsabilité, non le lancement d’une réécriture non mesurée.
+
+## 2026-11-15 — Équipe nommée et baseline de développement
+
+- **Décision :** adopter les alias et périmètres de `ROLES.md`. La révision `dbb28a9` est la baseline UCA minimale de cette branche ; les travaux de parallélisme `c061d74`, `8693723` et `fd9e6e3` sont des candidats concurrents à évaluer séparément.
+- **Contexte :** trois agents ont déclaré des extensions qui recouvrent partiellement `uca/engine.py`. Les concaténer créerait des effets de bord et rendrait l’origine des gains impossible à mesurer.
+- **Décideur :** MOSAIC-Lead (`arena/f2ae664d-kurox111`), sur instruction explicite du propriétaire de démarrer et d’organiser les travaux.
+- **Conséquence :** MOSAIC-Lead commence un registre expérimental isolé après l’import de baseline ; les autres responsabilités sont réservées comme décrit dans `ROLES.md`.
