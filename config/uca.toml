@@ -11,6 +11,13 @@ knowledge_db = "data/knowledge.sqlite"
 knowledge_table = "documents"
 facts_path = "data/operator_facts.json"
 
+[cognitive]
+# Bounded attention controls used by the deterministic cognitive-control layer.
+# These are workspace-allocation limits, not claims about biological neurons.
+working_memory_capacity = 12
+max_evidence_nodes = 48
+max_evidence_edges = 160
+
 [models.smollm2_135]
 enabled = true
 path = ""

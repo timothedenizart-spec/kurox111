@@ -28,7 +28,8 @@ class UnifiedCognitiveEngine:
     def __init__(self, modules: Iterable[CognitiveModule], pipeline: list[str], *,
                  resource_mode: str = "sequential_unload", default_timeout: float = 45,
                  max_corrections: int = 1, run_history_limit: int = 30,
-                 auxiliary: AuxiliaryRegistry | None = None) -> None:
+                 auxiliary: AuxiliaryRegistry | None = None,
+                 cognitive_settings: dict[str, Any] | None = None) -> None:
         module_list = list(modules)
         self.modules = {module.module_id: module for module in module_list}
         if len(self.modules) != len(module_list):
@@ -39,6 +40,7 @@ class UnifiedCognitiveEngine:
         self.resource_policy = ResourcePolicy(resource_mode)
         self.run_store = RunStore(run_history_limit)
         self.auxiliary = auxiliary
+        self.cognitive_settings = dict(cognitive_settings or {})
         self.validate_pipeline(self.pipeline)
 
     def validate_pipeline(self, proposed: list[str]) -> None:
@@ -82,6 +84,8 @@ class UnifiedCognitiveEngine:
             "pipeline": self.pipeline,
             "resource_mode": self.resource_policy.mode,
             "resource_notes": self.resource_policy.notes(),
+            "cognitive_control": {"status": "functional", "settings": self.cognitive_settings,
+                                  "scope": "bounded attention, evidence graph, metacognitive coverage, and exact arithmetic"},
             "modules": module_status,
             "auxiliary": self.auxiliary.status() if self.auxiliary else {},
         }
