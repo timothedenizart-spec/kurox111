@@ -25,7 +25,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
                   ("lora", "ties", "dare", "aoe", "fla", "e2e", "scallop")},
     "pipeline": {"order": [
         "input_processing", "user_memory", "knowledge_retrieval", "symbolic_processing",
-        "ncm_concept_generation", "smollm2_135_analysis", "smollm2_360_review",
+        "parallel_cortex", "ncm_concept_generation", "smollm2_135_analysis", "smollm2_360_review",
         "nanodiff_specialist", "global_workspace", "final_verification", "final_response"]},
 }
 

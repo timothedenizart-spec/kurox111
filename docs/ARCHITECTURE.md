@@ -34,17 +34,20 @@ nanoDiff output cannot enter the fact bin.
 4. `symbolic_processing` calls an operator-provided MeTTa bridge, or (only when
    actual operator facts are supplied) a clearly labeled explicit fact-index lookup;
    the fallback performs no MeTTa inference.
-5. `ncm_concept_generation` calls a validated NCM runner and marks every item
+5. `parallel_cortex` executes concurrent brain-inspired and mathematical reasoning
+   streams (exact algebra/equations, formal Horn logic deduction, Pearl's causal
+   do-calculus, VSA hyperdimensional representations, and predictive coding).
+6. `ncm_concept_generation` calls a validated NCM runner and marks every item
    `NON_VERIFIE`.
-6. `smollm2_135_analysis` creates a first independently attributed analysis.
-7. `smollm2_360_review` critically reviews it.
-8. `nanodiff_specialist` sends masked token IDs to a denoiser-specific runner;
+7. `smollm2_135_analysis` creates a first independently attributed analysis.
+8. `smollm2_360_review` critically reviews it.
+9. `nanodiff_specialist` sends masked token IDs to a denoiser-specific runner;
    it never calls causal `generate` and candidates are review-only.
-9. `global_workspace` emits a dossier that separates evidence, analyses and
-   proposals; different text is a divergence, not an asserted contradiction.
-10. `final_verification` applies bounded, local lexical corroboration, re-queries
+10. `global_workspace` emits a dossier that separates evidence, analyses,
+    computations, and proposals; different text is a divergence, not an asserted contradiction.
+11. `final_verification` applies bounded, local lexical corroboration, re-queries
     a configured MeTTa bridge for statement verification, and preserves inconclusive outcomes.
-11. `final_response` makes one evidence-preserving response.
+12. `final_response` makes one evidence-preserving response.
 
 The engine may make **one** targeted review pass only if a future validated
 verifier writes `correction_required: true`; it preserves prior outputs and

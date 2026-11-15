@@ -8,6 +8,7 @@
 | UCA-04 | Étudier nanoDiff comme débruiteur masqué | ouvert | non assigné | tokenizer/masque/checkpoint réels, calibration multi-stratégies, pas de remplacement automatique |
 | UCA-05 | Évaluer les contrôles cognitifs sur tâches annotées | ouvert | non assigné | jeux de cas, critères explicites, résultats versionnés sans surinterprétation |
 | UCA-06 | Examiner LoRA/TIES/DARE/AoE/FLA/E2E | ouvert | non assigné | manifests, compatibilité, tests réels avant activation |
+| UCA-07 | Développer le Cortex Cognitif Parallèle Neuro-Mathématique (VSA, logique DPLL, causalité, boucle prédictive) | en cours | Arena-NeuroMathArchitect | `uca/symbolic_math.py`, `uca/parallel_cortex.py`, tests unitaires dédiés |
 
 ## Réservation
 

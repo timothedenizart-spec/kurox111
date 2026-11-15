@@ -6,6 +6,7 @@ import re
 import unicodedata
 
 from .cognitive import CognitiveControlLayer
+from .parallel_cortex import ParallelCognitiveCortex
 from .model_adapters import ExternalNcmAdapter, LocalCausalGenerator, MaskedNanoDiffAdapter, invoke_json_runner
 from .modules import Capability, CognitiveModule
 from .storage import ExplicitMemoryStore, FTSKnowledgeStore, OperatorFactStore
@@ -234,6 +235,39 @@ class MettaSymbolicModule(CognitiveModule):
         return ModuleResult(artifacts=items,
                             warnings=() if items else ("No applicable symbolic fact was returned; this is not evidence of the opposite.",),
                             message=message)
+
+
+class ParallelCortexModule(CognitiveModule):
+    """Brain-inspired parallel neuro-mathematical cortex.
+
+    Executes 5 concurrent streams:
+    1. Exact algebra & linear equation solving
+    2. Formal propositional & Horn clause deduction
+    3. Pearl's Structural Causal Models & do-calculus
+    4. Hyperdimensional Computing (VSA) holographic composition
+    5. Hierarchical predictive coding & Free Energy check
+    """
+    def __init__(self, enabled: bool = True) -> None:
+        super().__init__("parallel_cortex", enabled=enabled, dependencies=("input_processing",))
+        self.cortex = ParallelCognitiveCortex()
+
+    def capability(self) -> Capability:
+        basic = super().capability()
+        if basic.status is not ModuleStatus.FUNCTIONAL:
+            return basic
+        return Capability(ModuleStatus.FUNCTIONAL, "Parallel Neuro-Mathematical Cortex ready (Algebra, Logic, Causal, VSA, Predictive)")
+
+    def run(self, snapshot: dict[str, Any]) -> ModuleResult:
+        query = snapshot.get("normalized_text") or snapshot.get("user_text", "")
+        artifacts = self.cortex.synthesize_artifacts(query, snapshot)
+        warnings: list[str] = []
+        if not artifacts:
+            warnings.append("No explicit algebraic, formal-logic, or causal structure was matched in query.")
+        return ModuleResult(
+            artifacts=tuple(artifacts),
+            warnings=tuple(warnings),
+            message=f"Parallel cortex synthesized {len(artifacts)} reasoned artifact(s)"
+        )
 
 
 class NcmConceptModule(CognitiveModule):
@@ -489,9 +523,17 @@ class FinalResponseModule(CognitiveModule):
             for fact in facts[:6]:
                 lines.append(f"- [{fact.get('fact_id', '?')}] {fact.get('statement', '')}")
         if computations:
-            lines.append("Calculs exacts vérifiés par le noyau symbolique :")
-            for calculation in computations[:4]:
-                lines.append(f"- {calculation.get('expression', '')} = {calculation.get('exact_value', '')} (arithmétique rationnelle déterministe)")
+            lines.append("Calculs et déductions exacts vérifiés par le cortex neuro-mathématique :")
+            for calculation in computations[:6]:
+                if "expression" in calculation and "exact_value" in calculation:
+                    lines.append(f"- {calculation.get('expression', '')} = {calculation.get('exact_value', '')} (arithmétique rationnelle déterministe)")
+                elif calculation.get("operation") == "exact_algebra_and_equations":
+                    data = calculation.get("data", {})
+                    lines.append(f"- Équation exacte résolue : {data.get('variable')} = {data.get('exact_value')} (algèbre rationnelle)")
+                elif calculation.get("operation") == "formal_propositional_deduction":
+                    data = calculation.get("data", {})
+                    derived = data.get("facts_derived", [])
+                    lines.append(f"- Déduction formelle exacte : {', '.join(derived)} (clauses de Horn déterministes)")
         if analyses:
             preferred = analyses[-1]
             text = " ".join(str(preferred.get("text", "")).split())[:1100]

@@ -25,8 +25,12 @@ its own tokenizer and is invoked only through a model-specific boundary.
 - A deterministic cognitive-control layer: bounded working memory, interpretable
   evidence-attention priorities, sparse provenance/lexical evidence graph, conflict
   register, metacognitive coverage, and a restricted exact rational-arithmetic kernel.
-- The required 11-stage default pipeline: input, opt-in memory, FTS5 retrieval,
-  MeTTa bridge, NCM, SmolLM2-135M, SmolLM2-360M, nanoDiff, global workspace,
+- A brain-inspired Parallel Neuro-Mathematical Cortex (`ParallelCognitiveCortex`):
+  concurrent execution of exact rational algebra/equations, formal Horn logic deduction,
+  Pearl's structural causal models (do-calculus), hyperdimensional computing (VSA),
+  and Friston's hierarchical predictive coding. See [`docs/PARALLEL_CORTEX.md`](docs/PARALLEL_CORTEX.md).
+- The default pipeline: input, opt-in memory, FTS5 retrieval, MeTTa bridge,
+  parallel cortex, NCM, SmolLM2-135M, SmolLM2-360M, nanoDiff, global workspace,
   verification, and final response.
 - Actual standard-library JSON memory and SQLite FTS5 integrations; local
   Transformers adapters when installed; safe external-runner contracts for NCM,

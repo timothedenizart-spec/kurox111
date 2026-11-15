@@ -19,7 +19,7 @@ from .types import ArtifactKind
 
 
 _WORD = re.compile(r"[\wÀ-ÿ'-]+", re.UNICODE)
-_EXPRESSION = re.compile(r"(?<![\w])\d[\d\s,\.\+\-\*/×÷\^()]{0,220}(?![\w])")
+_EXPRESSION = re.compile(r"(?<![\w])[\(\d][\d\s,\.\+\-\*/×÷\^()]{0,220}(?![\w])")
 _STOP_WORDS = {
     "a", "à", "au", "aux", "avec", "ce", "ces", "cette", "comment", "dans", "de", "des", "du", "elle", "en",
     "est", "et", "il", "je", "la", "le", "les", "leur", "leurs", "mais", "mes", "mon", "ne", "nous", "ou", "par",

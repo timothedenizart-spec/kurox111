@@ -69,6 +69,7 @@ order = [
   "user_memory",
   "knowledge_retrieval",
   "symbolic_processing",
+  "parallel_cortex",
   "ncm_concept_generation",
   "smollm2_135_analysis",
   "smollm2_360_review",
