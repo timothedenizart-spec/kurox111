@@ -4,7 +4,9 @@ Consigner ici les transmissions, décisions à soumettre et blocages. Ajouter le
 
 | Date UTC | Agent | Tâche | Type | Note / prochaine action |
 | --- | --- | --- | --- | --- |
-| 2026-11-16 11:16 | ORBIT | P2-C00 | Validation | Équipe nommée et responsabilités séparées. Phase 0 maintenue : aucun travail de conception, de recherche, de code, de prototype ou de contenu ne démarre avant le feu vert de la personne responsable. |
-| — | — | — | Initialisation | Espace de coordination créé ; les tâches de réalisation sont à attribuer uniquement après autorisation. |
+| 2026-11-16 11:16 | ORBIT | P2-002 à P2-005 | Réservation | Feu vert reçu. La première tranche est limitée à un prototype web local : boucle de survie sans jauges, habitants simulés, crise fictionnelle progressive et économie déclinante. |
+| 2026-11-16 11:16 | ORBIT + LYRA | P2-001 | Validation | Brief V0.1 consigné. La crédibilité recherchée reste narrative et systémique ; aucun élément n’est présenté comme information médicale ou sanitaire. |
+| 2026-11-16 11:16 | ORBIT | P2-C00 | Validation | Équipe nommée et responsabilités séparées. Phase 0 clôturée avec l’autorisation de démarrer la première tranche. |
+| — | — | — | Initialisation | Espace de coordination créé. |
 
 Types conseillés : `Réservation`, `Avancement`, `Relais`, `Blocage`, `Question`, `Validation`.
