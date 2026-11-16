@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101614">
+  <meta name="description" content="Veille — jeu de survie narratif dans une ville frappée par une épidémie fictive.">
+  <title>Veille — Chroniques d'une contagion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="src/game.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Veille, accueil">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span><strong>VEILLE</strong><small>CHRONIQUES D'UNE CONTAGION</small></span>
+      </a>
+      <div class="top-status">
+        <span class="signal-dot"></span>
+        <span id="broadcast-status">RADIO LOCALE · FAIBLE</span>
+      </div>
+      <div class="clock-card" aria-live="polite">
+        <span class="clock-icon" aria-hidden="true">◷</span>
+        <span><small id="date-label">JOUR 01 · MARDI</small><strong id="clock">07:20</strong></span>
+      </div>
+      <button id="reset-button" class="quiet-button" type="button" title="Recommencer la partie">Nouvelle partie</button>
+    </header>
+
+    <main id="top">
+      <section class="opening-row">
+        <div>
+          <p class="eyebrow">PENMARCH · FINISTÈRE · 2029</p>
+          <h1>La ville retient<br><em>son souffle.</em></h1>
+          <p class="opening-copy">Une maladie inconnue circule depuis quelques jours. Les bulletins se contredisent. Pour l'instant, les commerces ouvrent encore.</p>
+        </div>
+        <div class="day-note">
+          <span class="note-pin" aria-hidden="true">✳</span>
+          <p id="daily-note">Mardi matin. Les volets s'ouvrent un à un dans la rue. Quelque part, une sirène s'arrête.</p>
+          <small>NOTE DE TERRAIN · <span id="note-date">07:20</span></small>
+        </div>
+      </section>
+
+      <div id="ending-panel" class="ending-panel hidden" role="alert"></div>
+
+      <div class="game-grid">
+        <section class="primary-column" aria-label="Actions et environnement">
+          <section class="panel scene-panel">
+            <div class="panel-heading scene-heading">
+              <div><span class="eyebrow">VOUS ÊTES ICI</span><h2 id="location-title">Appartement, rue des Goélands</h2></div>
+              <span id="weather-tag" class="weather-tag">Bruine fine · 12°</span>
+            </div>
+            <p id="scene-description" class="scene-description"></p>
+            <div id="scene-people" class="scene-people" aria-live="polite"></div>
+          </section>
+
+          <section class="panel map-panel">
+            <div class="panel-heading">
+              <div><span class="eyebrow">PENMARCH · SECTEUR EST</span><h2>Autour de vous</h2></div>
+              <span class="map-caption">Choisissez une destination</span>
+            </div>
+            <div id="map-locations" class="location-list" aria-label="Destinations"></div>
+            <div class="travel-row">
+              <p id="travel-hint">Vous êtes chez vous. La rue est encore calme.</p>
+              <button id="travel-button" class="button button-primary" type="button" disabled>Partir</button>
+            </div>
+          </section>
+
+          <section class="panel actions-panel">
+            <div class="panel-heading">
+              <div><span class="eyebrow">QUE FAITES-VOUS ?</span><h2>Actions</h2></div>
+              <span class="map-caption">Le temps passe pendant chaque action</span>
+            </div>
+            <div id="action-list" class="action-list"></div>
+          </section>
+
+          <section class="panel people-panel">
+            <div class="panel-heading">
+              <div><span class="eyebrow">VIES CROISÉES</span><h2>Les gens du quartier</h2></div>
+              <span class="map-caption">Ils ont leurs propres priorités</span>
+            </div>
+            <div id="people-list" class="people-list"></div>
+          </section>
+        </section>
+
+        <aside class="side-column" aria-label="Votre état et le fil des événements">
+          <section class="panel condition-panel">
+            <div class="panel-heading"><div><span class="eyebrow">CARNET DE BORD</span><h2>Vos signes</h2></div><span class="watch-mark" aria-hidden="true">◷</span></div>
+            <p class="no-gauges-note">Pas de jauges. Le corps vous parle; à vous d'écouter.</p>
+            <ul id="needs-list" class="needs-list" aria-live="polite"></ul>
+            <div class="condition-footer"><span class="condition-dot"></span><span id="general-condition">État général : stable</span></div>
+          </section>
+
+          <section class="panel inventory-panel">
+            <div class="panel-heading"><div><span class="eyebrow">CE QUE VOUS AVEZ</span><h2>Dans vos poches</h2></div></div>
+            <div id="inventory-list" class="inventory-list"></div>
+            <div class="money-row"><span>Espèces</span><strong id="money-amount">38 €</strong></div>
+          </section>
+
+          <section class="panel outbreak-panel">
+            <div class="panel-heading"><div><span class="eyebrow">BULLETIN DE SANTÉ</span><h2>La situation</h2></div><span id="outbreak-indicator" class="status-pill">INQUIÉTANTE</span></div>
+            <h3 id="outbreak-phase">Des cas inexpliqués</h3>
+            <p id="outbreak-copy"></p>
+            <div class="outbreak-foot"><span>Source : radio locale</span><span id="services-status">Services actifs</span></div>
+          </section>
+
+          <section class="panel chronicle-panel">
+            <div class="panel-heading"><div><span class="eyebrow">CE QUI RESTE</span><h2>Chronique</h2></div></div>
+            <ol id="event-log" class="event-log" aria-live="polite"></ol>
+          </section>
+        </aside>
+      </div>
+      <footer class="site-footer"><span>VEILLE · PROTOTYPE DE SURVIE NARRATIVE</span><span>Une fiction interactive · sauvegarde locale automatique</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

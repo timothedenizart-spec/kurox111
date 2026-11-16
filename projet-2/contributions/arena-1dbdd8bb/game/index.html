@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101314" />
+    <title>ÉCLIPSE — Chronique d’une ville en rupture</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#accueil" aria-label="Éclipse, accueil">
+          <span class="brand-mark">E</span>
+          <span><strong>ÉCLIPSE</strong><small>chronique d’une ville en rupture</small></span>
+        </a>
+        <div class="watch" id="watch" aria-live="polite">
+          <span class="watch-dot"></span>
+          <span id="watch-date">—</span>
+          <strong id="watch-time">--:--</strong>
+        </div>
+        <div class="top-actions">
+          <button class="quiet-button" id="open-notes" type="button">Carnet <span id="note-count">0</span></button>
+          <button class="menu-button" id="restart-game" type="button" aria-label="Recommencer la partie">↻</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero" id="accueil">
+          <div class="hero-copy">
+            <p class="eyebrow" id="phase-kicker">JOUR 1 · SIGNALEMENT LOCAL</p>
+            <h1 id="phase-title">Les volets sont encore ouverts.</h1>
+            <p class="hero-description" id="phase-description">La ville travaille, paie et attend. À la radio, on parle d’un foyer respiratoire sans gravité confirmée.</p>
+            <div class="hero-meta">
+              <span class="district-tag">▣ RUE DES ARCHIVES</span>
+              <span id="city-pulse">Les bus circulent encore.</span>
+            </div>
+          </div>
+          <aside class="signal-card" aria-label="Signal reçu">
+            <div class="signal-head"><span class="live-pip"></span> FRÉQUENCE LOCALE <span id="bulletin-time">maintenant</span></div>
+            <p id="bulletin">« Les habitants sont invités à conserver leurs habitudes, tout en évitant les rassemblements non essentiels. »</p>
+            <button id="save-bulletin" class="text-button" type="button">Noter dans le carnet →</button>
+          </aside>
+        </section>
+
+        <section class="dashboard" aria-label="Situation actuelle">
+          <aside class="left-rail">
+            <section class="panel identity-panel">
+              <p class="section-label">VOUS</p>
+              <div class="person-line"><div class="portrait">M</div><div><strong>Maëlle R.</strong><span>Appartement 3B</span></div></div>
+              <div class="money"><span>Espèces disponibles</span><strong id="money-value">—</strong></div>
+              <div class="inventory" id="inventory" aria-label="Objets en poche"></div>
+            </section>
+
+            <section class="panel body-panel">
+              <div class="panel-heading"><p class="section-label">CE QUE VOUS RESSENTEZ</p><button id="body-info" class="info-button" type="button" aria-label="À propos des signaux corporels">i</button></div>
+              <p class="body-intro">Votre corps ne donne pas de chiffres. Il vous laisse des signes.</p>
+              <div id="needs-list" class="needs-list"></div>
+            </section>
+
+            <section class="panel intent-panel">
+              <p class="section-label">VOTRE PROCHAINE HEURE</p>
+              <p id="intent-text">Vous êtes chez vous. La matinée est calme.</p>
+              <div class="action-list" id="self-actions"></div>
+            </section>
+          </aside>
+
+          <section class="city-column">
+            <div class="map-header">
+              <div><p class="section-label">VOTRE QUARTIER</p><h2>Le bloc des Archives</h2></div>
+              <div class="city-status" id="city-status">activité ordinaire</div>
+            </div>
+            <div class="city-map" id="city-map" aria-label="Lieux du quartier"></div>
+            <div class="city-caption"><span class="compass">N</span><span>Les lieux réagissent à la crise, aux stocks et aux décisions de leurs gérants.</span></div>
+
+            <section class="panel residents-panel">
+              <div class="panel-heading"><div><p class="section-label">DERRIÈRE LES PORTES</p><h2>Voisinage observé</h2></div><span id="resident-summary" class="subtle-label">—</span></div>
+              <div id="resident-list" class="resident-list"></div>
+            </section>
+          </section>
+
+          <aside class="right-rail">
+            <section class="panel world-panel">
+              <p class="section-label">ÉTAT DU MONDE</p>
+              <div id="world-signals" class="world-signals"></div>
+            </section>
+
+            <section class="panel rumor-panel">
+              <div class="panel-heading"><div><p class="section-label">CE QUI CIRCULE</p><h2>Rumeurs du quartier</h2></div><button id="open-rumors" class="info-button" type="button" aria-label="Ouvrir les rumeurs">↗</button></div>
+              <div id="rumor-list" class="rumor-list"></div>
+            </section>
+
+            <section class="panel supply-panel">
+              <div class="panel-heading"><div><p class="section-label">DANS VOTRE SAC</p><h2>Ressources</h2></div><button id="open-stash" class="info-button" type="button" aria-label="Détail des ressources">↗</button></div>
+              <div id="supply-list" class="supply-list"></div>
+            </section>
+
+            <section class="panel story-panel">
+              <p class="section-label">DANS LA RUE</p>
+              <p id="street-story">Une voisine sort les poubelles sans vous regarder. Dans l’immeuble, quelqu’un tousse derrière une porte.</p>
+              <button id="observe-street" class="text-button" type="button">Prendre le temps d’observer →</button>
+            </section>
+          </aside>
+        </section>
+      </main>
+
+      <footer>
+        <span>Prototype de simulation · sauvegarde locale active</span>
+        <span>Les rythmes affichés sont fictifs et conçus pour le jeu.</span>
+      </footer>
+    </div>
+
+    <div class="modal-backdrop" id="modal-backdrop" hidden>
+      <section class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button class="close-modal" id="close-modal" type="button" aria-label="Fermer">×</button>
+        <p class="section-label" id="modal-kicker">CARNET</p>
+        <h2 id="modal-title">Vos observations</h2>
+        <div id="modal-content"></div>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
