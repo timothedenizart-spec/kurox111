@@ -28,6 +28,15 @@ Le premier livrable est une démo jouable dans le navigateur, située dans une p
 | Économie | Argent utile au départ, prix et accès aux commerces qui se dégradent |
 | Boucle joueur | Se déplacer, travailler, acheter, manger, boire, se reposer, se laver, échanger et observer |
 
+## Extension réalisée : V0.2 — liens et exposition narrative
+
+La seconde itération approfondit deux piliers sans créer de jauge ni présenter de modèle sanitaire réel :
+
+- les habitants gardent une **mémoire courte** des conversations et des ressources partagées ; ils peuvent reconnaître le joueur et se regrouper à la maison de quartier lorsque les services s’effondrent ;
+- l’aide donnée crée des **faveurs** invisibles. Après la rupture, un habitant de confiance peut rendre une ressource sans échange monétaire ;
+- les passages denses sont suivis comme des **souvenirs d’exposition fictionnels**. Ils alimentent un signal de prudence narratif, sans pourcentage, diagnostic ni mécanisme médical ;
+- les informations de quartier présentent désormais le réseau social et les contacts récents à côté des commerces, services et comportements observés.
+
 ## Hors périmètre de V0.1
 
 - multijoueur ;

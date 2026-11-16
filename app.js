@@ -40,7 +40,7 @@ function renderLocation(snapshot) {
   element("nearby-residents").innerHTML = snapshot.nearby.length
     ? snapshot.nearby
       .map(
-        (resident) => `<span class="resident-chip"><strong>${resident.name}</strong> · ${resident.state}, ${resident.intent}</span>`,
+        (resident) => `<span class="resident-chip"><strong>${resident.name}</strong> · ${resident.state}, ${resident.intent} · ${resident.relation}</span>`,
       )
       .join("")
     : '<span class="empty-residents">Personne ne s’attarde près de toi.</span>';
@@ -63,9 +63,16 @@ function renderActions(snapshot) {
   const workDisabled = location.id !== "workshop" || !phase.workAvailable;
   const buyWaterDisabled = location.id !== "market" || !marketOpen || !prices.water || player.money < prices.water;
   const buyFoodDisabled = location.id !== "market" || !marketOpen || !prices.food || player.money < prices.food;
+  const shareWaterDisabled = talkDisabled || player.inventory.water < 1;
+  const shareFoodDisabled = talkDisabled || player.inventory.food < 1;
+  const knownNeighbor = snapshot.nearby.some((resident) => ["te reconnaît", "te fait confiance"].includes(resident.relation));
+  const aidDisabled = !knownNeighbor || player.favours < 1 || phase.index < 2;
 
   element("world-actions").innerHTML = [
-    actionButton("talk", "Parler", "25 min · écouter une personne proche", talkDisabled),
+    actionButton("talk", "Parler", "25 min · créer un premier lien", talkDisabled),
+    actionButton("share", "Offrir de l’eau", "15 min · une aide qui compte", shareWaterDisabled, 'data-item="water"'),
+    actionButton("share", "Offrir de la nourriture", "15 min · bâtir la confiance", shareFoodDisabled, 'data-item="food"'),
+    actionButton("aid", "Demander une faveur", phase.index >= 2 ? "15 min · le réseau plutôt que l’argent" : "le réseau comptera après la rupture", aidDisabled),
     actionButton("work", "Travailler", phase.workAvailable ? "4 h · crédits contre du temps" : "l’atelier ne paie plus", workDisabled),
     actionButton("buy", prices.water ? `Acheter de l’eau · ${prices.water} cr.` : "L’eau ne s’achète plus", "12 min · marché ouvert", buyWaterDisabled, 'data-item="water"'),
     actionButton("buy", prices.food ? `Acheter de la nourriture · ${prices.food} cr.` : "La nourriture ne s’achète plus", "12 min · marché ouvert", buyFoodDisabled, 'data-item="food"'),
@@ -88,6 +95,8 @@ function renderWorld(snapshot) {
     ["Marché Cédre", `Le marché est ${world.market}.`],
     ["Dispensaire", world.clinic],
     ["Échanges", world.currency],
+    ["Réseau", world.network],
+    ["Prudence", world.exposure],
     ["Voisinage", `${affected} habitant${affected > 1 ? "s semblent" : " semble"} mal en point ; ${altered ? `${altered} comportement${altered > 1 ? "s" : ""} très inquiétant${altered > 1 ? "s" : ""}.` : "la plupart suivent encore leurs habitudes."}`],
   ]
     .map(([term, description]) => `<div><dt>${term}</dt><dd>${description}</dd></div>`)
@@ -144,6 +153,12 @@ function performAction(button) {
       break;
     case "talk":
       result = game.talk();
+      break;
+    case "share":
+      result = game.share(button.dataset.item);
+      break;
+    case "aid":
+      result = game.requestAid();
       break;
     case "work":
       result = game.work();

@@ -54,3 +54,36 @@ test("boire consomme une ressource et remet l’horloge de soif à zéro", () =>
   assert.equal(game.player.inventory.water, before - 1);
   assert.equal(thirst.severity, "calm");
 });
+
+test("un lien d’entraide peut remplacer les crédits après la rupture", () => {
+  const game = new PandemicSimulation(42);
+  const neighbor = game.npcs[0];
+  const moneyBefore = game.player.money;
+  game.player.location = "hall";
+  neighbor.location = "hall";
+  game.player.inventory.water = 1;
+
+  const share = game.share("water");
+  assert.equal(share.ok, true);
+  assert.equal(game.player.favours, 1);
+  assert.equal(neighbor.knownPlayer, true);
+  assert.equal(game.player.inventory.water, 0);
+
+  game.day = 5;
+  game.player.location = "hall";
+  neighbor.location = "hall";
+  const aid = game.requestAid();
+
+  assert.equal(aid.ok, true);
+  assert.equal(game.player.inventory.water, 1);
+  assert.equal(game.player.favours, 0);
+  assert.equal(game.player.money, moneyBefore);
+});
+
+test("les contacts récents sont restitués comme un signal narratif", () => {
+  const game = new PandemicSimulation(42);
+  game.day = 4;
+  game.player.exposures = [game.absoluteMinute - 40, game.absoluteMinute - 120];
+
+  assert.match(game.getExposureSignal(), /contacts rapprochés/i);
+});

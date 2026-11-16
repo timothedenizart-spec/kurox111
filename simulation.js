@@ -119,6 +119,13 @@ const INTENT_LABELS = {
   rest: "cherche du calme",
 };
 
+const RELATION_LABELS = {
+  stranger: "ne te connaît pas encore",
+  reserved: "reste réservé",
+  familiar: "te reconnaît",
+  trusted: "te fait confiance",
+};
+
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
@@ -156,7 +163,8 @@ export class PandemicSimulation {
       lastWash: this.minute - 15 * 60,
       lastToilet: this.minute - 105,
       lastConversation: this.minute - 5 * 60,
-      shelterTrust: 1,
+      favours: 0,
+      exposures: [],
     };
     this.npcs = NPC_TEMPLATES.map(([name, role, workplace, home], index) => ({
       id: `npc-${index}`,
@@ -170,6 +178,8 @@ export class PandemicSimulation {
       illAt: null,
       intent: index % 2 === 0 ? "work" : "shelter",
       trust: 1,
+      knownPlayer: false,
+      memories: [],
       lastWater: this.minute - this.randomInt(30, 210),
       lastRest: this.minute - this.randomInt(60, 450),
       lastConversation: this.minute - this.randomInt(60, 600),
@@ -327,6 +337,42 @@ export class PandemicSimulation {
     return "Vigilant";
   }
 
+  getNetworkSignal() {
+    if (this.player.favours >= 3) return "Un petit réseau sait désormais que tu tiens parole.";
+    if (this.player.favours >= 1) return "Quelques voisins se souviennent de ton aide.";
+    return "Tu n’as encore aucune faveur à demander au quartier.";
+  }
+
+  getExposureSignal() {
+    const windowMinutes = 48 * 60;
+    const recent = this.player.exposures.filter((minute) => this.absoluteMinute - minute <= windowMinutes).length;
+    if (recent >= 3) return "Plusieurs passages denses te poussent à éviter les attroupements.";
+    if (recent >= 2) return "Tu gardes en mémoire plusieurs contacts rapprochés.";
+    if (recent === 1) return "Un contact récent te rend plus attentif aux mouvements du quartier.";
+    return "Aucun contact récent ne te préoccupe particulièrement.";
+  }
+
+  getTrustLabel(npc) {
+    if (!npc.knownPlayer) return RELATION_LABELS.stranger;
+    if (npc.trust >= 3) return RELATION_LABELS.trusted;
+    if (npc.trust >= 2) return RELATION_LABELS.familiar;
+    return RELATION_LABELS.reserved;
+  }
+
+  recordExposure(locationId) {
+    const phase = this.getPhase();
+    if (phase.index === 0) return false;
+    const crowdedPlace = ["market", "hall", "clinic", "street"].includes(locationId);
+    const nearbyCount = this.npcs.filter((npc) => npc.location === locationId).length;
+    const chance = (crowdedPlace ? 0.08 : 0.025) + phase.index * 0.045 + Math.min(nearbyCount, 5) * 0.018;
+    if (this.random() >= chance) return false;
+
+    this.player.exposures.push(this.absoluteMinute);
+    this.player.exposures = this.player.exposures.slice(-6);
+    this.addEvent("Un passage trop dense te laisse le souvenir d’un contact rapproché. Tu décides d’être plus prudent.", "world");
+    return true;
+  }
+
   addEvent(text, type = "world") {
     this.events.unshift({
       id: ++this.eventId,
@@ -429,6 +475,11 @@ export class PandemicSimulation {
         npc.lastRest = now - this.randomInt(0, 60);
         continue;
       }
+      if (phase.index >= 2 && npc.knownPlayer && npc.trust >= 2 && this.random() < 0.36) {
+        npc.intent = "help";
+        npc.location = "hall";
+        continue;
+      }
       if (phase.index >= 2 && this.random() < 0.45) {
         npc.intent = this.random() < 0.35 ? "help" : "shelter";
         npc.location = this.random() < 0.15 ? "hall" : npc.home;
@@ -453,11 +504,13 @@ export class PandemicSimulation {
     if (location.id === this.player.location) return { ok: false, message: "Tu es déjà ici." };
     this.player.location = location.id;
     this.advance(45, `Tu te rends à ${location.name}`);
+    this.recordExposure(location.id);
     return { ok: true, message: location.description };
   }
 
   wait() {
     this.advance(30, "Tu observes les allées et venues sans attirer l’attention");
+    this.recordExposure(this.player.location);
     return { ok: true, message: "Trente minutes d’observation." };
   }
 
@@ -510,18 +563,73 @@ export class PandemicSimulation {
     const nearby = this.getNearbyNpcs();
     if (!nearby.length) return { ok: false, message: "Personne ne reste assez longtemps pour parler." };
     const npc = nearby[0];
+    const phase = this.getPhase();
     this.advance(25, `Tu échanges quelques mots avec ${npc.name}`);
     this.player.lastConversation = this.absoluteMinute;
+    npc.knownPlayer = true;
     npc.trust = clamp(npc.trust + 1, 0, 3);
-    const rumours = [
-      "On dit que le dispensaire ne prend plus les cas les plus graves après la tombée du jour.",
-      "Les livraisons de la périphérie arrivent de moins en moins souvent.",
-      "Des voisins organisent des tours de veille, sans savoir exactement ce qu’ils cherchent.",
-      "Les prix ont encore changé ce matin, avant l’ouverture des étals.",
+    npc.memories.push({ kind: "conversation", at: this.absoluteMinute });
+    npc.memories = npc.memories.slice(-3);
+    const rumoursByPhase = [
+      [
+        "Les livraisons de la périphérie arrivent de moins en moins souvent.",
+        "Les prix ont encore changé ce matin, avant l’ouverture des étals.",
+      ],
+      [
+        "Des voisins notent quels immeubles restent éclairés après minuit.",
+        "Le dispensaire trie les arrivées avant même d’ouvrir sa porte.",
+      ],
+      [
+        "La maison de quartier garde une réserve, mais seulement pour les gens connus.",
+        "Certains habitants échangent déjà une bouteille contre un service, sans parler de crédits.",
+      ],
+      [
+        "Les gens qui restent dehors après le coucher du soleil ne rentrent pas toujours seuls.",
+        "La rue est devenue plus silencieuse que les appartements.",
+      ],
+      [
+        "Les portes s’ouvrent rarement pour un inconnu, mais les services rendus se racontent.",
+        "On ne parle plus de prix : on parle de ce que chacun peut apporter au refuge.",
+      ],
     ];
+    const rumours = rumoursByPhase[phase.index];
     const message = rumours[this.randomInt(0, rumours.length - 1)];
     this.addEvent(`${npc.name} : « ${message} »`, "npc");
-    return { ok: true, message: "La conversation laisse plus de questions que de certitudes." };
+    if (["market", "hall", "clinic"].includes(this.player.location)) this.recordExposure(this.player.location);
+    return { ok: true, message: `${npc.name} te reconnaîtra plus facilement lors d’une prochaine rencontre.` };
+  }
+
+  share(item) {
+    if (!["water", "food"].includes(item)) return { ok: false, message: "Tu ne peux partager que de l’eau ou de la nourriture." };
+    if (this.player.inventory[item] < 1) return { ok: false, message: `Tu n’as plus ${item === "water" ? "d’eau" : "de nourriture"} à offrir.` };
+    const npc = this.getNearbyNpcs()[0];
+    if (!npc) return { ok: false, message: "Personne ne peut recevoir cette aide ici." };
+
+    this.player.inventory[item] -= 1;
+    this.advance(15, `Tu offres ${item === "water" ? "de l’eau" : "de la nourriture"} à ${npc.name}`);
+    this.player.lastConversation = this.absoluteMinute;
+    this.player.favours = clamp(this.player.favours + 1, 0, 5);
+    npc.knownPlayer = true;
+    npc.trust = clamp(npc.trust + 2, 0, 3);
+    npc.memories.push({ kind: `shared-${item}`, at: this.absoluteMinute });
+    npc.memories = npc.memories.slice(-3);
+    this.addEvent(`${npc.name} garde le geste en mémoire. Dans ce quartier, l’entraide vaut bientôt plus qu’un billet.`, "npc");
+    return { ok: true, message: "Un lien de confiance se crée, sans qu’aucun chiffre ne soit affiché." };
+  }
+
+  requestAid() {
+    const npc = this.getNearbyNpcs().find((resident) => resident.knownPlayer && resident.trust >= 2);
+    if (!npc) return { ok: false, message: "Personne ici ne te connaît assez pour puiser dans ses propres réserves." };
+    if (this.player.favours < 1) return { ok: false, message: "Tu n’as encore aucune faveur à demander au quartier." };
+    if (this.getPhase().index < 2) return { ok: false, message: "Pour l’instant, les échanges ordinaires fonctionnent encore. Le réseau d’entraide n’est pas prêt." };
+
+    const item = this.player.inventory.water < 1 ? "water" : "food";
+    this.advance(15, `${npc.name} vérifie discrètement ce qu’il peut partager`);
+    this.player.inventory[item] += 1;
+    this.player.favours = Math.max(0, this.player.favours - 1);
+    this.player.lastConversation = this.absoluteMinute;
+    this.addEvent(`${npc.name} t’aide sans demander de crédits en retour.`, "npc");
+    return { ok: true, message: `${npc.name} te confie ${item === "water" ? "de l’eau" : "de la nourriture"}. Le réseau prend le relais de l’argent.` };
   }
 
   work() {
@@ -567,6 +675,8 @@ export class PandemicSimulation {
       population,
       market,
       currency,
+      network: this.getNetworkSignal(),
+      exposure: this.getExposureSignal(),
       clinic: this.isClinicOpen() ? "Le dispensaire reçoit encore du monde." : "Le dispensaire est fermé ou inaccessible.",
     };
   }
@@ -578,6 +688,7 @@ export class PandemicSimulation {
       role: npc.role,
       state: STATE_LABELS[npc.state],
       intent: INTENT_LABELS[npc.intent],
+      relation: this.getTrustLabel(npc),
     }));
     return {
       day: this.day,
