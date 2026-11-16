@@ -28,6 +28,24 @@ instant, texte, source, degréDIncertain, relais[]
 
 La source et l’incertitude sont des éléments jouables. Elles ne doivent jamais être remplacées par un « vrai / faux » omniscient dans l’interface.
 
+Chaque relation du joueur possède :
+
+```text
+affinitéInterne, dernierGeste, dernierInstant,
+mémoirePartageable, confianceDuPNJ
+```
+
+L’affinité reste une donnée interne : le joueur lit seulement une formulation qualitative telle que « vous vous connaissez à peine » ou « un lien de confiance se construit ».
+
+Le stock d’un commerce possède :
+
+```text
+articles{}, dernierArrivage, noteDeLivraison,
+jourLogistiqueTraité
+```
+
+Les clients ne voient jamais la valeur brute des rayons. Atlas expose plutôt des indices : comptoir réduit, derniers articles, arrivage incomplet ou fermeture.
+
 Chaque besoin du joueur possède :
 
 ```text

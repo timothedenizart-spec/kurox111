@@ -12,3 +12,5 @@
 | D-08 | Montrer les rumeurs avec une source et un degré d’incertitude qualitatif. | Le joueur peut comparer les récits sans obtenir une vérité chiffrée ou omnisciente. | Civitas / Nocturne | adopté |
 | D-09 | Expliquer l’état d’un commerce par une cause locale. | Une fermeture devient un fait du monde — absentéisme, décision, stock ou livraison — et pas une simple bascule de niveau. | Atlas | adopté |
 | D-10 | Résoudre une vraie période de repos lors du retour dans la partie. | Le temps réel reste cohérent même quand le navigateur était fermé, et permet des incidents de nuit sobres. | Chronos / Vigile | adopté |
+| D-11 | Faire des gestes du joueur une trace sociale qui circule par les réseaux de voisins. | L’entraide, le retrait et l’information partagée doivent modifier le quartier, pas seulement un compteur personnel. | Civitas / Nocturne | adopté |
+| D-12 | Alimenter les commerces par une tournée de livraison journalière simulée. | Un stock se vide et se reconstitue pour une raison incarnée ; le livreur, sa santé et la phase de crise comptent. | Atlas / Civitas | adopté |

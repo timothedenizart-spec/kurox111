@@ -14,3 +14,10 @@
 - Nocturne a ajouté les rumeurs datées avec source et degré d’incertitude ; elles restent des fragments, jamais un diagnostic.
 - Atlas rend les ouvertures et fermetures explicables dans l’interface : livraisons, décisions, manque de personnel ou état du gérant.
 - Chronos et Vigile résolvent un repos prolongé lorsque la partie reprend et consignent un incident nocturne sobre.
+
+## 2026-11-16 — troisième incrément : la solidarité a un coût
+
+- Civitas relie maintenant le joueur à chaque voisin par une relation qualitative : quelques mots, entraide matérielle, partage de rumeur ou retrait la font évoluer.
+- Les gestes peuvent être mémorisés et retransmis par le réseau proche d’un résident ; une aide locale peut donc devenir une information qui circule.
+- Atlas ajoute un stock interne par commerce, consommé par le quartier et réalimenté par une tournée journalière de Noé lorsque son trajet reste possible.
+- Les commerces n’exposent jamais le stock numérique : ils racontent un dernier arrivage, des derniers articles ou des rayons épuisés.

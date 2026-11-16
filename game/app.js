@@ -170,6 +170,18 @@
     return [`p-${(index + 1) % total}`, `p-${(index + 5) % total}`, `p-${(index + 11) % total}`];
   }
 
+  function makeStock(now) {
+    return {
+      grocery: { water: 14, ration: 12, lastDeliveryAt: now, deliveryNote: "Les caisses du matin ont été rangées avant l’ouverture." },
+      pharmacy: { water: 7, soap: 8, lastDeliveryAt: now, deliveryNote: "Le comptoir a reçu un arrivage ordinaire." },
+      lastLogisticsDay: -1
+    };
+  }
+
+  function makeRelationships(people) {
+    return Object.fromEntries(people.map((person) => [person.id, { affinity: 0, lastInteractionAt: 0, lastKind: null }]));
+  }
+
   function makeWorld(now) {
     return {
       rumors: [{
@@ -179,6 +191,7 @@
         source: "radio locale",
         confidence: "à vérifier"
       }],
+      stock: makeStock(now),
       lastRumorAt: now,
       lastNightAt: 0,
       closures: []
@@ -196,7 +209,7 @@
       lastObservation: now - (index % 7) * HOUR, memories: []
     }));
     return {
-      version: 2,
+      version: 3,
       startedAt: now,
       lastUpdatedAt: now,
       simulatedAt: now,
@@ -207,6 +220,7 @@
       needs: { drink: now - 30 * 60 * 1000, food: now - 2 * HOUR, rest: now - 8 * HOUR, wash: now - 11 * HOUR, relief: now - 1 * HOUR, contact: now - 9 * HOUR },
       restingSince: null,
       people,
+      relationships: makeRelationships(people),
       world: makeWorld(now),
       notes: [{ at: now, text: STARTING_NOTE }],
       observed: [],
@@ -216,10 +230,14 @@
   }
 
   function migrateState(saved) {
-    saved.version = 2;
+    saved.version = 3;
     saved.seed = saved.seed || ((Date.now() % 2147483646) + 1);
     saved.world = saved.world || makeWorld(saved.startedAt || Date.now());
     saved.world.rumors = Array.isArray(saved.world.rumors) && saved.world.rumors.length ? saved.world.rumors : makeWorld(saved.startedAt || Date.now()).rumors;
+    saved.world.stock = saved.world.stock || makeStock(saved.startedAt || Date.now());
+    saved.world.stock.grocery = { ...makeStock(saved.startedAt || Date.now()).grocery, ...(saved.world.stock.grocery || {}) };
+    saved.world.stock.pharmacy = { ...makeStock(saved.startedAt || Date.now()).pharmacy, ...(saved.world.stock.pharmacy || {}) };
+    saved.world.stock.lastLogisticsDay = Number.isInteger(saved.world.stock.lastLogisticsDay) ? saved.world.stock.lastLogisticsDay : -1;
     saved.world.lastRumorAt = saved.world.lastRumorAt || saved.startedAt || Date.now();
     saved.world.lastNightAt = saved.world.lastNightAt || 0;
     saved.world.closures = Array.isArray(saved.world.closures) ? saved.world.closures : [];
@@ -228,6 +246,13 @@
       person.currentPlace = person.currentPlace || "home";
       person.exposure = person.exposure || null;
       person.memories = Array.isArray(person.memories) ? person.memories : [];
+    });
+    const defaults = makeRelationships(saved.people);
+    saved.relationships = { ...defaults, ...(saved.relationships || {}) };
+    Object.values(saved.relationships).forEach((relation) => {
+      relation.affinity = Number.isFinite(relation.affinity) ? relation.affinity : 0;
+      relation.lastInteractionAt = relation.lastInteractionAt || 0;
+      relation.lastKind = relation.lastKind || null;
     });
     return saved;
   }
@@ -316,6 +341,62 @@
     state.world.lastRumorAt = at;
   }
 
+  function stockFor(shop) {
+    return state.world.stock[shop] || {};
+  }
+
+  function totalStock(shop) {
+    return Object.entries(stockFor(shop)).filter(([key]) => !["lastDeliveryAt", "deliveryNote"].includes(key)).reduce((total, [, value]) => total + (Number(value) || 0), 0);
+  }
+
+  function simulateLogistics(at, phase) {
+    const hour = new Date(at).getHours();
+    const day = Math.floor((at - state.startedAt) / DAY);
+    if (hour !== 6 || state.world.stock.lastLogisticsDay === day) return;
+    const grocery = stockFor("grocery");
+    const pharmacy = stockFor("pharmacy");
+    const depletion = 1 + phase;
+    grocery.water = Math.max(0, grocery.water - (1 + depletion));
+    grocery.ration = Math.max(0, grocery.ration - (2 + depletion));
+    pharmacy.water = Math.max(0, pharmacy.water - Math.max(1, depletion - 1));
+    pharmacy.soap = Math.max(0, pharmacy.soap - (phase >= 2 ? 2 : 1));
+
+    const courier = state.people.find((person) => person.role.includes("livreur"));
+    const courierCanDeliver = courier && !isUnavailable(courier) && courier.health !== "symptomatic" && locationFor(courier, at, phase) === "transit";
+    if (courierCanDeliver && phase < 3) {
+      grocery.water += [6, 5, 3][phase];
+      grocery.ration += [7, 5, 3][phase];
+      pharmacy.water += [2, 2, 1][phase];
+      pharmacy.soap += [3, 2, 1][phase];
+      const note = phase === 0 ? "Le camion de Noé est passé avant l’ouverture." : phase === 1 ? "Une livraison incomplète est arrivée avec du retard." : "Quelques caisses ont été déposées, sous contrôle.";
+      grocery.lastDeliveryAt = at;
+      pharmacy.lastDeliveryAt = at;
+      grocery.deliveryNote = note;
+      pharmacy.deliveryNote = note;
+    } else {
+      const note = phase >= 3 ? "Aucun trajet de livraison fiable ne rejoint le bloc." : "Le trajet attendu n’a pas été confirmé ce matin.";
+      grocery.deliveryNote = note;
+      pharmacy.deliveryNote = note;
+      if (phase >= 2) addNote(`Logistique du quartier : ${note}`, at, false);
+    }
+    state.world.stock.lastLogisticsDay = day;
+  }
+
+  function shopItems(shop, phase) {
+    const stock = stockFor(shop);
+    const catalog = {
+      grocery: [
+        { id: "water", label: "Eau scellée", desc: "une bouteille pour le sac", base: 1.8, available: phase < 4 },
+        { id: "ration", label: "Ration simple", desc: "conserve et pain sec", base: 4.5, available: phase < 4 }
+      ],
+      pharmacy: [
+        { id: "soap", label: "Savon solide", desc: "hygiène de base", base: 3.2, available: phase < 4 },
+        { id: "water", label: "Eau scellée", desc: "stock très limité", base: 2.4, available: phase < 3 }
+      ]
+    };
+    return (catalog[shop] || []).map((item) => ({ ...item, available: item.available && (stock[item.id] || 0) > 0 }));
+  }
+
   function progressHealth(person, at, phase) {
     const sinceInfection = person.infectedAt ? at - person.infectedAt : 0;
     if (person.health === "exposed" && sinceInfection > (8 + Math.floor(rand() * 12)) * HOUR) {
@@ -375,6 +456,7 @@
       if (rand() < .08 + phase * .025) person.lastObservation = at;
     });
     spreadThroughPlaces(at, phase);
+    simulateLogistics(at, phase);
     circulateRumor(at, phase);
   }
 
@@ -422,6 +504,8 @@
   }
 
   function venueCondition(id, phase) {
+    if (phase >= 4 && id === "grocery") return { state: "closed", status: "Fermé — livraisons coupées", reason: "Plus aucun circuit de livraison ne rejoint la rue." };
+    if (phase >= 4 && id === "pharmacy") return { state: "closed", status: "Volet fermé", reason: "Le réseau de fourniture ne permet plus d’ouvrir sans mettre l’équipe en danger." };
     const ownerByVenue = { grocery: "Samira Benyahia", pharmacy: "Lina Abadie" };
     const owner = state.people.find((person) => person.name === ownerByVenue[id]);
     if (owner && isUnavailable(owner)) {
@@ -429,6 +513,12 @@
     }
     if (owner && owner.health === "symptomatic") {
       return { state: "limited", status: "Comptoir réduit — absence signalée", reason: `${owner.name.split(" ")[0]} ne peut pas assurer le rythme habituel.` };
+    }
+    if (id === "grocery" || id === "pharmacy") {
+      const remaining = totalStock(id);
+      const deliveryNote = stockFor(id).deliveryNote;
+      if (remaining === 0) return { state: "closed", status: "Fermé — rayons épuisés", reason: `${deliveryNote} Il ne reste rien à proposer aujourd’hui.` };
+      if (remaining <= 2 && phase < 4) return { state: "limited", status: "Comptoir réduit — derniers articles", reason: `${deliveryNote} Le commerce garde les rares articles pour les demandes les plus urgentes.` };
     }
     const conditions = {
       grocery: [
@@ -653,17 +743,7 @@
   function shopPrice(item, phase) { return Math.round(item.base * (1 + phase * .31) * 100) / 100; }
   function purchase(shop, itemId) {
     const phase = phaseIndex();
-    const inventory = {
-      grocery: [
-        { id: "water", label: "Eau scellée", desc: "une bouteille pour le sac", base: 1.8, available: phase < 4 },
-        { id: "ration", label: "Ration simple", desc: "conserve et pain sec", base: 4.5, available: phase < 4 }
-      ],
-      pharmacy: [
-        { id: "soap", label: "Savon solide", desc: "hygiène de base", base: 3.2, available: phase < 4 },
-        { id: "water", label: "Eau scellée", desc: "stock très limité", base: 2.4, available: phase < 3 }
-      ]
-    };
-    const item = inventory[shop]?.find((entry) => entry.id === itemId);
+    const item = shopItems(shop, phase).find((entry) => entry.id === itemId);
     if (!item || !item.available) { showToast("Ce produit n’est plus disponible ici."); return; }
     const price = shopPrice(item, phase);
     if (state.money < price) { showToast("Vous n’avez pas assez d’espèces."); return; }
@@ -671,6 +751,7 @@
     if (state.purchases[key]) { showToast("La vente est limitée à une unité aujourd’hui."); return; }
     state.money = Math.round((state.money - price) * 100) / 100;
     state.inventory[item.id] = (state.inventory[item.id] || 0) + 1;
+    state.world.stock[shop][item.id] = Math.max(0, (state.world.stock[shop][item.id] || 0) - 1);
     state.purchases[key] = true;
     addNote(`Vous avez acheté ${item.label.toLowerCase()} à ${shop === "grocery" ? "l’épicerie" : "la pharmacie"} pour ${formatted(price)}.`, Date.now());
     closeModal();
@@ -694,20 +775,99 @@
       openModal("COMMERCE FERMÉ", place.name, `<p class="modal-info">${place.status}. ${place.reason}</p><p class="modal-info">Derrière la vitre, les rayons semblent plus vides que la dernière fois.</p>`);
       return;
     }
-    const stock = placeId === "grocery" ? [
-      { id: "water", label: "Eau scellée", desc: "une bouteille pour le sac", base: 1.8, available: phase < 4 },
-      { id: "ration", label: "Ration simple", desc: "conserve et pain sec", base: 4.5, available: phase < 4 }
-    ] : [
-      { id: "soap", label: "Savon solide", desc: "hygiène de base", base: 3.2, available: phase < 4 },
-      { id: "water", label: "Eau scellée", desc: "stock très limité", base: 2.4, available: phase < 3 }
-    ];
+    const stock = shopItems(placeId, phase);
     const rows = stock.map((item) => {
       const key = `${gameDay()}-${placeId}-${item.id}`;
       const disabled = !item.available || state.purchases[key] || state.money < shopPrice(item, phase);
       const reason = !item.available ? "épuisé" : state.purchases[key] ? "quota atteint" : formatted(shopPrice(item, phase));
       return `<div class="buy-row"><div><strong>${item.label}</strong><span>${item.desc}</span></div><button data-buy="${placeId}:${item.id}" ${disabled ? "disabled" : ""}>${reason}</button></div>`;
     }).join("");
-    openModal("COMMERCE", placeId === "grocery" ? "Épicerie Morel" : "Pharmacie Vidal", `<p class="modal-info">${place.status}. ${place.reason}</p><p class="modal-info">Les prix suivent l’incertitude, les stocks partent vite.</p><div class="buy-list">${rows}</div>`);
+    const deliveryNote = stockFor(placeId).deliveryNote;
+    openModal("COMMERCE", placeId === "grocery" ? "Épicerie Morel" : "Pharmacie Vidal", `<p class="modal-info">${place.status}. ${place.reason}</p><p class="modal-info"><strong>Dernier mouvement :</strong> ${deliveryNote}</p><p class="modal-info">Les prix suivent l’incertitude, les stocks partent vite.</p><div class="buy-list">${rows}</div>`);
+  }
+
+  function relationshipFor(personId) {
+    return state.relationships[personId] || (state.relationships[personId] = { affinity: 0, lastInteractionAt: 0, lastKind: null });
+  }
+
+  function relationshipLabel(personId) {
+    const affinity = relationshipFor(personId).affinity;
+    if (affinity >= .55) return "un lien de confiance se construit";
+    if (affinity >= .2) return "la porte s’ouvre plus facilement";
+    if (affinity <= -.25) return "la conversation reste fermée";
+    return "vous vous connaissez à peine";
+  }
+
+  function shareMemoryWithContacts(person, text) {
+    person.contacts.forEach((contactId) => {
+      const contact = state.people.find((entry) => entry.id === contactId);
+      if (contact && contact.trust + rand() > .66) remember(contact, text);
+    });
+  }
+
+  function interactWithResident(personId, kind) {
+    const now = Date.now();
+    const person = state.people.find((entry) => entry.id === personId);
+    if (!person) return;
+    const relation = relationshipFor(personId);
+    const name = person.name.split(" ")[0];
+    if (person.health === "altered") {
+      addNote(`Vous avez choisi de ne pas vous approcher de la porte de ${name}.`, now);
+      closeModal(); render(now); return;
+    }
+    if (kind === "water" && state.inventory.water) {
+      state.inventory.water -= 1;
+      person.resources += 1;
+      relation.affinity = Math.min(1, relation.affinity + .24);
+      person.trust = Math.min(1, person.trust + .08);
+      remember(person, `a reçu une bouteille d’eau de Maëlle`);
+      shareMemoryWithContacts(person, `${name} a parlé d’un geste d’entraide dans l’immeuble`);
+      addNote(`Vous avez glissé une bouteille d’eau devant la porte de ${name}. Un merci discret vous parvient après un moment.`, now);
+      publishRumor("Quelqu’un laisse parfois de quoi tenir une heure de plus devant les portes.", "palier", "plausible", now);
+      showToast("Le couloir paraît moins froid.");
+    } else if (kind === "ration" && state.inventory.ration) {
+      state.inventory.ration -= 1;
+      person.resources += 1;
+      relation.affinity = Math.min(1, relation.affinity + .22);
+      person.trust = Math.min(1, person.trust + .06);
+      remember(person, `a reçu de quoi manger de la part de Maëlle`);
+      shareMemoryWithContacts(person, `${name} se souvient qu’une voisine a partagé ses provisions`);
+      addNote(`Vous avez laissé une ration à ${name}, sans poser de question.`, now);
+      showToast("Un échange sans monnaie.");
+    } else if (kind === "talk") {
+      state.needs.contact = now;
+      const answerChance = Math.max(.18, Math.min(.9, .48 + person.trust * .25 + relation.affinity * .25 - (person.health === "severe" ? .45 : 0)));
+      if (rand() < answerChance) {
+        relation.affinity = Math.min(1, relation.affinity + .1);
+        person.trust = Math.min(1, person.trust + .03);
+        remember(person, "a échangé quelques mots sur le palier avec Maëlle");
+        addNote(`${name} vous répond à travers la porte. La conversation est brève, mais réelle.`, now);
+        showToast("Une voix vous répond.");
+      } else {
+        relation.affinity = Math.max(-1, relation.affinity - .03);
+        addNote(`Vous avez frappé chez ${name}. Personne n’a répondu, ou personne n’a voulu répondre.`, now);
+        showToast("Le silence reste de l’autre côté.");
+      }
+    } else if (kind === "rumor") {
+      const rumor = state.world.rumors[0];
+      if (rumor) {
+        const reception = rumor.confidence === "plausible" ? .06 : -.05;
+        relation.affinity = Math.max(-1, Math.min(1, relation.affinity + reception));
+        remember(person, `a entendu de Maëlle : « ${rumor.text} »`);
+        shareMemoryWithContacts(person, `${name} répète : « ${rumor.text} »`);
+        addNote(`Vous avez rapporté à ${name} ce qui circule dans le quartier, avec toutes les réserves nécessaires.`, now);
+        showToast("L’information continue son chemin.");
+      }
+    } else if (kind === "decline") {
+      relation.affinity = Math.max(-1, relation.affinity - .12);
+      remember(person, "n’a pas reçu de réponse de Maëlle aujourd’hui");
+      addNote(`Vous avez choisi de rester derrière votre porte lorsque ${name} a appelé.`, now);
+      showToast("Vous gardez vos distances.");
+    }
+    relation.lastInteractionAt = now;
+    relation.lastKind = kind;
+    closeModal();
+    render(now);
   }
 
   function openResident(id) {
@@ -715,11 +875,20 @@
     if (!person) return;
     const phase = phaseIndex();
     const acquaintances = person.contacts.map((contactId) => state.people.find((entry) => entry.id === contactId)?.name.split(" ")[0]).filter(Boolean).join(", ");
+    const relation = relationshipFor(id);
+    const actionButtons = person.health === "altered" ? "" : `<div class="resident-actions">
+      <button class="modal-action" data-modal-action="resident:talk:${id}">Échanger quelques mots</button>
+      ${state.inventory.water ? `<button class="modal-action" data-modal-action="resident:water:${id}">Passer une eau</button>` : ""}
+      ${state.inventory.ration ? `<button class="modal-action" data-modal-action="resident:ration:${id}">Laisser une ration</button>` : ""}
+      <button class="modal-action" data-modal-action="resident:rumor:${id}">Partager ce qui circule</button>
+      <button class="modal-action muted-action" data-modal-action="resident:decline:${id}">Rester derrière votre porte</button>
+    </div>`;
     const observations = [
       `${person.name} est ${person.role}.`,
       `Domicile ou repère : ${person.home}.`,
       `Dernière présence connue : ${VENUE_LABELS[person.currentPlace] || "près de chez soi"}.`,
       `Dernière impression : ${observationFor(person, phase)}.`,
+      person.resources <= 1 ? "Son paillasson est vide depuis un moment ; iel semble compter ce qui reste." : "Iel semble encore avoir de quoi tenir un peu.",
       acquaintances ? `Iel garde habituellement le contact avec ${acquaintances}.` : "Vous ne savez pas qui iel appelle quand la porte se ferme.",
       person.memories.length ? `Vous avez entendu qu’iel ${person.memories[person.memories.length - 1]}.` : "Vous ne savez pas ce qui se passe vraiment de l’autre côté de sa porte."
     ];
@@ -728,7 +897,7 @@
       state.observed.push(id);
       addNote(`Observation : ${person.name} — ${observationFor(person, phase)}.`, Date.now(), false);
     }
-    openModal("VOISINAGE", person.name, `<ul class="modal-list">${observations.map((entry) => `<li>${entry}</li>`).join("")}</ul><p class="modal-info"><strong>Vous ne voyez qu’un fragment.</strong> Les symptômes, les rumeurs et les silences ne sont pas des certitudes.</p>`);
+    openModal("VOISINAGE", person.name, `<ul class="modal-list">${observations.map((entry) => `<li>${entry}</li>`).join("")}</ul><p class="relationship-state">Votre lien : <strong>${relationshipLabel(id)}</strong>${relation.lastKind ? " — votre dernier geste laisse une trace." : "."}</p><p class="modal-info"><strong>Vous ne voyez qu’un fragment.</strong> Les symptômes, les rumeurs et les silences ne sont pas des certitudes.</p>${actionButtons}`);
     render();
   }
 
@@ -810,6 +979,11 @@
       }
       const action = event.target.closest("[data-modal-action]");
       if (!action) return;
+      if (action.dataset.modalAction.startsWith("resident:")) {
+        const [, kind, personId] = action.dataset.modalAction.split(":");
+        interactWithResident(personId, kind);
+        return;
+      }
       if (action.dataset.modalAction === "restart") {
         localStorage.removeItem(STORAGE_KEY);
         state = createInitialState();

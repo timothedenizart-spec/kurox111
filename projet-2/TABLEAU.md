@@ -16,12 +16,18 @@
 - [x] Rendre le sommeil asynchrone avec reprise de partie et incidents de nuit.
 - [x] Donner une cause explicite aux ouvertures réduites et fermetures : santé du gérant, décision municipale, stock ou livraison.
 
+## Terminé — liens et logistique locale
+
+- [x] Rendre les liens avec les PNJ influençables par les gestes du joueur : parole, entraide matérielle, partage de rumeur ou retrait.
+- [x] Faire dépendre les stocks de livraisons et de trajets effectivement simulés.
+- [x] Faire remonter les gestes d’entraide et les informations partagées dans la mémoire du réseau de voisins.
+
 ## En cours — prochaine couche jouable
 
-- [ ] Rendre les liens entre PNJ influençables par les gestes du joueur (entraide, mensonge, échange, refus).
-- [ ] Faire dépendre les stocks de livraisons et de trajets effectivement simulés.
 - [ ] Ajouter des conséquences contextuelles aux besoins critiques, sans les convertir en jauges.
 - [ ] Proposer des contrôles d’accessibilité pour l’intensité et les descriptions de l’horreur.
+- [ ] Faire évoluer les relations entre PNJ hors champ, avec alliances, dettes et ruptures de confiance.
+- [ ] Ajouter des demandes de quartier qui obligent le joueur à arbitrer entre réserve personnelle et entraide.
 
 ## À faire — après validation du vertical slice
 
