@@ -43,4 +43,4 @@ Le premier incrément est volontairement un **vertical slice local** : une perso
 - informations incomplètes ;
 - cinq phases de crise sur plusieurs jours réels.
 
-Consulter [`TABLEAU.md`](TABLEAU.md) pour l’avancement et [`AGENTS.md`](AGENTS.md) pour les contrats d’interface entre pôles.
+Consulter [`TABLEAU.md`](TABLEAU.md) pour l’avancement, [`AGENTS.md`](AGENTS.md) pour les contrats d’interface entre pôles et [`LIVRAISON.md`](LIVRAISON.md) pour le dépôt de travail et la reprise coordonnée.

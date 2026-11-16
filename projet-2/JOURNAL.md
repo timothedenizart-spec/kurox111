@@ -21,3 +21,9 @@
 - Les gestes peuvent être mémorisés et retransmis par le réseau proche d’un résident ; une aide locale peut donc devenir une information qui circule.
 - Atlas ajoute un stock interne par commerce, consommé par le quartier et réalimenté par une tournée journalière de Noé lorsque son trajet reste possible.
 - Les commerces n’exposent jamais le stock numérique : ils racontent un dernier arrivage, des derniers articles ou des rayons épuisés.
+
+## 2026-11-16 — dépôt et coordination de reprise
+
+- Les trois incréments du prototype sont déposés dans `LIVRAISON.md`, avec leurs références de commit, leur périmètre réel et leurs vérifications.
+- Chaque pôle reçoit une responsabilité de reprise et un critère de passage ; les prochaines modifications ne doivent pas mêler plusieurs propriétaires du même fichier logique sans arbitrage d’Orion.
+- Le cycle suivant est volontairement limité à quatre axes : conséquences contextuelles des besoins, accessibilité de l’intensité, relations autonomes entre PNJ et demandes de quartier.

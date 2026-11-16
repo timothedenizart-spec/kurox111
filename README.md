@@ -27,4 +27,4 @@ Ouvrir ensuite `http://localhost:4173`. Le prototype conserve la partie dans le 
 
 ## Coordination
 
-La répartition des responsabilités, les décisions de simulation et le tableau de travail sont dans [`projet-2/`](projet-2/README.md). Aucun élément de ce prototype ne doit faire passer des seuils biologiques simulés pour des conseils médicaux.
+La répartition des responsabilités, les décisions de simulation et le tableau de travail sont dans [`projet-2/`](projet-2/README.md). Le dépôt de travail et le contrat de reprise sont consignés dans [`projet-2/LIVRAISON.md`](projet-2/LIVRAISON.md). Aucun élément de ce prototype ne doit faire passer des seuils biologiques simulés pour des conseils médicaux.

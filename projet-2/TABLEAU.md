@@ -1,5 +1,11 @@
 # Tableau de coordination
 
+## Dépôt actif — incrément 3
+
+- [x] Travail déposé dans [`LIVRAISON.md`](LIVRAISON.md) avec références de commits, périmètre réel et scénarios vérifiés.
+- [x] Contrat de reprise attribué à Orion, Épidémie, Civitas, Atlas, Vigile, Chronos, Nocturne et Sentinelle.
+- [ ] Sentinelle formalise les smoke tests dans des fichiers versionnés avant l’élargissement du vertical slice.
+
 ## Terminé — socle du prototype
 
 - [x] Charte de coordination, rôles et contrats entre systèmes.
