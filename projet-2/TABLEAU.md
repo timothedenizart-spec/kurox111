@@ -7,6 +7,7 @@
 | ID | Élément | Responsable | État | Référence |
 | --- | --- | --- | --- | --- |
 | P2-C00 | Nommer l’équipe, séparer les rôles et établir le circuit de décision | ORBIT | Terminé | [`AGENTS.md`](AGENTS.md) |
+| P2-C01 | Déposer V0.3, ses contrôles et son relais dans l’espace de coordination | ORBIT + ARGUS | Terminé | [`LIVRAISON_V0.3.md`](LIVRAISON_V0.3.md) |
 | P2-001 | Cadrer le besoin et les critères de réussite de V0.1 | ORBIT + LYRA | Terminé | [`BRIEF.md`](BRIEF.md) |
 | P2-002 | Construire la boucle jouable et l’horloge diégétique | FORGE + VITA | Terminé | `index.html`, `app.js` |
 | P2-003 | Construire la simulation des habitants et les phases de crise | ATLAS + NOVA | Terminé V0.3 | `simulation.js` |
@@ -44,6 +45,7 @@
 | ID | Élément | Validé par | Date | Référence |
 | --- | --- | --- | --- | --- |
 | P2-C00 | Coordination initiale | ORBIT | 2026-11-16 | [`AGENTS.md`](AGENTS.md) |
+| P2-C01 | Dépôt et relais de V0.3 dans l’espace de coordination | ORBIT + ARGUS | 2026-11-16 | [`LIVRAISON_V0.3.md`](LIVRAISON_V0.3.md) |
 | P2-001 | Brief et périmètre V0.1 | ORBIT + LYRA | 2026-11-16 | [`BRIEF.md`](BRIEF.md) |
 | P2-002 à P2-005 | Prototype V0.2 : boucle, habitants, économie et vérifications | FORGE + ATLAS + NOVA + MINT + VITA + ARGUS | 2026-11-16 | `simulation.js`, `app.js`, `tests/` |
 | P2-006 | Prototype V0.3 : signaux de quartier, radio, abri et refuge | LYRA + ATLAS + VITA + ARGUS | 2026-11-16 | `simulation.js`, `app.js`, `tests/` |
