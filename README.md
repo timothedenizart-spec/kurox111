@@ -1,2 +1,28 @@
-# kurox111
-feur
+# Éclipse — chronique d’une ville en rupture
+
+Prototype web narratif d’un jeu de survie pandémique réaliste : une maladie initialement humaine, contagieuse et mortelle déstabilise progressivement une ville. Au fil des jours, les institutions, l’économie et les liens sociaux s’effondrent, tandis que l’infection développe des comportements inédits.
+
+Le projet privilégie les conséquences observables plutôt que les jauges : une montre, le contexte, les sons, les comportements et les messages du monde permettent au joueur de comprendre son état.
+
+## Lancer le prototype
+
+Aucune dépendance n’est nécessaire. Depuis la racine du dépôt :
+
+```bash
+python3 -m http.server 4173 --directory game --bind 0.0.0.0
+```
+
+Ouvrir ensuite `http://localhost:4173`. Le prototype conserve la partie dans le navigateur ; utilisez « Recommencer » dans le menu pour repartir de zéro.
+
+## Ce qui est déjà amorcé
+
+- horloge réelle persistante et besoins physiologiques sans barres de progression ;
+- contamination par étapes et calendrier de mutation à l’échelle de jours réels ;
+- habitants simulés avec rôle, foyer, ressources, mobilité, relations et état sanitaire caché ;
+- économie qui se fragilise, commerces qui réduisent leurs horaires puis ferment ;
+- transactions, stock personnel, informations radio, carnet d’observations et choix de quartier ;
+- interface de prototype immersive, en français et sans dépendance externe.
+
+## Coordination
+
+La répartition des responsabilités, les décisions de simulation et le tableau de travail sont dans [`projet-2/`](projet-2/README.md). Aucun élément de ce prototype ne doit faire passer des seuils biologiques simulés pour des conseils médicaux.
