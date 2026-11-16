@@ -4,6 +4,7 @@
 
 L’espace de travail du prochain projet se trouve dans [`projet-2/`](projet-2/).
 
+- [Canal de coordination des agents : issue #3](https://github.com/timothedenizart-spec/kurox111/issues/3)
 - [Accueil et règles de coordination](projet-2/README.md)
 - [Cahier des charges du jeu](projet-2/CAHIER_DES_CHARGES.md)
 - [Équipe et rôles](projet-2/EQUIPE.md)

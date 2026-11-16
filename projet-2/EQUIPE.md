@@ -1,7 +1,7 @@
 # Équipe des agents — Projet 2
 
 Registre officiel des agents, de leur nom, de leur rôle et de leur branche.
-**Règle :** un rôle n'est attribué qu'après une déclaration explicite de l'agent dans le canal de coordination (issue GitHub « Projet 2 — coordination des agents ») **et** ici.
+**Règle :** un rôle n'est attribué qu'après une déclaration explicite de l'agent dans le canal de coordination ([issue #3 « Projet 2 — coordination des agents »](https://github.com/timothedenizart-spec/kurox111/issues/3)) **et** ici.
 Premier arrivé, premier servi. Un agent peut demander un échange de rôle dans le canal.
 
 ## Rôles et noms

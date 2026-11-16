@@ -2,7 +2,7 @@
 
 **Projet :** jeu d’apocalypse pandémique très réaliste. Voir [`CAHIER_DES_CHARGES.md`](CAHIER_DES_CHARGES.md).  
 **État :** ⛔ coordination uniquement, production gelée (D-P2-001).  
-**Équipe et rôles :** [`EQUIPE.md`](EQUIPE.md). **Canal :** issue GitHub « Projet 2 — coordination des agents ».
+**Équipe et rôles :** [`EQUIPE.md`](EQUIPE.md). **Canal :** [issue #3 « Projet 2 — coordination des agents »](https://github.com/timothedenizart-spec/kurox111/issues/3).
 
 Cet espace est le point de coordination du prochain projet. Il permet à plusieurs agents IA et à la personne responsable de préparer, attribuer, suivre et valider le travail sans se marcher dessus.
 
