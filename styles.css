@@ -200,6 +200,14 @@ h3 { margin-bottom: 0.6rem; color: var(--muted); font-size: 0.78rem; font-weight
 .world-facts dt { color: var(--moss-light); font-family: "DM Mono", monospace; font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; }
 .world-facts dd { margin: 0.16rem 0 0; color: var(--muted); font-size: 0.78rem; }
 
+.signal-panel { border-top: 3px solid var(--moss); }
+.signal-panel h2 { margin-top: 0.35rem; font-family: "Playfair Display", Georgia, serif; font-size: 1.35rem; }
+.signal-panel > p:not(.section-kicker) { color: #c8cdc1; font-size: 0.83rem; }
+.signal-location { margin: 0.8rem 0; color: var(--gold); font-family: "DM Mono", monospace; font-size: 0.68rem; letter-spacing: 0.04em; }
+.signal-actions { margin-bottom: 0.8rem; }
+.lead-copy { display: grid; gap: 0.18rem; border-top: 1px solid var(--line); padding-top: 0.75rem; color: var(--muted); font-size: 0.76rem; line-height: 1.42; }
+.lead-copy strong { color: var(--moss-light); font-size: 0.78rem; }
+
 .event-list { display: grid; gap: 0.65rem; max-height: 32rem; margin: 0.85rem 0 0; padding: 0; overflow: auto; list-style: none; }
 .event-list li { border-left: 2px solid rgba(132, 155, 114, 0.65); padding-left: 0.65rem; }
 .event-list li.player { border-color: var(--gold); }

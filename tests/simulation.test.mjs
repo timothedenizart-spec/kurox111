@@ -87,3 +87,32 @@ test("les contacts récents sont restitués comme un signal narratif", () => {
 
   assert.match(game.getExposureSignal(), /contacts rapprochés/i);
 });
+
+test("un signal de quartier se résout une seule fois au bon endroit", () => {
+  const game = new PandemicSimulation(42);
+  const signal = game.getCurrentSignal();
+  game.player.location = signal.location;
+  const result = game.resolveSignal();
+
+  assert.equal(result.ok, true);
+  assert.equal(game.getCurrentSignal().resolved, true);
+  assert.equal(game.resolveSignal().ok, false);
+});
+
+test("la radio débloque une piste narrative une fois par jour", () => {
+  const game = new PandemicSimulation(42);
+  const result = game.listenRadio();
+
+  assert.equal(result.ok, true);
+  assert.equal(game.getLead().known, true);
+  assert.equal(game.listenRadio().ok, false);
+});
+
+test("préparer l’appartement transforme le signal d’abri sans jauge", () => {
+  const game = new PandemicSimulation(42);
+  const result = game.secureShelter();
+
+  assert.equal(result.ok, true);
+  assert.equal(game.player.shelterSecured, true);
+  assert.match(game.getShelterSignal(), /préparé/i);
+});

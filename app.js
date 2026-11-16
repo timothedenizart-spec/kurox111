@@ -51,10 +51,18 @@ function renderActions(snapshot) {
   const canWash = ["apartment", "clinic"].includes(player.location) && (player.location !== "apartment" || player.inventory.soap > 0);
   const canToilet = ["apartment", "clinic", "hall"].includes(player.location);
 
+  const sleepDetail = location.id === "apartment"
+    ? player.shelterSecured || phase.index < 3
+      ? "7 h · sommeil plus sûr"
+      : "5 h · porte non préparée"
+    : location.id === "hall" && player.refugeAccess
+      ? "6 h · repos partagé"
+      : "3 h · repos incertain";
+
   element("care-actions").innerHTML = [
     actionButton("drink", "Boire", "10 min · utilise 1 eau", player.inventory.water < 1),
     actionButton("eat", "Manger", "20 min · utilise 1 nourriture", player.inventory.food < 1),
-    actionButton("sleep", "Se reposer", location.id === "apartment" ? "7 h · sommeil plus sûr" : "3 h · repos incertain"),
+    actionButton("sleep", "Se reposer", sleepDetail),
     actionButton("wash", "Te laver", "20 min · discrétion requise", !canWash),
     actionButton("toilet", "Trouver des toilettes", "8 min · lieu adapté requis", !canToilet),
   ].join("");
@@ -96,11 +104,33 @@ function renderWorld(snapshot) {
     ["Dispensaire", world.clinic],
     ["Échanges", world.currency],
     ["Réseau", world.network],
+    ["Abri", world.shelter],
     ["Prudence", world.exposure],
     ["Voisinage", `${affected} habitant${affected > 1 ? "s semblent" : " semble"} mal en point ; ${altered ? `${altered} comportement${altered > 1 ? "s" : ""} très inquiétant${altered > 1 ? "s" : ""}.` : "la plupart suivent encore leurs habitudes."}`],
   ]
     .map(([term, description]) => `<div><dt>${term}</dt><dd>${description}</dd></div>`)
     .join("");
+}
+
+function renderSignal(snapshot) {
+  const { signal, lead, player } = snapshot;
+  const atSignalLocation = player.location === signal.location;
+  const canListen = ["apartment", "hall"].includes(player.location) && !player.radioDays.includes(snapshot.day);
+  const canSecure = player.location === "apartment" && !player.shelterSecured;
+  const canRequestRefuge = player.location === "hall" && !player.refugeAccess;
+
+  element("signal-title").textContent = signal.title;
+  element("signal-description").textContent = signal.description;
+  element("signal-location").textContent = signal.resolved
+    ? "Signal traité pour aujourd’hui. Un autre apparaîtra demain."
+    : `Lieu : ${LOCATIONS.find((location) => location.id === signal.location).name}`;
+  element("signal-actions").innerHTML = [
+    actionButton("signal", signal.resolved ? "Signal déjà traité" : signal.action, `${signal.minutes} min · action de quartier`, signal.resolved || !atSignalLocation),
+    actionButton("radio", "Écouter la radio", "20 min · une piste narrative", !canListen),
+    actionButton("secure", "Préparer l’abri", "90 min · appartement uniquement", !canSecure),
+    actionButton("refuge", "Demander un refuge", "35 min · réseau nécessaire", !canRequestRefuge),
+  ].join("");
+  element("lead-copy").innerHTML = `<strong>${lead.title}</strong><span>${lead.description}</span>`;
 }
 
 function renderJournal(events) {
@@ -122,6 +152,7 @@ function render() {
   renderActions(snapshot);
   renderTravel(snapshot.player.location);
   renderWorld(snapshot);
+  renderSignal(snapshot);
   renderJournal(snapshot.events);
 }
 
@@ -159,6 +190,18 @@ function performAction(button) {
       break;
     case "aid":
       result = game.requestAid();
+      break;
+    case "signal":
+      result = game.resolveSignal();
+      break;
+    case "radio":
+      result = game.listenRadio();
+      break;
+    case "secure":
+      result = game.secureShelter();
+      break;
+    case "refuge":
+      result = game.requestRefuge();
       break;
     case "work":
       result = game.work();

@@ -87,6 +87,133 @@ export const PHASES = [
   },
 ];
 
+const RADIO_LEADS = [
+  {
+    title: "Bulletin de quartier",
+    description: "La radio locale conseille de noter les horaires des commerces : les changements commencent toujours par les petites habitudes.",
+  },
+  {
+    title: "Fréquence instable",
+    description: "Un animateur répète que les messages fiables circulent de porte en porte, bien avant les communiqués officiels.",
+  },
+  {
+    title: "Voix de la maison de quartier",
+    description: "Une voix appelle les habitants à se reconnaître, à partager l’information utile et à éviter les promesses impossibles.",
+  },
+  {
+    title: "Émission coupée",
+    description: "Entre deux parasites, tu entends seulement : « Préparez un endroit où dormir. Ne comptez pas sur les magasins. »",
+  },
+  {
+    title: "Canal de survivants",
+    description: "Un message bref donne rendez-vous à la maison de quartier : les refuges ne s’ouvrent qu’aux visages connus.",
+  },
+];
+
+const SIGNALS_BY_PHASE = [
+  [
+    {
+      id: "market-delivery",
+      title: "Livraison en retard",
+      description: "Au Marché Cédre, une commerçante cherche des bras pour ranger une livraison tardive avant l’ouverture.",
+      location: "market",
+      action: "Aider au déchargement",
+      minutes: 60,
+      outcome: "credits",
+    },
+    {
+      id: "notice-board",
+      title: "Panneau de quartier",
+      description: "À la maison de quartier, quelqu’un met à jour la liste des voisins qui peuvent donner un coup de main.",
+      location: "hall",
+      action: "Inscrire ton aide",
+      minutes: 30,
+      outcome: "favour",
+    },
+  ],
+  [
+    {
+      id: "clinic-queue",
+      title: "File silencieuse",
+      description: "Le dispensaire cherche une personne calme pour orienter les habitants qui attendent sous la pluie.",
+      location: "clinic",
+      action: "Orienter les arrivants",
+      minutes: 45,
+      outcome: "favour",
+    },
+    {
+      id: "message-relay",
+      title: "Relais de messages",
+      description: "Des voisins tentent de vérifier quelles rues ont encore de l’eau et de l’électricité.",
+      location: "hall",
+      action: "Recouper les nouvelles",
+      minutes: 40,
+      outcome: "information",
+    },
+  ],
+  [
+    {
+      id: "water-table",
+      title: "Table de distribution",
+      description: "Un groupe de voisins organise une petite distribution à la maison de quartier, sans garantie pour demain.",
+      location: "hall",
+      action: "Tenir la distribution",
+      minutes: 50,
+      outcome: "water",
+    },
+    {
+      id: "tools-return",
+      title: "Boîte à outils partagée",
+      description: "L’atelier municipal prête quelques outils à ceux qui veulent renforcer une porte avant la nuit.",
+      location: "workshop",
+      action: "Trier les outils",
+      minutes: 45,
+      outcome: "shelter",
+    },
+  ],
+  [
+    {
+      id: "door-watch",
+      title: "Porte à renforcer",
+      description: "Ton immeuble résonne de coups sourds. Une heure maintenant peut rendre ton appartement moins vulnérable cette nuit.",
+      location: "apartment",
+      action: "Renforcer l’entrée",
+      minutes: 90,
+      outcome: "shelter",
+    },
+    {
+      id: "hall-watch",
+      title: "Veille de quartier",
+      description: "La maison de quartier cherche des volontaires pour laisser les familles se reposer à tour de rôle.",
+      location: "hall",
+      action: "Prendre un tour de veille",
+      minutes: 60,
+      outcome: "favour",
+    },
+  ],
+  [
+    {
+      id: "refuge-call",
+      title: "Signal de refuge",
+      description: "La maison de quartier accepte encore quelques personnes connues pour une nuit encadrée.",
+      location: "hall",
+      action: "Demander une place",
+      minutes: 35,
+      outcome: "refuge",
+      minFavours: 2,
+    },
+    {
+      id: "quiet-room",
+      title: "Appartement silencieux",
+      description: "Une voisine laisse un message : les appartements préparés deviennent plus sûrs que les couloirs.",
+      location: "apartment",
+      action: "Préparer l’appartement",
+      minutes: 75,
+      outcome: "shelter",
+    },
+  ],
+];
+
 const NPC_TEMPLATES = [
   ["Ana", "soignante", "clinic", "apartment"],
   ["Yanis", "livreur", "workshop", "apartment"],
@@ -165,6 +292,10 @@ export class PandemicSimulation {
       lastConversation: this.minute - 5 * 60,
       favours: 0,
       exposures: [],
+      shelterSecured: false,
+      refugeAccess: false,
+      radioDays: [],
+      knownLead: null,
     };
     this.npcs = NPC_TEMPLATES.map(([name, role, workplace, home], index) => ({
       id: `npc-${index}`,
@@ -186,7 +317,10 @@ export class PandemicSimulation {
     }));
     this.events = [];
     this.eventId = 0;
+    this.resolvedSignalKeys = new Set();
+    this.activeSignal = this.createNeighborhoodSignal();
     this.addEvent("La montre est réglée. Les informations parlent d’incidents isolés dans plusieurs quartiers.", "world");
+    this.addEvent(`Signal du quartier : ${this.activeSignal.title}.`, "world");
     this.addEvent("Tu commences avec un peu d’eau, de nourriture et assez d’argent pour tenir quelques achats.", "player");
     return this;
   }
@@ -206,6 +340,34 @@ export class PandemicSimulation {
 
   getPhase() {
     return PHASES.find((phase) => this.day >= phase.fromDay && this.day <= phase.toDay) ?? PHASES.at(-1);
+  }
+
+  createNeighborhoodSignal() {
+    const phase = this.getPhase();
+    const choices = SIGNALS_BY_PHASE[phase.index];
+    const template = choices[(this.day - 1) % choices.length];
+    const key = `${phase.index}-${this.day}-${template.id}`;
+    return { ...template, key, resolved: this.resolvedSignalKeys?.has(key) ?? false };
+  }
+
+  getCurrentSignal() {
+    return { ...this.activeSignal, resolved: this.resolvedSignalKeys.has(this.activeSignal.key) };
+  }
+
+  getShelterSignal() {
+    if (this.player.refugeAccess) return "Un refuge de quartier t’accepte lorsque la maison de quartier reste accessible.";
+    if (this.player.shelterSecured) return "Ton appartement est préparé pour la nuit ; les bruits du couloir restent dehors plus facilement.";
+    if (this.getPhase().index >= 3) return "Ton appartement reste un abri précaire tant que son entrée n’est pas préparée.";
+    return "L’appartement est encore ordinaire, mais tu peux le préparer avant que la ville ne bascule.";
+  }
+
+  getLead() {
+    if (this.player.knownLead) return this.player.knownLead;
+    return {
+      title: "Fréquence inconnue",
+      description: "À l’appartement ou à la maison de quartier, prendre vingt minutes pour écouter la radio peut révéler une information utile.",
+      known: false,
+    };
   }
 
   getLocation(id = this.player.location) {
@@ -424,6 +586,8 @@ export class PandemicSimulation {
     if (phase.index === 4 && this.day === 9) {
       this.addEvent("Les échanges en argent ne servent presque plus. Les survivants parlent maintenant d’abri, d’eau et de passages sûrs.", "world");
     }
+    this.activeSignal = this.createNeighborhoodSignal();
+    this.addEvent(`Nouveau signal du quartier : ${this.activeSignal.title}.`, "world");
   }
 
   simulatePopulation() {
@@ -514,6 +678,95 @@ export class PandemicSimulation {
     return { ok: true, message: "Trente minutes d’observation." };
   }
 
+  listenRadio() {
+    if (!["apartment", "hall"].includes(this.player.location)) {
+      return { ok: false, message: "Tu n’entends aucune fréquence utile depuis cet endroit." };
+    }
+    if (this.player.radioDays.includes(this.day)) {
+      return { ok: false, message: "Tu as déjà écouté les fréquences disponibles aujourd’hui." };
+    }
+
+    this.advance(20, "Tu cherches une voix stable entre les parasites de la radio");
+    const lead = RADIO_LEADS[this.getPhase().index];
+    this.player.radioDays.push(this.day);
+    this.player.knownLead = { ...lead, known: true, day: this.day };
+    this.addEvent(`Radio : ${lead.description}`, "world");
+    return { ok: true, message: "La radio ne donne pas de certitude, mais une piste pour comprendre ce qui change." };
+  }
+
+  secureShelter() {
+    if (this.player.location !== "apartment") return { ok: false, message: "Tu dois être chez toi pour préparer ton abri." };
+    if (this.player.shelterSecured) return { ok: false, message: "L’entrée est déjà préparée pour la nuit." };
+
+    this.advance(90, "Tu bloques les points faibles de l’entrée et ranges l’essentiel près de la porte");
+    this.player.shelterSecured = true;
+    this.addEvent("Ton appartement n’est pas inviolable, mais il te donne enfin une nuit un peu moins incertaine.", "player");
+    return { ok: true, message: "L’appartement devient un abri plus fiable sans transformer la sécurité en jauge." };
+  }
+
+  requestRefuge() {
+    if (this.player.location !== "hall") return { ok: false, message: "Le refuge se négocie à la maison de quartier." };
+    if (this.player.refugeAccess) return { ok: false, message: "Le quartier connaît déjà ton visage et t’accorde une place quand il le peut." };
+    if (this.getPhase().index < 2) return { ok: false, message: "Le refuge n’est pas encore organisé. Pour l’instant, les voisins font comme si demain était garanti." };
+    if (this.player.favours < 2) return { ok: false, message: "Il faut d’abord créer des liens concrets avant de demander une place dans un refuge rare." };
+
+    this.advance(35, "Tu expliques ce que tu peux apporter au refuge de quartier");
+    this.player.refugeAccess = true;
+    this.addEvent("Une médiatrice note ton nom à la main. Le refuge n’est pas un droit, mais une porte pourra s’ouvrir.", "npc");
+    return { ok: true, message: "Un abri collectif devient une option lorsque la maison de quartier est accessible." };
+  }
+
+  resolveSignal() {
+    const signal = this.getCurrentSignal();
+    if (signal.resolved) return { ok: false, message: "Tu as déjà répondu à ce signal aujourd’hui." };
+    if (signal.location !== this.player.location) {
+      return { ok: false, message: `Ce signal demande de te rendre à ${this.getLocation(signal.location).name}.` };
+    }
+    if (signal.minFavours && this.player.favours < signal.minFavours) {
+      return { ok: false, message: "Le refuge cherche des visages connus. Aider le quartier d’abord peut ouvrir cette possibilité." };
+    }
+
+    this.advance(signal.minutes, signal.action);
+    let outcomeMessage;
+    switch (signal.outcome) {
+      case "credits":
+        this.player.money += 8;
+        outcomeMessage = "On te donne quelques crédits tant que les échanges ordinaires existent encore.";
+        break;
+      case "favour":
+        this.player.favours = clamp(this.player.favours + 1, 0, 5);
+        this.player.lastConversation = this.absoluteMinute;
+        outcomeMessage = "Des voisins retiennent ton nom ; l’entraide gagne du terrain.";
+        break;
+      case "information": {
+        const lead = RADIO_LEADS[this.getPhase().index];
+        this.player.knownLead = { ...lead, known: true, day: this.day };
+        outcomeMessage = "Les témoignages recoupés donnent une piste plus solide que les rumeurs isolées.";
+        break;
+      }
+      case "water":
+        this.player.inventory.water += 1;
+        this.player.favours = clamp(this.player.favours + 1, 0, 5);
+        outcomeMessage = "Après la distribution, une bouteille t’est confiée et ton aide est remarquée.";
+        break;
+      case "shelter":
+        this.player.shelterSecured = true;
+        outcomeMessage = "Les outils et le temps partagé rendent ton abri moins précaire pour la nuit.";
+        break;
+      case "refuge":
+        this.player.refugeAccess = true;
+        outcomeMessage = "Le quartier reconnaît ce que tu as déjà donné et te réserve une place si les portes restent ouvertes.";
+        break;
+      default:
+        outcomeMessage = "Le quartier garde une trace de ton passage.";
+    }
+
+    this.resolvedSignalKeys.add(signal.key);
+    this.activeSignal = { ...signal, resolved: true };
+    this.addEvent(`${signal.title} : ${outcomeMessage}`, "world");
+    return { ok: true, message: outcomeMessage };
+  }
+
   eat() {
     if (this.player.inventory.food < 1) return { ok: false, message: "Il ne reste rien de comestible dans ton sac." };
     this.player.inventory.food -= 1;
@@ -531,8 +784,17 @@ export class PandemicSimulation {
   }
 
   sleep() {
-    const hours = this.player.location === "apartment" ? 7 : 3;
-    this.advance(hours * 60, this.player.location === "apartment" ? "Tu dors d’un sommeil léger" : "Tu t’assoupis sans vraiment te sentir en sécurité");
+    const atApartment = this.player.location === "apartment";
+    const atRefuge = this.player.location === "hall" && this.player.refugeAccess;
+    const hours = atApartment ? (this.player.shelterSecured || this.getPhase().index < 3 ? 7 : 5) : atRefuge ? 6 : 3;
+    const reason = atApartment
+      ? this.player.shelterSecured
+        ? "Tu dors derrière une entrée préparée, sans jamais oublier le couloir"
+        : "Tu dors d’un sommeil léger, attentif aux bruits de l’immeuble"
+      : atRefuge
+        ? "Tu te reposes à tour de rôle parmi des voisins qui veillent"
+        : "Tu t’assoupis sans vraiment te sentir en sécurité";
+    this.advance(hours * 60, reason);
     this.player.lastSleep = this.absoluteMinute;
     return { ok: true, message: "Tu te réveilles avec une perception plus nette du quartier." };
   }
@@ -677,6 +939,7 @@ export class PandemicSimulation {
       currency,
       network: this.getNetworkSignal(),
       exposure: this.getExposureSignal(),
+      shelter: this.getShelterSignal(),
       clinic: this.isClinicOpen() ? "Le dispensaire reçoit encore du monde." : "Le dispensaire est fermé ou inaccessible.",
     };
   }
@@ -699,6 +962,8 @@ export class PandemicSimulation {
       needs: this.getNeedSignals(),
       phase: this.getPhase(),
       world: this.getWorldSignals(),
+      signal: this.getCurrentSignal(),
+      lead: this.getLead(),
       nearby,
       events: [...this.events],
       prices: this.getPrices(),

@@ -37,6 +37,16 @@ La seconde itération approfondit deux piliers sans créer de jauge ni présente
 - les passages denses sont suivis comme des **souvenirs d’exposition fictionnels**. Ils alimentent un signal de prudence narratif, sans pourcentage, diagnostic ni mécanisme médical ;
 - les informations de quartier présentent désormais le réseau social et les contacts récents à côté des commerces, services et comportements observés.
 
+## Extension réalisée : V0.3 — abri, information et quartier
+
+La troisième itération donne au temps de jeu des choix plus concrets :
+
+- un **signal de quartier** renouvelé chaque jour propose une action contextualisée dans un lieu précis : aider un commerce, recouper des nouvelles, tenir une distribution, préparer une porte ou chercher une place de refuge ;
+- écouter la **radio** à l’appartement ou à la maison de quartier révèle une piste narrative par phase, une seule fois par jour ;
+- l’appartement peut être préparé comme **abri**. Cela améliore la durée de repos disponible pendant les phases les plus instables, sans barre de sécurité ;
+- après la rupture, un réseau suffisamment solide permet de demander l’accès à un **refuge collectif** à la maison de quartier ;
+- chaque signal ne peut être résolu qu’une fois, pour préserver le caractère situé et temporel des actions.
+
 ## Hors périmètre de V0.1
 
 - multijoueur ;
