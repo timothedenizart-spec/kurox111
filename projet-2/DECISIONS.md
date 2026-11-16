@@ -8,3 +8,7 @@
 | D-04 | Ne montrer aux joueurs que des observations des PNJ. | Protéger l’incertitude et permettre rumeurs, erreurs et empathie. | Civitas | adopté |
 | D-05 | Simuler l’économie par disponibilité et statuts de commerces avant des équations macroéconomiques. | Obtenir des causes visibles, jouables et testables dans le vertical slice. | Atlas | adopté |
 | D-06 | Construire le premier incrément sans dépendance externe. | Le prototype doit démarrer immédiatement depuis un dépôt minimal. | Orion | adopté |
+| D-07 | Déterminer une exposition à partir d’une présence simultanée dans un lieu. | La transmission doit pouvoir être reliée à une routine, un trajet ou un espace partagé, plutôt qu’à un risque abstrait de ville. | Épidémie / Civitas | adopté |
+| D-08 | Montrer les rumeurs avec une source et un degré d’incertitude qualitatif. | Le joueur peut comparer les récits sans obtenir une vérité chiffrée ou omnisciente. | Civitas / Nocturne | adopté |
+| D-09 | Expliquer l’état d’un commerce par une cause locale. | Une fermeture devient un fait du monde — absentéisme, décision, stock ou livraison — et pas une simple bascule de niveau. | Atlas | adopté |
+| D-10 | Résoudre une vraie période de repos lors du retour dans la partie. | Le temps réel reste cohérent même quand le navigateur était fermé, et permet des incidents de nuit sobres. | Chronos / Vigile | adopté |

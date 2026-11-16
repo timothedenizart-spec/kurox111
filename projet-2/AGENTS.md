@@ -13,11 +13,20 @@ Chaque habitant possède, au minimum :
 
 ```text
 id, prénom, foyer, métier, quartier, ressources,
-mobilité, confiance, liens[], étatSanitaire,
+mobilité, confiance, contacts[], lieuCourant,
+étatSanitaire, exposition{lieu, instant, source},
 dernièreMiseÀJour, mémoireCourte[]
 ```
 
-L’état sanitaire reste interne : `sain`, `exposé`, `incubation`, `symptomatique`, `grave`, `disparu`, `altéré`. Les PNJ ne connaissent pas tous l’état des autres ; ils agissent d’après des observations, une rumeur ou leurs intérêts.
+L’état sanitaire reste interne : `sain`, `exposé`, `incubation`, `symptomatique`, `grave`, `disparu`, `altéré`. Les PNJ ne connaissent pas tous l’état des autres ; ils agissent d’après des observations, une rumeur ou leurs intérêts. À chaque heure simulée, un horaire détermine leur présence dans un lieu ; l’exposition n’est possible qu’en présence d’un contact infectieux dans ce même lieu.
+
+Une rumeur du monde possède :
+
+```text
+instant, texte, source, degréDIncertain, relais[]
+```
+
+La source et l’incertitude sont des éléments jouables. Elles ne doivent jamais être remplacées par un « vrai / faux » omniscient dans l’interface.
 
 Chaque besoin du joueur possède :
 

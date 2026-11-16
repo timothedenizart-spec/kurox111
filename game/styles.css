@@ -162,6 +162,11 @@ button { cursor: pointer; }
 .world-signal strong { color: #dbdad3; display: block; font-size: 11px; line-height: 1.35; margin-top: 3px; font-weight: 600; }
 .world-signal strong.alert { color: var(--amber); }
 .world-signal strong.danger { color: var(--rust); }
+.rumor-panel { background: linear-gradient(135deg, rgba(147,186,180,.045), transparent 70%); }
+.rumor-list { display: grid; gap: 9px; margin-top: 15px; }
+.rumor-entry { border-left: 2px solid var(--sky); padding: 2px 0 2px 9px; }
+.rumor-entry p { margin: 0; color: #cfcdc5; font-size: 10px; line-height: 1.45; }
+.rumor-entry span { display: block; color: var(--sky); font-family: "DM Mono", monospace; font-size: 8px; letter-spacing: .05em; text-transform: uppercase; margin-top: 4px; }
 .supply-list { display: grid; gap: 7px; margin-top: 15px; }
 .supply-line { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #d3d1c9; }
 .supply-line span:last-child { color: var(--moss); font-family: "DM Mono", monospace; font-size: 10px; }
@@ -192,9 +197,10 @@ footer { color: var(--quiet); font-family: "DM Mono", monospace; font-size: 9px;
 
 @media (max-width: 1050px) {
   .dashboard { grid-template-columns: minmax(210px, .8fr) minmax(400px, 1.55fr); }
-  .right-rail { border-left: 0; border-top: 1px solid var(--line); grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr; }
-  .right-rail .panel { border-bottom: 0; border-right: 1px solid var(--line); }
-  .right-rail .panel:last-child { border-right: 0; }
+  .right-rail { border-left: 0; border-top: 1px solid var(--line); grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; }
+  .right-rail .panel { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .right-rail .panel:nth-child(even) { border-right: 0; }
+  .right-rail .panel:nth-last-child(-n + 2) { border-bottom: 0; }
 }
 @media (max-width: 760px) {
   .app-shell { width: min(100% - 28px, 620px); }
@@ -207,7 +213,7 @@ footer { color: var(--quiet); font-family: "DM Mono", monospace; font-size: 9px;
   .intent-panel { grid-column: 1 / -1; }
   .city-column { border-top: 1px solid var(--line); }
   .right-rail { grid-column: auto; grid-template-columns: 1fr; }
-  .right-rail .panel { border-right: 0; border-bottom: 1px solid var(--line); }
+  .right-rail .panel, .right-rail .panel:nth-last-child(-n + 2) { border-right: 0; border-bottom: 1px solid var(--line); }
   .right-rail .panel:last-child { border-bottom: 0; }
   .city-map { min-height: 307px; padding: 18px; grid-template-rows: 104px 96px; }
   .map-header, .residents-panel { padding-left: 18px; padding-right: 18px; }

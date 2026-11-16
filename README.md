@@ -18,9 +18,10 @@ Ouvrir ensuite `http://localhost:4173`. Le prototype conserve la partie dans le 
 
 - horloge réelle persistante et besoins physiologiques sans barres de progression ;
 - contamination par étapes et calendrier de mutation à l’échelle de jours réels ;
-- habitants simulés avec rôle, foyer, ressources, mobilité, relations et état sanitaire caché ;
-- économie qui se fragilise, commerces qui réduisent leurs horaires puis ferment ;
-- transactions, stock personnel, informations radio, carnet d’observations et choix de quartier ;
+- habitants simulés avec rôle, foyer, ressources, mobilité, réseau de contacts, mémoire courte et état sanitaire caché ;
+- contamination reliée aux présences communes dans l’épicerie, la pharmacie, la place et les trajets ;
+- économie qui se fragilise, commerces qui réduisent leurs horaires puis ferment pour une cause locale visible ;
+- transactions, stock personnel, rumeurs sourcées mais incertaines, radio et carnet d’observations ;
 - interface de prototype immersive, en français et sans dépendance externe.
 
 ## Coordination

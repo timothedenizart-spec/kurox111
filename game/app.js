@@ -120,13 +120,44 @@
     ["Marc Sorel", "vigile", "5B"], ["Sofia Ricci", "couturière", "3B"], ["Théo Giraud", "apprenti", "1C"]
   ];
 
+  const VENUE_LABELS = {
+    home: "chez soi",
+    grocery: "près de l’épicerie",
+    pharmacy: "près de la pharmacie",
+    square: "sur la place",
+    transit: "dans les rues du quartier"
+  };
+
+  const RUMOR_TEMPLATES = [
+    [
+      ["Un chauffeur serait tombé malade après sa tournée.", "entendu dans l’immeuble", "non recoupé"],
+      ["Le cabinet du quartier rappelle moins vite que d’habitude.", "appel voisin", "à vérifier"]
+    ],
+    [
+      ["On dit que certaines familles ne sortent plus depuis deux jours.", "palier", "non recoupé"],
+      ["Un entrepôt aurait raté sa livraison du matin.", "employé anonyme", "à vérifier"]
+    ],
+    [
+      ["L’épicerie limiterait les achats avant même l’ouverture.", "file d’attente", "plausible"],
+      ["Des voisins s’organisent pour déposer des sacs devant les portes.", "cour intérieure", "à vérifier"]
+    ],
+    [
+      ["Le réseau de distribution ne dessert plus toutes les rues.", "radio locale", "incomplet"],
+      ["Une porte du bâtiment d’en face reste ouverte depuis la nuit.", "fenêtre voisine", "non recoupé"]
+    ],
+    [
+      ["Les gens frappent trois fois avant de s’annoncer.", "voix inconnue", "à vérifier"],
+      ["La radio ne diffuse plus qu’entre deux silences.", "ondes locales", "incomplet"]
+    ]
+  ];
+
   const $ = (selector) => document.querySelector(selector);
   const els = {
     watchDate: $("#watch-date"), watchTime: $("#watch-time"), phaseKicker: $("#phase-kicker"), phaseTitle: $("#phase-title"),
     phaseDescription: $("#phase-description"), cityPulse: $("#city-pulse"), cityStatus: $("#city-status"), bulletin: $("#bulletin"),
     bulletinTime: $("#bulletin-time"), money: $("#money-value"), inventory: $("#inventory"), needs: $("#needs-list"),
     selfActions: $("#self-actions"), intent: $("#intent-text"), cityMap: $("#city-map"), residents: $("#resident-list"),
-    residentSummary: $("#resident-summary"), worldSignals: $("#world-signals"), supplies: $("#supply-list"), streetStory: $("#street-story"),
+    residentSummary: $("#resident-summary"), worldSignals: $("#world-signals"), rumors: $("#rumor-list"), supplies: $("#supply-list"), streetStory: $("#street-story"),
     noteCount: $("#note-count"), modalBackdrop: $("#modal-backdrop"), modalKicker: $("#modal-kicker"), modalTitle: $("#modal-title"),
     modalContent: $("#modal-content"), toast: $("#toast")
   };
@@ -134,17 +165,38 @@
   let state = loadState();
   let toastTimer;
 
+  function buildContacts(index) {
+    const total = PEOPLE_TEMPLATE.length;
+    return [`p-${(index + 1) % total}`, `p-${(index + 5) % total}`, `p-${(index + 11) % total}`];
+  }
+
+  function makeWorld(now) {
+    return {
+      rumors: [{
+        id: "r-start",
+        at: now,
+        text: "La radio évoque un foyer respiratoire sans gravité confirmée.",
+        source: "radio locale",
+        confidence: "à vérifier"
+      }],
+      lastRumorAt: now,
+      lastNightAt: 0,
+      closures: []
+    };
+  }
+
   function createInitialState() {
     const now = Date.now();
     const people = PEOPLE_TEMPLATE.map((entry, index) => ({
       id: `p-${index}`, name: entry[0], role: entry[1], home: entry[2],
       mobility: 0.25 + ((index * 17) % 60) / 100,
       resources: 1 + (index % 3), trust: 0.35 + ((index * 29) % 50) / 100,
+      contacts: buildContacts(index), currentPlace: "home", exposure: null,
       health: index === 1 ? "incubation" : "well", infectedAt: index === 1 ? now - 13 * HOUR : null,
       lastObservation: now - (index % 7) * HOUR, memories: []
     }));
     return {
-      version: 1,
+      version: 2,
       startedAt: now,
       lastUpdatedAt: now,
       simulatedAt: now,
@@ -155,6 +207,7 @@
       needs: { drink: now - 30 * 60 * 1000, food: now - 2 * HOUR, rest: now - 8 * HOUR, wash: now - 11 * HOUR, relief: now - 1 * HOUR, contact: now - 9 * HOUR },
       restingSince: null,
       people,
+      world: makeWorld(now),
       notes: [{ at: now, text: STARTING_NOTE }],
       observed: [],
       purchases: {},
@@ -162,10 +215,27 @@
     };
   }
 
+  function migrateState(saved) {
+    saved.version = 2;
+    saved.seed = saved.seed || ((Date.now() % 2147483646) + 1);
+    saved.world = saved.world || makeWorld(saved.startedAt || Date.now());
+    saved.world.rumors = Array.isArray(saved.world.rumors) && saved.world.rumors.length ? saved.world.rumors : makeWorld(saved.startedAt || Date.now()).rumors;
+    saved.world.lastRumorAt = saved.world.lastRumorAt || saved.startedAt || Date.now();
+    saved.world.lastNightAt = saved.world.lastNightAt || 0;
+    saved.world.closures = Array.isArray(saved.world.closures) ? saved.world.closures : [];
+    saved.people.forEach((person, index) => {
+      person.contacts = Array.isArray(person.contacts) && person.contacts.length ? person.contacts : buildContacts(index);
+      person.currentPlace = person.currentPlace || "home";
+      person.exposure = person.exposure || null;
+      person.memories = Array.isArray(person.memories) ? person.memories : [];
+    });
+    return saved;
+  }
+
   function loadState() {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (saved && saved.version === 1 && saved.startedAt && saved.people && saved.needs) return saved;
+      if (saved && saved.startedAt && saved.people && saved.needs) return migrateState(saved);
     } catch (error) {
       console.warn("Sauvegarde Éclipse illisible", error);
     }
@@ -196,8 +266,96 @@
   function formatTime(date) { return new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", hour12: false }).format(date); }
   function noteTime(timestamp) { return `${formatDate(new Date(timestamp))} · ${formatTime(new Date(timestamp))}`; }
   function replaceDay(text, now = Date.now()) { return text.replace("{day}", gameDay(now)); }
+  function stableHash(value) {
+    return [...String(value)].reduce((hash, char) => ((hash * 31) + char.charCodeAt(0)) >>> 0, 7);
+  }
 
   function isInfectious(person) { return ["incubation", "symptomatic", "severe", "altered"].includes(person.health); }
+  function isUnavailable(person) { return ["severe", "altered"].includes(person.health); }
+
+  function locationFor(person, at, phase) {
+    if (person.health === "severe") return "home";
+    const hour = new Date(at).getHours();
+    const day = Math.floor((at - state.startedAt) / DAY);
+    const cadence = stableHash(`${person.id}:${day}`) % 6;
+    const reducedMobility = phase >= 3 && person.mobility < .65;
+    if (person.health === "altered") return hour >= 21 || hour <= 4 ? "square" : "home";
+    if (reducedMobility && cadence < 5) return "home";
+    if (person.role.includes("gérante") && hour >= 7 && hour < 18 && phase < 4) return "grocery";
+    if (person.role.includes("pharmacienne") && hour >= 8 && hour < 18 && phase < 4) return "pharmacy";
+    if ((person.role.includes("livreur") || person.role.includes("chauffeur") || person.role.includes("infirmière")) && hour >= 6 && hour < 20) return "transit";
+    if (hour >= 7 && hour < 9 && cadence < 4) return "grocery";
+    if (hour >= 12 && hour < 14 && cadence < 4) return "square";
+    if (hour >= 17 && hour < 19 && cadence < 3) return phase < 3 ? "grocery" : "square";
+    return "home";
+  }
+
+  function remember(person, memory) {
+    if (!memory || person.memories.includes(memory)) return;
+    person.memories.push(memory);
+    person.memories = person.memories.slice(-6);
+  }
+
+  function publishRumor(text, source, confidence, at) {
+    const duplicate = state.world.rumors.some((rumor) => rumor.text === text && at - rumor.at < DAY);
+    if (duplicate) return;
+    state.world.rumors.unshift({ id: `r-${at}-${state.world.rumors.length}`, at, text, source, confidence });
+    state.world.rumors = state.world.rumors.slice(0, 12);
+  }
+
+  function circulateRumor(at, phase) {
+    if (at - state.world.lastRumorAt < 6 * HOUR) return;
+    const templates = RUMOR_TEMPLATES[phase];
+    const [text, source, confidence] = templates[Math.floor(rand() * templates.length)];
+    const speaker = state.people[Math.floor(rand() * state.people.length)];
+    const listenerId = speaker.contacts[Math.floor(rand() * speaker.contacts.length)];
+    const listener = state.people.find((person) => person.id === listenerId);
+    publishRumor(text, source, confidence, at);
+    remember(speaker, `a répété : « ${text} »`);
+    if (listener && listener.trust + rand() > .72) remember(listener, `a entendu : « ${text} »`);
+    state.world.lastRumorAt = at;
+  }
+
+  function progressHealth(person, at, phase) {
+    const sinceInfection = person.infectedAt ? at - person.infectedAt : 0;
+    if (person.health === "exposed" && sinceInfection > (8 + Math.floor(rand() * 12)) * HOUR) {
+      person.health = "incubation";
+    } else if (person.health === "incubation" && sinceInfection > (30 + Math.floor(rand() * 27)) * HOUR) {
+      person.health = "symptomatic";
+    } else if (person.health === "symptomatic" && sinceInfection > (104 + Math.floor(rand() * 36)) * HOUR && rand() < .04) {
+      person.health = "severe";
+    } else if (person.health === "severe" && phase >= 4 && sinceInfection > 6 * DAY && rand() < .19) {
+      person.health = "altered";
+    }
+  }
+
+  function spreadThroughPlaces(at, phase) {
+    const groups = {};
+    state.people.forEach((person) => {
+      person.currentPlace = locationFor(person, at, phase);
+      if (person.currentPlace === "home") return;
+      (groups[person.currentPlace] ||= []).push(person);
+    });
+    Object.entries(groups).forEach(([place, group]) => {
+      const infectious = group.filter(isInfectious);
+      if (!infectious.length) return;
+      group.filter((person) => person.health === "well").forEach((person) => {
+        // Paramètres fictionnels calibrés pour rendre la propagation lisible à l’échelle d’une chronique locale.
+        const baseRisk = [0.018, 0.027, 0.039, 0.052, 0.066][phase];
+        const density = place === "transit" ? 1.25 : place === "square" ? .82 : 1;
+        const chance = baseRisk * density * infectious.length * (.55 + person.mobility) / Math.max(1, Math.sqrt(group.length));
+        if (rand() < chance) {
+          const source = infectious[Math.floor(rand() * infectious.length)];
+          person.health = "exposed";
+          person.infectedAt = at;
+          person.exposure = { at, place, sourceId: source.id };
+          remember(person, `a passé du temps ${VENUE_LABELS[place] || "dehors"} sans savoir avec qui`);
+          remember(source, `a croisé plusieurs personnes ${VENUE_LABELS[place] || "dehors"}`);
+        }
+      });
+    });
+  }
+
   function simulateUntil(now) {
     let cursor = state.simulatedAt || now;
     const maximumSteps = 24 * 60; // limitation défensive : soixante jours au retour d’une très vieille sauvegarde
@@ -212,44 +370,43 @@
 
   function simulateHour(at) {
     const phase = phaseIndex(at);
-    const infectious = state.people.filter(isInfectious).length;
-    const activeRatio = infectious / state.people.length;
     state.people.forEach((person) => {
-      const sinceInfection = person.infectedAt ? at - person.infectedAt : 0;
-      if (person.health === "well") {
-        const phasePressure = [0.0005, 0.0013, 0.0025, 0.004, 0.0055][phase];
-        const chance = phasePressure * (0.35 + person.mobility) * (0.4 + activeRatio * 7);
-        if (rand() < chance) {
-          person.health = "exposed";
-          person.infectedAt = at;
-          person.memories.push("a croisé quelqu’un qui semblait très affaibli");
-        }
-      } else if (person.health === "exposed" && sinceInfection > (8 + Math.floor(rand() * 12)) * HOUR) {
-        person.health = "incubation";
-      } else if (person.health === "incubation" && sinceInfection > (30 + Math.floor(rand() * 27)) * HOUR) {
-        person.health = "symptomatic";
-      } else if (person.health === "symptomatic" && sinceInfection > (84 + Math.floor(rand() * 30)) * HOUR && rand() < .15) {
-        person.health = "severe";
-      } else if (person.health === "severe" && phase >= 4 && sinceInfection > 6 * DAY && rand() < .19) {
-        person.health = "altered";
-      }
+      progressHealth(person, at, phase);
       if (rand() < .08 + phase * .025) person.lastObservation = at;
     });
+    spreadThroughPlaces(at, phase);
+    circulateRumor(at, phase);
+  }
+
+  function nightEvent(phase) {
+    const events = [
+      ["Un camion de livraison a ralenti sous vos fenêtres avant l’aube.", "Une sirène a traversé le quartier, puis le silence est revenu."],
+      ["Des voix ont discuté longtemps sur le palier avant de se taire.", "Un message automatique a vibré sur plusieurs téléphones dans l’immeuble."],
+      ["Un volet métallique a claqué dans la rue, sans que personne ne le relève.", "Vous vous êtes réveillée en entendant un voisin demander de l’aide à voix basse."],
+      ["Des pas ont monté l’escalier puis se sont arrêtés devant une autre porte.", "Le quartier a été éclairé quelques secondes par des gyrophares lointains."],
+      ["Un choc sourd a résonné dehors. Vous êtes restée immobile jusqu’au matin.", "Quelqu’un a frappé trois fois dans la cour, puis plus rien."]
+    ];
+    const list = events[phase];
+    return list[Math.floor(rand() * list.length)];
+  }
+
+  function resolveRest(now) {
+    if (!state.restingSince || now - state.restingSince < 4 * HOUR) return;
+    const phase = phaseIndex(now);
+    state.needs.rest = now;
+    state.restingSince = null;
+    addNote("Vous avez dormi assez longtemps pour remettre vos pensées en ordre.", now, false);
+    if (state.world.lastNightAt < now - 3 * HOUR) {
+      const event = nightEvent(phase);
+      state.world.lastNightAt = now;
+      addNote(`Pendant votre repos : ${event}`, now, false);
+    }
   }
 
   function getNeed(need, now = Date.now()) {
     const last = state.needs[need.id] || now;
     const since = now - last;
-    if (need.id === "rest" && state.restingSince) {
-      const restingFor = now - state.restingSince;
-      if (restingFor >= 4 * HOUR) {
-        state.needs.rest = now;
-        state.restingSince = null;
-        addNote("Vous avez dormi assez longtemps pour remettre vos pensées en ordre.", now, false);
-        return { level: "calm", message: need.calm };
-      }
-      return { level: "notice", message: "Vous vous reposez. Laissez passer du temps réel." };
-    }
+    if (need.id === "rest" && state.restingSince) return { level: "notice", message: "Vous vous reposez. Laissez passer du temps réel." };
     if (since < need.comfort) return { level: "calm", message: need.calm };
     if (since < need.alert) return { level: "notice", message: need.notice };
     return { level: "urgent", message: need.urgent };
@@ -264,21 +421,50 @@
     if (shouldToast) showToast("Ajouté au carnet.");
   }
 
+  function venueCondition(id, phase) {
+    const ownerByVenue = { grocery: "Samira Benyahia", pharmacy: "Lina Abadie" };
+    const owner = state.people.find((person) => person.name === ownerByVenue[id]);
+    if (owner && isUnavailable(owner)) {
+      return { state: "closed", status: "Fermé — gérance absente", reason: `${owner.name.split(" ")[0]} n’est plus en mesure d’ouvrir le comptoir.` };
+    }
+    if (owner && owner.health === "symptomatic") {
+      return { state: "limited", status: "Comptoir réduit — absence signalée", reason: `${owner.name.split(" ")[0]} ne peut pas assurer le rythme habituel.` };
+    }
+    const conditions = {
+      grocery: [
+        { state: "open", status: "Ouvert jusqu’à 20 h", reason: "Les livraisons du matin sont arrivées." },
+        { state: "open", status: "Ouvert, files courtes", reason: "Les livreurs prennent du retard, mais Samira maintient l’ouverture." },
+        { state: "limited", status: "Quota discret le matin", reason: "La mairie demande une distribution plus régulière des stocks." },
+        { state: "limited", status: "Rideau à demi baissé", reason: "Le stock est faible et les livraisons sont incertaines." },
+        { state: "closed", status: "Fermé — livraisons coupées", reason: "Plus aucun circuit de livraison ne rejoint la rue." }
+      ],
+      pharmacy: [
+        { state: "open", status: "Sans attente", reason: "Lina tient le comptoir seule, comme d’habitude." },
+        { state: "limited", status: "Entrées espacées", reason: "La pharmacie limite la présence dans le local." },
+        { state: "limited", status: "File à l’extérieur", reason: "Les arrivages sont contrôlés et les demandes augmentent." },
+        { state: "limited", status: "Comptoir prioritaire", reason: "La pharmacie réserve ses rares ouvertures aux demandes urgentes." },
+        { state: "closed", status: "Volet fermé", reason: "Le réseau de fourniture ne permet plus d’ouvrir sans mettre l’équipe en danger." }
+      ],
+      square: [
+        { state: "open", status: "Tables pleines", reason: "Le café donne encore sur la place." },
+        { state: "limited", status: "Service réduit", reason: "Le personnel manque et les clients restent dehors." },
+        { state: "closed", status: "Fermé par arrêté sanitaire", reason: "La mairie a demandé de suspendre les rassemblements dans le café." },
+        { state: "closed", status: "Fermé — personnel absent", reason: "Le café n’a plus assez de personnel pour tenir la salle." },
+        { state: "closed", status: "Fermé — place désertée", reason: "Personne ne peut assurer la sécurité autour de la place." }
+      ]
+    };
+    return conditions[id][phase];
+  }
+
   function cityPlaces(phase) {
-    const grocery = [
-      ["Ouvert jusqu’à 20 h", "open"], ["Ouvert, files courtes", "open"], ["Quota discret le matin", "limited"], ["Rideau à demi baissé", "limited"], ["Fermé — livraisons coupées", "closed"]
-    ][phase];
-    const pharmacy = [
-      ["Sans attente", "open"], ["Entrées espacées", "limited"], ["File à l’extérieur", "limited"], ["Comptoir prioritaire", "limited"], ["Volet fermé", "closed"]
-    ][phase];
-    const cafe = [
-      ["Tables pleines", "open"], ["Service réduit", "limited"], ["Fermé par précaution", "closed"], ["Fermé", "closed"], ["Fermé", "closed"]
-    ][phase];
+    const grocery = venueCondition("grocery", phase);
+    const pharmacy = venueCondition("pharmacy", phase);
+    const square = venueCondition("square", phase);
     return [
-      { id: "home", name: "Chez vous", code: "3B · REFUGE", status: "Porte fermée, eau courante", type: "home", state: "open" },
-      { id: "grocery", name: "Épicerie Morel", code: "RUE · 40 M", status: grocery[0], type: "shop", state: grocery[1] },
-      { id: "pharmacy", name: "Pharmacie Vidal", code: "ANGLE · 80 M", status: pharmacy[0], type: "pharmacy", state: pharmacy[1] },
-      { id: "square", name: "Place des Tilleuls", code: "CŒUR · 120 M", status: cafe[0], type: "square", state: cafe[1] }
+      { id: "home", name: "Chez vous", code: "3B · REFUGE", status: "Porte fermée, eau courante", type: "home", state: "open", reason: "Vous avez encore un lieu où vous retirer." },
+      { id: "grocery", name: "Épicerie Morel", code: "RUE · 40 M", type: "shop", ...grocery },
+      { id: "pharmacy", name: "Pharmacie Vidal", code: "ANGLE · 80 M", type: "pharmacy", ...pharmacy },
+      { id: "square", name: "Place des Tilleuls", code: "CŒUR · 120 M", type: "square", ...square }
     ];
   }
 
@@ -300,10 +486,12 @@
   function worldData(phase) {
     const people = state.people;
     const away = people.filter((person) => ["symptomatic", "severe", "altered"].includes(person.health)).length;
+    const closed = cityPlaces(phase).filter((place) => place.id !== "home" && place.state === "closed").length;
     const contact = phase === 0 ? "encore ordinaire" : phase < 3 ? "méfiant" : "très rare";
     return [
       { label: "Santé", value: currentPhase().health, tone: phase >= 3 ? "danger" : phase >= 2 ? "alert" : "" },
       { label: "Quartier", value: away ? `${away} voisin${away > 1 ? "s" : ""} semble${away > 1 ? "nt" : ""} absent${away > 1 ? "s" : ""}` : "les habitudes tiennent encore", tone: away > 3 ? "alert" : "" },
+      { label: "Commerces", value: closed ? `${closed} lieu${closed > 1 ? "x" : ""} du quartier ne répond${closed > 1 ? "ent" : ""} plus` : "les vitrines tiennent encore", tone: closed ? "danger" : "" },
       { label: "Échanges", value: phase < 4 ? currentPhase().economy : "l’eau et l’abri valent plus que les billets", tone: phase >= 3 ? "alert" : "" },
       { label: "Confiance", value: `le voisinage devient ${contact}`, tone: "" }
     ];
@@ -319,9 +507,11 @@
 
   function render(now = Date.now()) {
     simulateUntil(now);
+    resolveRest(now);
     updatePhaseNote(now);
     const phaseNumber = phaseIndex(now);
     const phase = PHASES[phaseNumber];
+    state.people.forEach((person) => { person.currentPlace = locationFor(person, now, phaseNumber); });
     const day = gameDay(now);
     els.watchDate.textContent = formatDate(new Date(now));
     els.watchTime.textContent = formatTime(new Date(now));
@@ -340,6 +530,7 @@
     renderMap(phaseNumber);
     renderPeople(phaseNumber);
     renderWorld(phaseNumber);
+    renderRumors();
     renderSupplies();
     els.streetStory.textContent = phase.street;
     const resting = state.restingSince ? "Vous êtes allongée. La ville reste dehors." : (phaseNumber >= 3 ? "Vous êtes chez vous. Chaque sortie mérite d’être pesée." : "Vous êtes chez vous. La matinée est calme.");
@@ -370,7 +561,8 @@
       { id: "rest", label: restLabel, detail: state.restingSince ? "mettre fin au repos" : "le temps reste réel", disabled: false },
       { id: "wash", label: "Vous rafraîchir", detail: state.inventory.water ? "utilise un peu d’eau" : "eau nécessaire", disabled: !state.inventory.water },
       { id: "relief", label: "Prendre un moment", detail: "porte fermée", disabled: false },
-      { id: "contact", label: "Prendre des nouvelles", detail: "un appel bref", disabled: false }
+      { id: "contact", label: "Prendre des nouvelles", detail: "un appel bref", disabled: false },
+      { id: "radio", label: "Écouter les ondes", detail: state.inventory.radio ? "une rumeur, pas une preuve" : "radio indisponible", disabled: !state.inventory.radio }
     ];
     els.selfActions.innerHTML = actions.map((action) => `<button class="action-button" data-action="${action.id}" type="button" ${action.disabled ? "disabled" : ""}><span>${action.label}<small>${action.detail}</small></span><b>›</b></button>`).join("");
   }
@@ -397,6 +589,11 @@
     els.worldSignals.innerHTML = worldData(phase).map((item) => `<div class="world-signal"><span class="label">${item.label}</span><strong class="${item.tone}">${item.value}</strong></div>`).join("");
   }
 
+  function renderRumors() {
+    const rumors = state.world.rumors.slice(0, 3);
+    els.rumors.innerHTML = rumors.map((rumor) => `<article class="rumor-entry"><p>« ${rumor.text} »</p><span>${rumor.source} · ${rumor.confidence}</span></article>`).join("");
+  }
+
   function renderSupplies() {
     const resources = [
       ["Eau potable", state.inventory.water, "unité"], ["Rations", state.inventory.ration, "unité"], ["Savon", state.inventory.soap, "pain"], ["Batterie radio", state.inventory.radio, "chargée"]
@@ -419,7 +616,20 @@
       const person = state.people.find((entry) => entry.health === "well") || state.people[0];
       addNote(`Vous avez laissé un message à ${person.name}. La réponse viendra peut-être plus tard.`, now);
       showToast("La sonnerie semble trop longue.");
+    } else if (action === "radio" && state.inventory.radio) {
+      const rumor = state.world.rumors[0];
+      state.needs.contact = Math.min(now, state.needs.contact + 20 * 60 * 1000);
+      if (rumor) {
+        addNote(`À la radio — ${rumor.text} Source : ${rumor.source}, information ${rumor.confidence}.`, now);
+        showToast("Vous écoutez sans pouvoir vérifier.");
+      }
     } else if (action === "rest") {
+      if (state.restingSince && now - state.restingSince >= 4 * HOUR) {
+        resolveRest(now);
+        showToast("Vous vous réveillez après un vrai repos.");
+        render(now);
+        return;
+      }
       if (state.restingSince) {
         const duration = now - state.restingSince;
         state.restingSince = null;
@@ -477,11 +687,11 @@
     }
     if (placeId === "square") {
       const copy = phase < 2 ? "Des gens coupent par la place sans trop ralentir. Le café laisse encore sortir une odeur de grains brûlés." : phase < 4 ? "Les bancs sont vides. Les conversations se coupent quand quelqu’un approche." : "Le vent pousse une publicité froissée contre le trottoir. Vous ne vous attardez pas.";
-      openModal("LIEU OBSERVÉ", "Place des Tilleuls", `<p class="modal-info">${copy}</p><button class="modal-action" data-modal-action="observe-square">Rester quelques minutes et observer</button>`);
+      openModal("LIEU OBSERVÉ", "Place des Tilleuls", `<p class="modal-info">${copy}</p><p class="modal-info"><strong>Pourquoi cet état :</strong> ${place.reason}</p><button class="modal-action" data-modal-action="observe-square">Rester quelques minutes et observer</button>`);
       return;
     }
     if (place.state === "closed") {
-      openModal("COMMERCE FERMÉ", place.name, `<p class="modal-info">${place.status}. Derrière la vitre, les rayons semblent plus vides que la dernière fois.</p>`);
+      openModal("COMMERCE FERMÉ", place.name, `<p class="modal-info">${place.status}. ${place.reason}</p><p class="modal-info">Derrière la vitre, les rayons semblent plus vides que la dernière fois.</p>`);
       return;
     }
     const stock = placeId === "grocery" ? [
@@ -497,17 +707,20 @@
       const reason = !item.available ? "épuisé" : state.purchases[key] ? "quota atteint" : formatted(shopPrice(item, phase));
       return `<div class="buy-row"><div><strong>${item.label}</strong><span>${item.desc}</span></div><button data-buy="${placeId}:${item.id}" ${disabled ? "disabled" : ""}>${reason}</button></div>`;
     }).join("");
-    openModal("COMMERCE", placeId === "grocery" ? "Épicerie Morel" : "Pharmacie Vidal", `<p class="modal-info">${place.status}. Les prix suivent l’incertitude, les stocks partent vite.</p><div class="buy-list">${rows}</div>`);
+    openModal("COMMERCE", placeId === "grocery" ? "Épicerie Morel" : "Pharmacie Vidal", `<p class="modal-info">${place.status}. ${place.reason}</p><p class="modal-info">Les prix suivent l’incertitude, les stocks partent vite.</p><div class="buy-list">${rows}</div>`);
   }
 
   function openResident(id) {
     const person = state.people.find((entry) => entry.id === id);
     if (!person) return;
     const phase = phaseIndex();
+    const acquaintances = person.contacts.map((contactId) => state.people.find((entry) => entry.id === contactId)?.name.split(" ")[0]).filter(Boolean).join(", ");
     const observations = [
       `${person.name} est ${person.role}.`,
       `Domicile ou repère : ${person.home}.`,
+      `Dernière présence connue : ${VENUE_LABELS[person.currentPlace] || "près de chez soi"}.`,
       `Dernière impression : ${observationFor(person, phase)}.`,
+      acquaintances ? `Iel garde habituellement le contact avec ${acquaintances}.` : "Vous ne savez pas qui iel appelle quand la porte se ferme.",
       person.memories.length ? `Vous avez entendu qu’iel ${person.memories[person.memories.length - 1]}.` : "Vous ne savez pas ce qui se passe vraiment de l’autre côté de sa porte."
     ];
     const alreadyObserved = state.observed.includes(id);
@@ -531,6 +744,10 @@
   function openNotes() {
     const entries = state.notes.length ? state.notes.map((note) => `<article class="note-entry"><time>${noteTime(note.at)}</time><p>${note.text}</p></article>`).join("") : `<p class="empty-notes">Votre carnet est encore vide.</p>`;
     openModal("CARNET", "Vos observations", entries);
+  }
+  function openRumors() {
+    const entries = state.world.rumors.map((rumor) => `<article class="note-entry"><time>${noteTime(rumor.at)} · ${rumor.source} · ${rumor.confidence}</time><p>« ${rumor.text} »</p></article>`).join("");
+    openModal("INFORMATIONS FRAGMENTAIRES", "Ce qui se dit", `<p class="modal-info">Une rumeur peut influencer un voisin sans devenir vraie. Les sources sont conservées pour vous aider à comparer, jamais pour vous donner une certitude.</p>${entries}`);
   }
   function openBodyInfo() {
     openModal("SYSTÈME DE SURVIE", "Votre corps ne se résume pas à une barre", `<p class="modal-info">Les besoins sont suivis avec des instants réels et se manifestent par des <strong>indices</strong>. Votre montre donne l’heure ; elle ne révèle ni pourcentage, ni compte à rebours.</p><p class="modal-info">Boire, manger, dormir, se laver, préserver son intimité et garder un lien sont des actions ordinaires qui deviennent plus difficiles lorsque la ville se défait.</p>`);
@@ -577,6 +794,7 @@
       if (button) openResident(button.dataset.resident);
     });
     $("#open-notes").addEventListener("click", openNotes);
+    $("#open-rumors").addEventListener("click", openRumors);
     $("#save-bulletin").addEventListener("click", () => { addNote(`Message radio : ${currentPhase().bulletin}`, Date.now()); render(); });
     $("#body-info").addEventListener("click", openBodyInfo);
     $("#open-stash").addEventListener("click", openStash);
