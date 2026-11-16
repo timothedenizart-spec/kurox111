@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Projet 2 — prototype narratif de survie dans une ville fictive en crise."
+    />
+    <title>Projet 2 — La dernière semaine</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#experience">Aller à l’expérience</a>
+    <main class="page-shell" id="experience">
+      <header class="site-header">
+        <div>
+          <p class="eyebrow">Projet 2 · prototype V0.3</p>
+          <h1>La dernière semaine</h1>
+          <p class="subtitle">Une ville fictive, une crise qui s’étend, une montre pour seul rythme.</p>
+        </div>
+        <div class="header-actions">
+          <button class="quiet-button" type="button" data-action="reset">Recommencer</button>
+          <a class="quiet-link" href="projet-2/BRIEF.md" target="_blank" rel="noreferrer">Brief du prototype</a>
+        </div>
+      </header>
+
+      <section class="prototype-note" aria-label="Note de fiction">
+        <strong>Fiction de jeu.</strong> Cette démo raconte une crise imaginaire et ses conséquences humaines. Ce n’est ni un modèle médical ni un conseil de santé.
+      </section>
+
+      <div class="game-layout">
+        <aside class="sidebar">
+          <section class="watch-card panel" aria-labelledby="watch-title">
+            <p class="section-kicker" id="watch-title">Ta montre</p>
+            <time class="watch-time" id="time-display">07:30</time>
+            <p class="watch-day" id="day-display">Jour 1</p>
+            <p class="condition-line">État : <strong id="condition-display">Vigilant</strong></p>
+          </section>
+
+          <section class="panel inventory-panel" aria-labelledby="inventory-title">
+            <div class="panel-heading">
+              <p class="section-kicker" id="inventory-title">Dans ton sac</p>
+              <span id="money-display" class="money">42 crédits</span>
+            </div>
+            <ul class="inventory-list" id="inventory-list"></ul>
+          </section>
+
+          <section class="panel" aria-labelledby="needs-title">
+            <div class="panel-heading">
+              <p class="section-kicker" id="needs-title">Ce que tu ressens</p>
+              <span class="no-gauge">sans jauge</span>
+            </div>
+            <div id="needs-list" class="needs-list" aria-live="polite"></div>
+          </section>
+        </aside>
+
+        <section class="story-column">
+          <section class="panel location-panel" aria-labelledby="location-title">
+            <div class="location-header">
+              <div>
+                <p class="section-kicker">Lieu actuel</p>
+                <h2 id="location-title">Appartement 12</h2>
+              </div>
+              <span class="location-mark" aria-hidden="true">⌖</span>
+            </div>
+            <p id="location-description" class="location-description"></p>
+            <div class="residents" id="nearby-residents"></div>
+          </section>
+
+          <section class="panel action-panel" aria-labelledby="actions-title">
+            <div class="panel-heading stack-on-small">
+              <div>
+                <p class="section-kicker">Choisir avec le temps</p>
+                <h2 id="actions-title">Actions immédiates</h2>
+              </div>
+              <button class="small-button" type="button" data-action="wait">Observer 30 min</button>
+            </div>
+            <div class="action-groups">
+              <div>
+                <h3>Prendre soin de toi</h3>
+                <div class="button-grid" id="care-actions"></div>
+              </div>
+              <div>
+                <h3>Interagir</h3>
+                <div class="button-grid" id="world-actions"></div>
+              </div>
+            </div>
+            <div class="notice" id="action-notice" role="status" aria-live="polite">La journée commence dans un calme étrange.</div>
+          </section>
+
+          <section class="panel travel-panel" aria-labelledby="travel-title">
+            <div class="panel-heading stack-on-small">
+              <div>
+                <p class="section-kicker">Déplacements</p>
+                <h2 id="travel-title">Où aller ?</h2>
+              </div>
+              <span class="travel-cost">45 min par trajet</span>
+            </div>
+            <div class="location-list" id="location-list"></div>
+          </section>
+        </section>
+
+        <aside class="world-column">
+          <section class="panel phase-panel" aria-labelledby="phase-title">
+            <p class="section-kicker">La ville</p>
+            <h2 id="phase-title">Signaux faibles</h2>
+            <p id="phase-summary"></p>
+            <dl class="world-facts" id="world-facts"></dl>
+          </section>
+
+          <section class="panel signal-panel" aria-labelledby="signal-title">
+            <p class="section-kicker">Signal du quartier</p>
+            <h2 id="signal-title">Livraison en retard</h2>
+            <p id="signal-description"></p>
+            <div class="signal-location" id="signal-location"></div>
+            <div class="button-grid signal-actions" id="signal-actions"></div>
+            <div class="lead-copy" id="lead-copy"></div>
+          </section>
+
+          <section class="panel journal-panel" aria-labelledby="journal-title">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">Journal</p>
+                <h2 id="journal-title">Ce que tu remarques</h2>
+              </div>
+            </div>
+            <ol class="event-list" id="event-list" aria-live="polite"></ol>
+          </section>
+        </aside>
+      </div>
+    </main>
+    <footer class="site-footer">
+      Projet 2 · Les signaux corporels sont narratifs et calculés par le temps de jeu, sans représenter des conseils de santé réels.
+    </footer>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

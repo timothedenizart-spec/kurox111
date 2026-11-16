@@ -1,0 +1,118 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { PandemicSimulation } from "../simulation.js";
+
+test("la partie commence dans la première phase avec une montre lisible", () => {
+  const game = new PandemicSimulation(42);
+  const snapshot = game.getSnapshot();
+
+  assert.equal(snapshot.day, 1);
+  assert.equal(snapshot.time, "07:30");
+  assert.equal(snapshot.phase.title, "Signaux faibles");
+  assert.equal(snapshot.player.money, 42);
+});
+
+test("les besoins sont exprimés par des ressentis après le temps écoulé", () => {
+  const game = new PandemicSimulation(42);
+  game.advance(5 * 60, "Test");
+  const thirst = game.getNeedSignals().find((need) => need.id === "water");
+
+  assert.notEqual(thirst.severity, "calm");
+  assert.match(thirst.message, /boire|sèche/i);
+});
+
+test("l’économie se dégrade et les crédits deviennent inutiles après le basculement", () => {
+  const game = new PandemicSimulation(42);
+  game.advance(8 * 24 * 60, "Test de progression");
+  const snapshot = game.getSnapshot();
+
+  assert.equal(snapshot.day, 9);
+  assert.equal(snapshot.phase.title, "Après le basculement");
+  assert.equal(snapshot.prices.water, null);
+  assert.equal(snapshot.marketOpen, false);
+});
+
+test("travailler ne rapporte plus quand les services se sont effondrés", () => {
+  const game = new PandemicSimulation(42);
+  game.move("workshop");
+  game.advance(8 * 24 * 60, "Test de progression");
+  game.player.location = "workshop";
+
+  const result = game.work();
+  assert.equal(result.ok, false);
+  assert.match(result.message, /paie plus/i);
+});
+
+test("boire consomme une ressource et remet l’horloge de soif à zéro", () => {
+  const game = new PandemicSimulation(42);
+  game.advance(4 * 60, "Test");
+  const before = game.player.inventory.water;
+  const result = game.drink();
+  const thirst = game.getNeedSignals().find((need) => need.id === "water");
+
+  assert.equal(result.ok, true);
+  assert.equal(game.player.inventory.water, before - 1);
+  assert.equal(thirst.severity, "calm");
+});
+
+test("un lien d’entraide peut remplacer les crédits après la rupture", () => {
+  const game = new PandemicSimulation(42);
+  const neighbor = game.npcs[0];
+  const moneyBefore = game.player.money;
+  game.player.location = "hall";
+  neighbor.location = "hall";
+  game.player.inventory.water = 1;
+
+  const share = game.share("water");
+  assert.equal(share.ok, true);
+  assert.equal(game.player.favours, 1);
+  assert.equal(neighbor.knownPlayer, true);
+  assert.equal(game.player.inventory.water, 0);
+
+  game.day = 5;
+  game.player.location = "hall";
+  neighbor.location = "hall";
+  const aid = game.requestAid();
+
+  assert.equal(aid.ok, true);
+  assert.equal(game.player.inventory.water, 1);
+  assert.equal(game.player.favours, 0);
+  assert.equal(game.player.money, moneyBefore);
+});
+
+test("les contacts récents sont restitués comme un signal narratif", () => {
+  const game = new PandemicSimulation(42);
+  game.day = 4;
+  game.player.exposures = [game.absoluteMinute - 40, game.absoluteMinute - 120];
+
+  assert.match(game.getExposureSignal(), /contacts rapprochés/i);
+});
+
+test("un signal de quartier se résout une seule fois au bon endroit", () => {
+  const game = new PandemicSimulation(42);
+  const signal = game.getCurrentSignal();
+  game.player.location = signal.location;
+  const result = game.resolveSignal();
+
+  assert.equal(result.ok, true);
+  assert.equal(game.getCurrentSignal().resolved, true);
+  assert.equal(game.resolveSignal().ok, false);
+});
+
+test("la radio débloque une piste narrative une fois par jour", () => {
+  const game = new PandemicSimulation(42);
+  const result = game.listenRadio();
+
+  assert.equal(result.ok, true);
+  assert.equal(game.getLead().known, true);
+  assert.equal(game.listenRadio().ok, false);
+});
+
+test("préparer l’appartement transforme le signal d’abri sans jauge", () => {
+  const game = new PandemicSimulation(42);
+  const result = game.secureShelter();
+
+  assert.equal(result.ok, true);
+  assert.equal(game.player.shelterSecured, true);
+  assert.match(game.getShelterSignal(), /préparé/i);
+});

@@ -1,0 +1,11 @@
+{
+  "name": "projet-2-pandemic-apocalypse",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Prototype web de simulation narrative pour Projet 2.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/**/*.test.mjs",
+    "check": "node --check simulation.js && node --check app.js"
+  }
+}
