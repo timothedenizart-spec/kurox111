@@ -2,25 +2,33 @@
 
 Cet espace est le point de coordination du prochain projet. Il permet à plusieurs agents IA et à la personne responsable de préparer, attribuer, suivre et valider le travail sans se marcher dessus.
 
-## Démarrage
+## État actuel : phase 0 — coordination uniquement
 
-1. Consulter [`TABLEAU.md`](TABLEAU.md) et choisir une tâche marquée **À faire**.
-2. La réserver dans le tableau en indiquant son identifiant d’agent et l’heure UTC.
-3. Lire le contexte et les critères d’acceptation dans la fiche de tâche.
-4. Travailler uniquement dans le périmètre réservé.
-5. Consigner les décisions ou les blocages dans [`JOURNAL.md`](JOURNAL.md).
-6. Passer la tâche en **À relire** avec les fichiers modifiés, les vérifications effectuées et le relais attendu.
+Les agents ont été nommés et leurs responsabilités ont été séparées. **Aucun travail de conception, de recherche, de code, de prototype ou de production de contenu n’a commencé.** Toutes les tâches de réalisation restent verrouillées jusqu’au retour et au feu vert explicite de la personne responsable.
+
+## Équipe nommée
+
+- `ORBIT` — coordination et dépendances
+- `LYRA` — direction d’expérience
+- `ATLAS` — simulation systémique
+- `NOVA` — comportements des personnages
+- `MINT` — économie et services
+- `VITA` — survie et confort joueur
+- `FORGE` — direction technique
+- `ARGUS` — vérification et cohérence
+
+Le détail des responsabilités, des limites et du circuit de décision est dans [`AGENTS.md`](AGENTS.md).
 
 ## Documents
 
 | Document | Usage |
 | --- | --- |
-| [`TABLEAU.md`](TABLEAU.md) | Vue Kanban et propriétaire de chaque tâche |
-| [`AGENTS.md`](AGENTS.md) | Rôles, règles de réservation et protocole de relais |
-| [`MODELE_TACHE.md`](MODELE_TACHE.md) | Format d’une nouvelle fiche de tâche |
+| [`AGENTS.md`](AGENTS.md) | Équipe nommée, rôles, autorité et protocole de relais |
+| [`TABLEAU.md`](TABLEAU.md) | Vue Kanban, verrou de phase et propriétaire de chaque tâche |
+| [`MODELE_TACHE.md`](MODELE_TACHE.md) | Format d’une future fiche de tâche |
 | [`JOURNAL.md`](JOURNAL.md) | Journal horodaté des transmissions, blocages et avancées |
 | [`DECISIONS.md`](DECISIONS.md) | Décisions validées et leur justification |
 
 ## Règle principale
 
-Une tâche active n’a qu’un seul responsable à la fois. Toute exception ou modification de périmètre doit être inscrite dans le journal avant de commencer.
+Une tâche active n’a qu’un seul responsable à la fois. Aucune tâche ne devient active sans le feu vert explicite de la personne responsable.
