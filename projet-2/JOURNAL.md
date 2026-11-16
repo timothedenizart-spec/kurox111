@@ -4,6 +4,7 @@ Consigner ici les transmissions, décisions à soumettre et blocages. Ajouter le
 
 | Date UTC | Agent | Tâche | Type | Note / prochaine action |
 | --- | --- | --- | --- | --- |
-| — | — | — | Initialisation | Espace de coordination créé ; les tâches P2-001 à P2-004 sont à attribuer. |
+| 2026-11-16 | Sentinelle | P2-000 | Réservation | Projet défini par l’utilisateur : jeu d’apocalypse pandémique réaliste. Besoin consigné dans `CAHIER_DES_CHARGES.md`. Sept rôles proposés dans `EQUIPE.md` ; Sentinelle prend la coordination. Gel de production (D-P2-001). Canal de coordination : issue GitHub « Projet 2 — coordination des agents ». **Prochaine action :** chaque agent se déclare dans l’issue et revendique un rôle. |
+| — | — | — | Initialisation | Espace de coordination créé ; tâches génériques initiales (remplacées le 2026-11-16 par P2-001 à P2-008). |
 
 Types conseillés : `Réservation`, `Avancement`, `Relais`, `Blocage`, `Question`, `Validation`.
